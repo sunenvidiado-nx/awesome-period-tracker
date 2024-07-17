@@ -1,0 +1,20 @@
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  exclude:
+    - "**.freezed.dart"
+    - "**.g.dart"
+    - "**.gr.dart"
+    - "**/generated_plugin_registrant.dart"
+    - "**/firebase_options.dart"
+
+linter:
+  rules:
+    prefer_const_constructors: true
+    require_trailing_commas: true
+    directives_ordering: true
+    depend_on_referenced_packages: false
+    prefer_final_fields: true
+    prefer_final_locals: true
+    prefer_final_in_for_each: true
+    prefer_single_quotes: true

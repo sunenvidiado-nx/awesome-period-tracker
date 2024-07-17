@@ -1,0 +1,46 @@
+name: Run tests
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  verification:
+    name: Run tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set Flutter version
+        uses: kuhnroyal/flutter-fvm-config-action@v2
+        id: fvm_config
+
+      - name: Install Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ steps.fvm_config.outputs.FLUTTER_VERSION }}
+
+      - name: Download dependencies
+        run: flutter pub get
+
+      - name: Configure environment
+        run: echo "${{ secrets.ENVIRONMENT }}" | base64 --decode > .env
+
+      - name: Run build runner and generate localization files
+        run: |
+          flutter pub run build_runner build --delete-conflicting-outputs
+          flutter gen-l10n
+
+      - name: Configure Firebase
+        run: echo "${{ secrets.FIREBASE_OPTIONS }}" | base64 --decode > lib/core/firebase_options.dart
+
+      - name: Analyze
+        run: flutter analyze --no-pub
+
+      - name: Format
+        run: dart format --set-exit-if-changed .
+
+      - name: Run tests
+        run: flutter test --no-pub --test-randomize-ordering-seed random

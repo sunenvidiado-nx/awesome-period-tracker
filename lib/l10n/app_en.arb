@@ -1,0 +1,21 @@
+{
+  "@@locale": "en",
+  "pinVerification": "PIN Verification",
+  "toGetStartedEnterTheDesignatedPin": "To get started, enter the designated PIN.",
+  "todayDate": "Today, {date}",
+  "@todayDate": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "flowLevel": "Flow Level",
+  "logSymptoms": "Log Symptoms",
+  "today": "Today",
+  "period": "Period",
+  "intimacy": "Intimacy",
+  "fertility": "Fertility",
+  "symptoms": "Symptoms",
+  "symptomsExample": "e.g. Headache, cramps, etc."
+}
