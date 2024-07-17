@@ -95,13 +95,13 @@ jobs:
           cd build/ios/iphoneos
           mkdir Payload
           cp -r Runner.app Payload
-          zip -r app_release.ipa Payload
+          zip -r app.ipa Payload
 
       - name: Upload iOS build artifacts
         uses: actions/upload-artifact@v3
         with:
           name: ios-artifacts
-          path: build/ios/iphoneos/app_release.ipa
+          path: build/ios/iphoneos/app.ipa
 
   create-release:
     name: Create Release
@@ -119,16 +119,13 @@ jobs:
       - name: Download all workflow run artifacts
         uses: actions/download-artifact@v3
 
-      - name: Read latest version from CHANGELOG
+      - name: Read CHANGELOG
         id: changelog
         run: |
-          LATEST_VERSION=$(sed -n '/^## \[/,/^## \[/p' CHANGELOG.md | sed '$d' | sed 's/^## \[//' | sed 's/].*//')
-          CHANGELOG_CONTENT=$(sed -n "/^## \[$LATEST_VERSION/,/^## \[/p" CHANGELOG.md | sed '$d')
-          CHANGELOG_CONTENT="${CHANGELOG_CONTENT//'%'/'%25'}"
-          CHANGELOG_CONTENT="${CHANGELOG_CONTENT//$'\n'/'%0A'}"
-          CHANGELOG_CONTENT="${CHANGELOG_CONTENT//$'\r'/'%0D'}"
-          echo "version=$LATEST_VERSION" >> $GITHUB_OUTPUT
-          echo "content=$CHANGELOG_CONTENT" >> $GITHUB_OUTPUT
+          CHANGELOG=$(cat CHANGELOG.md)
+          echo "content<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGELOG" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Create Release
         uses: ncipollo/release-action@v1.14.0
