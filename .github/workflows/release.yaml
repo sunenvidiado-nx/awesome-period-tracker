@@ -119,12 +119,18 @@ jobs:
       - name: Download all workflow run artifacts
         uses: actions/download-artifact@v3
 
-      - name: Read CHANGELOG
+      - name: Read latest version from CHANGELOG
         id: changelog
+        shell: /usr/bin/bash -e {0}
         run: |
-          CHANGELOG=$(cat CHANGELOG.md)
+          LATEST_VERSION=$(grep -m1 "^## \[" CHANGELOG.md | sed -E 's/## \[(.*)\].*/\1/')
+          CHANGELOG_CONTENT=$(sed -n "/^## \[$LATEST_VERSION/,/^## \[/p" CHANGELOG.md | sed '1d;$d')
+          CHANGELOG_CONTENT="${CHANGELOG_CONTENT//'%'/'%25'}"
+          CHANGELOG_CONTENT="${CHANGELOG_CONTENT//$'\n'/'%0A'}"
+          CHANGELOG_CONTENT="${CHANGELOG_CONTENT//$'\r'/'%0D'}"
+          echo "version=$LATEST_VERSION" >> $GITHUB_OUTPUT
           echo "content<<EOF" >> $GITHUB_OUTPUT
-          echo "$CHANGELOG" >> $GITHUB_OUTPUT
+          echo "$CHANGELOG_CONTENT" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Create Release
@@ -136,8 +142,6 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           artifacts: "android-artifacts/*.apk,ios-artifacts/app.ipa"
           body: |
-            Note: The IPA file is unsigned and intended solely for testing purposes. It is not eligible for App Store submission. Installation and execution on a device require a developer account and Xcode.
-
-            ## Changelog
-
             ${{ steps.changelog.outputs.content }}
+
+            Note: The IPA file is unsigned and intended solely for testing purposes. It is not eligible for App Store submission. Installation and execution on a device require a developer account and Xcode.
