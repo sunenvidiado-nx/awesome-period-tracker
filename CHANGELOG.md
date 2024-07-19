@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.2] - 2024-07-19
+
+### Added
+
+- Now predicts and shows ovulation dates on the calendar.
+- Improved Gemini insights for better accuracy and personalization.
+- Temporarily disabled logging of ovulation and sexual activity (not yet supported).
+
 ## [1.0.1] - 2024-07-19
 
 ### Added
