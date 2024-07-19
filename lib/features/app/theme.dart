@@ -18,6 +18,7 @@ final _lightTheme = ThemeData(
   iconButtonTheme: _iconButtonTheme,
   textButtonTheme: _textButtonTheme,
   checkboxTheme: _checkboxTheme,
+  inputDecorationTheme: _inputDecorationTheme,
 );
 
 const _colorScheme = ColorScheme.light(
@@ -109,5 +110,49 @@ final _textButtonTheme = TextButtonThemeData(
 final _checkboxTheme = CheckboxThemeData(
   shape: RoundedRectangleBorder(
     borderRadius: BorderRadius.circular(16),
+  ),
+);
+
+final _inputDecorationTheme = InputDecorationTheme(
+  filled: true,
+  fillColor: _colorScheme.surface,
+  contentPadding: const EdgeInsets.all(16),
+  border: OutlineInputBorder(
+    borderRadius: BorderRadius.circular(16),
+    borderSide: BorderSide(
+      color: _colorScheme.shadow.withAlpha(30),
+      width: 1,
+    ),
+  ),
+  enabledBorder: OutlineInputBorder(
+    borderRadius: BorderRadius.circular(16),
+    borderSide: BorderSide(
+      color: _colorScheme.shadow.withAlpha(30),
+      width: 1,
+    ),
+  ),
+  focusedBorder: OutlineInputBorder(
+    borderRadius: BorderRadius.circular(16),
+    borderSide: BorderSide(
+      color: _colorScheme.shadow.withAlpha(30),
+      width: 1,
+    ),
+  ),
+  errorBorder: OutlineInputBorder(
+    borderRadius: BorderRadius.circular(16),
+    borderSide: BorderSide(
+      color: _colorScheme.shadow.withAlpha(30),
+      width: 1,
+    ),
+  ),
+  focusedErrorBorder: OutlineInputBorder(
+    borderRadius: BorderRadius.circular(16),
+    borderSide: BorderSide(
+      color: _colorScheme.shadow.withAlpha(30),
+      width: 1,
+    ),
+  ),
+  hintStyle: _textTheme.bodyMedium?.copyWith(
+    color: _colorScheme.shadow.withAlpha(100),
   ),
 );

@@ -28,20 +28,24 @@ class InsightsRepository {
     bool hasPeriod,
   ) {
     return '''
-Generate a personalized insight based on the following menstrual cycle data:
+Generate a 25-word personalized insight based on this menstrual cycle data:
 
-Day of cycle: $dayOfCycle
-Average cycle length in days: $cycleLengthInDays
-Has period: ${hasPeriod ? 'Yes' : 'No'}
+- Day of cycle: $dayOfCycle
+- Average cycle length: $cycleLengthInDays days
+- Currently menstruating: ${hasPeriod ? 'Yes' : 'No'}
 
-Provide a friendly, informative message (must be around 25-30 words) about the user's cycle, period, or general health, including expectations for coming days. Tailor the message as follows:
+Provide a friendly, casual message about the user's cycle, period, or health, including expectations for coming days. Tailor the message as follows:
 
-1. If likely in the ovulation window: Include a witty joke about increased libido or sexual drive (e.g., "expect to get freaky").
-2. If on period: Incorporate a lighthearted reference to mood changes or common period experiences, with a witty remark.
-3. If not on period but it's near: Include a joke about period cravings or a fun fact about the menstrual cycle.
-4. If not on period and it's late: Offer a fun fact about the menstrual cycle or a joke about period cravings, and maybe mention that late periods are normal.
+1. Likely ovulation: Include a playful joke about increased libido (e.g., "expect to get freaky" or similar).
+2. Menstruating: Humorously reference mood changes or common period experiences and symptoms.
+3. Pre-menstrual: Joke about period cravings or share a fun cycle fact. Mention pre-period symptoms.
+4. Late period: Offer a fun menstrual cycle fact or normalize late periods with humor.
 
-The insight should be relevant to the cycle phase without explicitly stating the cycle day or cycle length. Must exclude emojis and greetings.
+Guidelines:
+- Make it relevant to the cycle phase without explicitly stating cycle day or length.
+- Aim for a lighthearted, positive, and casual tone.
+- Use friendly language and gentle humor.
+- Exclude emojis and greetings.
 ''';
   }
 

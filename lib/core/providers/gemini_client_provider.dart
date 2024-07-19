@@ -12,7 +12,6 @@ class GeminiClient {
       safetySettings: [
         SafetySetting(HarmCategory.sexuallyExplicit, HarmBlockThreshold.none),
       ],
-      generationConfig: GenerationConfig(maxOutputTokens: 50),
     ).then((value) => value.text ?? '');
   }
 }

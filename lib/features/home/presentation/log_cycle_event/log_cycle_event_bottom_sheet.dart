@@ -4,6 +4,7 @@ import 'package:awesome_period_tracker/features/home/domain/cycle_event_type.dar
 import 'package:awesome_period_tracker/features/home/presentation/log_cycle_event/log_cycle_event_state_provider.dart';
 import 'package:awesome_period_tracker/features/home/presentation/log_cycle_event/widgets/cycle_event_types_step.dart';
 import 'package:awesome_period_tracker/features/home/presentation/log_cycle_event/widgets/period_flow_step.dart';
+import 'package:awesome_period_tracker/features/home/presentation/log_cycle_event/widgets/symptoms_step.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -19,10 +20,12 @@ class _LogCycleEventBottomSheetState
     extends ConsumerState<LogCycleEventBottomSheet> {
   @override
   Widget build(BuildContext context) {
-    final height = MediaQuery.of(context).size.height * 0.6;
     final state = ref.watch(logCycleEventStateProvider);
+    final height =
+        MediaQuery.of(context).size.height * state.bottomSheetHeightFactor;
 
-    return Container(
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
       height: height,
       decoration: BoxDecoration(
         color: context.colorScheme.surfaceContainer,
@@ -32,7 +35,7 @@ class _LogCycleEventBottomSheetState
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildPill(context),
-          IntrinsicHeight(
+          Expanded(
             child: PageTransitionSwitcher(
               reverse: state.selectedCycleEventType == null,
               transitionBuilder: (child, animation, secondaryAnimation) {
@@ -46,7 +49,8 @@ class _LogCycleEventBottomSheetState
               },
               child: switch (state.selectedCycleEventType) {
                 CycleEventType.period => const PeriodFlowStep(),
-                _ => CycleEventTypesStep(state.selectedDate),
+                CycleEventType.symptoms => const SymptomsStep(),
+                _ => const CycleEventTypesStep(),
               },
             ),
           ),

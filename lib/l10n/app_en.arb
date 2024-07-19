@@ -16,14 +16,14 @@
   "whatWouldYouLikeToLog": "What would you like to log?",
   "fertility": "Fertility",
   "logPeriod": "Log period",
-  "logPeriodForDate": "Log period for {date}",
-  "@logPeriodForDate": {
-    "placeholders": {
-      "date": {
-        "type": "String"
-      }
-    }
-  },
+  "logSymptoms": "Log symptoms",
+  "logPeriodForToday": "Log period for today",
+  "logSymptomsExperiencedToday": "Log symptoms experienced today",
   "cycleEventLoggedSuccessfully": "Cycle event logged successfully",
-  "anErrorOccuredWhileProcessingYourRequest": "An error occured while processing your request."
+  "anErrorOccurredWhileProcessingYourRequest": "An error occurred while processing your request.",
+  "crampsHeadachesSorenessEtc": "Cramps, headaches, soreness, etc.",
+  "insomniaFatigueAcneNauseaEtc": "Insomnia, fatigue, acne, nausea, etc.",
+  "moodSwingsIrritabilityAnxietyEtc": "Mood swings, irritability, anxiety, etc.",
+  "anySymptomNotListedOrCategorized": "Symptoms not listed or categorized.",
+  "additionalInfoOptional": "Additional info (optional)"
 }

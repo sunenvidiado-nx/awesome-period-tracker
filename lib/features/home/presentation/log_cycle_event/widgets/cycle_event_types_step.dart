@@ -6,19 +6,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class CycleEventTypesStep extends ConsumerWidget {
-  const CycleEventTypesStep(
-    this.selectedDate, {
-    super.key,
-  });
-
-  final DateTime selectedDate;
+  const CycleEventTypesStep({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final height = MediaQuery.of(context).size.height * 0.49;
-
-    return Container(
-      height: height,
+    return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

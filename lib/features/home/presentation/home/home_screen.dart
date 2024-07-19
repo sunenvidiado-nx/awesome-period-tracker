@@ -96,8 +96,13 @@ class HomeScreen extends StatelessWidget {
   Future<void> _showCycleEventTypeBottomSheet(BuildContext context) async {
     await showModalBottomSheet(
       context: context,
+      scrollControlDisabledMaxHeightRatio: 0.9,
+      isScrollControlled: true,
       barrierColor: context.colorScheme.shadow.withOpacity(0.3),
-      builder: (context) => const LogCycleEventBottomSheet(),
+      builder: (context) => Padding(
+        padding: MediaQuery.of(context).viewInsets,
+        child: const LogCycleEventBottomSheet(),
+      ),
     );
   }
 }

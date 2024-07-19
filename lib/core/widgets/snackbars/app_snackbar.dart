@@ -47,7 +47,7 @@ extension AppSnackbarExtension on BuildContext {
   void showErrorSnackbar([String? message]) {
     AppSnackbar.show(
       this,
-      message: message ?? l10n.anErrorOccuredWhileProcessingYourRequest,
+      message: message ?? l10n.anErrorOccurredWhileProcessingYourRequest,
       type: AppSnackbarType.error,
     );
   }

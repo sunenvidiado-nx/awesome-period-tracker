@@ -41,7 +41,7 @@ class Insights extends ConsumerWidget {
           const SizedBox(height: 16),
           Text(
             state.maybeWhen(
-              orElse: () => 'Lorem ipsum dolor sit amet',
+              orElse: () => 'Lorem ipsum dolor sit amet consectetur',
               data: (insight) =>
                   '${now.toReadableString()} - ${insight.daysUntilNextPeriod}',
             ),
@@ -51,7 +51,7 @@ class Insights extends ConsumerWidget {
           Text(
             state.maybeWhen(
               orElse: () =>
-                  'Cool fun insights here. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec nec odio vitae nunc.',
+                  'Cool fun insights here. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec nec odio vitae nunc ultricies aliquam. Donec nec odio.',
               data: (insight) => insight.insights,
             ),
             style: context.textTheme.titleMedium,

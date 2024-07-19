@@ -3,6 +3,7 @@ import 'package:awesome_period_tracker/features/home/data/cycle_events_repositor
 import 'package:awesome_period_tracker/features/home/domain/cycle_event.dart';
 import 'package:awesome_period_tracker/features/home/domain/cycle_event_type.dart';
 import 'package:awesome_period_tracker/features/home/domain/period_flow.dart';
+import 'package:awesome_period_tracker/features/home/domain/symptoms.dart';
 import 'package:awesome_period_tracker/features/pin_login/domain/auth_repository.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:collection/collection.dart';
@@ -14,32 +15,35 @@ part 'log_cycle_event_state_provider.mapper.dart';
 
 @MappableClass()
 class LogCycleEventState with LogCycleEventStateMappable {
-  final DateTime selectedDate;
   final CycleEventType? selectedCycleEventType;
   final Exception? error;
+  final double bottomSheetHeightFactor;
 
   const LogCycleEventState({
-    required this.selectedDate,
     this.selectedCycleEventType,
     this.error,
+    this.bottomSheetHeightFactor = 0.45,
   });
 }
 
 class LogCycleEventStateNotifier
     extends AutoDisposeNotifier<LogCycleEventState> {
+  late final _now = DateTime.now();
+
   @override
-  LogCycleEventState build() {
-    return LogCycleEventState(
-      selectedDate: DateTime.now(),
-    );
-  }
+  LogCycleEventState build() => const LogCycleEventState();
 
   void changeCycleEventType(CycleEventType? cycleEventType) {
-    state = state.copyWith(selectedCycleEventType: cycleEventType);
-  }
+    final heightFactor = switch (cycleEventType) {
+      CycleEventType.period => 0.5,
+      CycleEventType.symptoms => 0.7,
+      _ => 0.47,
+    };
 
-  void changeDate(DateTime date) {
-    state = state.copyWith(selectedDate: date);
+    state = state.copyWith(
+      selectedCycleEventType: cycleEventType,
+      bottomSheetHeightFactor: heightFactor,
+    );
   }
 
   Future<void> logPeriod(PeriodFlow flow) async {
@@ -47,29 +51,59 @@ class LogCycleEventStateNotifier
 
     cycleEvent = await ref.read(cycleEventsRepositoryProvider).get({
       'createdBy': ref.read(authRepositoryProvider).getCurrentUser()!.uid,
-      'date': Timestamp.fromDate(state.selectedDate.withoutTime()),
+      'date': Timestamp.fromDate(_now.withoutTime()),
       'type': CycleEventType.period.name,
     }).then(
-      (value) => value.firstWhereOrNull(
-        (e) =>
-            isSameDay(e.date, state.selectedDate) &&
-            e.type == CycleEventType.period,
-      ),
+      (value) => value.firstWhereOrNull((e) => isSameDay(e.date, _now)),
+    );
+
+    if (cycleEvent != null) {
+      cycleEvent = cycleEvent.copyWith(additionalData: flow.name);
+
+      return await ref.read(cycleEventsRepositoryProvider).update(cycleEvent);
+    }
+
+    cycleEvent = CycleEvent(
+      date: _now,
+      additionalData: flow.name,
+      type: CycleEventType.period,
+      createdBy: ref.read(authRepositoryProvider).getCurrentUser()!.uid,
+    );
+
+    return await ref.read(cycleEventsRepositoryProvider).create(cycleEvent);
+  }
+
+  Future<void> logSymptoms(
+    List<Symptoms> symptoms,
+    String? addtionalInfo,
+  ) async {
+    late CycleEvent? cycleEvent;
+
+    final updatedSymptoms = [
+      ...symptoms.map((e) => e.title),
+      if (addtionalInfo != null) addtionalInfo,
+    ].join(Symptoms.separator);
+
+    cycleEvent = await ref.read(cycleEventsRepositoryProvider).get({
+      'createdBy': ref.read(authRepositoryProvider).getCurrentUser()!.uid,
+      'date': Timestamp.fromDate(_now.withoutTime()),
+      'type': CycleEventType.symptoms.name,
+    }).then(
+      (value) => value.firstWhereOrNull((e) => isSameDay(e.date, _now)),
     );
 
     if (cycleEvent != null) {
       cycleEvent = cycleEvent.copyWith(
-        additionalData: flow.name,
-        type: CycleEventType.period,
+        additionalData: updatedSymptoms,
       );
 
       return await ref.read(cycleEventsRepositoryProvider).update(cycleEvent);
     }
 
     cycleEvent = CycleEvent(
-      date: state.selectedDate,
-      additionalData: flow.name,
-      type: CycleEventType.period,
+      date: _now,
+      additionalData: updatedSymptoms,
+      type: CycleEventType.symptoms,
       createdBy: ref.read(authRepositoryProvider).getCurrentUser()!.uid,
     );
 
