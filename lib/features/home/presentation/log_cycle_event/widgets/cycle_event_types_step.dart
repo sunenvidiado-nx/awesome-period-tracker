@@ -52,7 +52,11 @@ class CycleEventTypesStep extends ConsumerWidget {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Transform.scale(
-                scale: type == CycleEventType.period ? 0.55 : 1.1,
+                scale: type == CycleEventType.period
+                    ? 0.55
+                    : type == CycleEventType.fertile
+                        ? 0.55
+                        : 1.1,
                 child: type.icon,
               ),
             ),

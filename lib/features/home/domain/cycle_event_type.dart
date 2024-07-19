@@ -1,5 +1,3 @@
-import 'dart:math' as math;
-
 import 'package:awesome_period_tracker/core/app_assets.dart';
 import 'package:awesome_period_tracker/core/app_colors.dart';
 import 'package:awesome_period_tracker/core/extensions/string_extensions.dart';
@@ -38,13 +36,9 @@ enum CycleEventType {
           color: color,
           size: 18,
         ),
-      CycleEventType.fertile => Transform.rotate(
-          angle: math.pi / 4,
-          child: Icon(
-            Icons.hdr_strong,
-            color: color,
-            size: 18,
-          ),
+      CycleEventType.fertile => CircleAvatar(
+          backgroundColor: color,
+          radius: 6,
         ),
       CycleEventType.symptoms => Icon(
           Icons.emergency_rounded,

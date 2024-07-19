@@ -33,7 +33,7 @@ class Insights extends ConsumerWidget {
         children: [
           Text(
             state.maybeWhen(
-              orElse: () => 'Lorem ipsum dolor sit',
+              orElse: () => 'Lorem ipsum dolor',
               data: (insight) => insight.dayOfCycle,
             ),
             style: context.primaryTextTheme.titleLarge,
@@ -51,7 +51,7 @@ class Insights extends ConsumerWidget {
           Text(
             state.maybeWhen(
               orElse: () =>
-                  'Cool fun insights here. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec nec odio vitae nunc ultricies aliquam. Donec nec odio.',
+                  'Cool fun insights here. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec nec odio vitae nunc ultricies.',
               data: (insight) => insight.insights,
             ),
             style: context.textTheme.titleMedium,

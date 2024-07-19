@@ -31,9 +31,12 @@ class HomeScreen extends StatelessWidget {
 
   Widget _buildAppBar(BuildContext context) {
     return SliverAppBar(
-      toolbarHeight: 25,
+      toolbarHeight: 40,
       automaticallyImplyLeading: false,
-      title: SvgPicture.asset(AppAssets.mainIconNoBackground, height: 25),
+      title: Padding(
+        padding: const EdgeInsets.only(top: 8),
+        child: SvgPicture.asset(AppAssets.mainIconNoBackground, height: 25),
+      ),
     );
   }
 
