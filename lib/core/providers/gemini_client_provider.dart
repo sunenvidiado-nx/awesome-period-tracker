@@ -6,11 +6,11 @@ class GeminiClient {
 
   final GenerativeModel model;
 
-  Future generateContentFromText({required String prompt}) async {
+  Future<String> generateContentFromText({required String prompt}) async {
     return model.generateContent(
       [Content.text(prompt)],
       safetySettings: [
-        SafetySetting(HarmCategory.dangerousContent, HarmBlockThreshold.high),
+        SafetySetting(HarmCategory.sexuallyExplicit, HarmBlockThreshold.none),
       ],
       generationConfig: GenerationConfig(maxOutputTokens: 50),
     ).then((value) => value.text ?? '');

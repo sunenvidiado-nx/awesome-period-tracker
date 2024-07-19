@@ -3,12 +3,27 @@ import 'package:awesome_period_tracker/features/home/data/cycle_events_repositor
 import 'package:awesome_period_tracker/features/home/domain/cycle_event.dart';
 import 'package:awesome_period_tracker/features/home/domain/cycle_event_type.dart';
 import 'package:awesome_period_tracker/features/home/domain/period_flow.dart';
-import 'package:awesome_period_tracker/features/home/presentation/log_cycle_event/log_cycle_event_state.dart';
 import 'package:awesome_period_tracker/features/pin_login/domain/auth_repository.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:collection/collection.dart';
+import 'package:dart_mappable/dart_mappable.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:table_calendar/table_calendar.dart';
+
+part 'log_cycle_event_state_provider.mapper.dart';
+
+@MappableClass()
+class LogCycleEventState with LogCycleEventStateMappable {
+  final DateTime selectedDate;
+  final CycleEventType? selectedCycleEventType;
+  final Exception? error;
+
+  const LogCycleEventState({
+    required this.selectedDate,
+    this.selectedCycleEventType,
+    this.error,
+  });
+}
 
 class LogCycleEventStateNotifier
     extends AutoDisposeNotifier<LogCycleEventState> {

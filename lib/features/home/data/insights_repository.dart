@@ -1,25 +1,25 @@
 import 'package:awesome_period_tracker/core/extensions/date_time_extensions.dart';
 import 'package:awesome_period_tracker/core/providers/gemini_client_provider.dart';
-import 'package:awesome_period_tracker/core/providers/insights_box_provider.dart';
+import 'package:awesome_period_tracker/core/providers/shared_preferences_provider.dart';
 import 'package:awesome_period_tracker/features/home/data/cycle_events_repository.dart';
 import 'package:awesome_period_tracker/features/home/data/period_predictions_repository.dart';
 import 'package:awesome_period_tracker/features/home/domain/cycle_event.dart';
 import 'package:awesome_period_tracker/features/home/domain/cycle_event_type.dart';
 import 'package:awesome_period_tracker/features/home/domain/insight.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hive_flutter/hive_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class InsightsRepository {
   const InsightsRepository(
     this._periodPredictionsRepository,
     this._cycleEventsRepository,
-    this._insightsBox,
+    this._sharedPreferences,
     this._geminiClient,
   );
 
   final PeriodPredictionsRepository _periodPredictionsRepository;
   final CycleEventsRepository _cycleEventsRepository;
-  final Box<String> _insightsBox;
+  final SharedPreferences _sharedPreferences;
   final GeminiClient _geminiClient;
 
   static String _geminiPrompt(
@@ -31,37 +31,30 @@ class InsightsRepository {
 Generate a personalized insight based on the following menstrual cycle data:
 
 Day of cycle: $dayOfCycle
-Cycle length: $cycleLengthInDays
-Has period: $hasPeriod
+Average cycle length in days: $cycleLengthInDays
+Has period: ${hasPeriod ? 'Yes' : 'No'}
 
-Provide a friendly, informative message (max 25 words) about the user's cycle, period, or general health, including expectations for coming days. Tailor the message as follows:
+Provide a friendly, informative message (must be around 25-30 words) about the user's cycle, period, or general health, including expectations for coming days. Tailor the message as follows:
 
 1. If likely in the ovulation window: Include a witty joke about increased libido or sexual drive (e.g., "expect to get freaky").
 2. If on period: Incorporate a lighthearted reference to mood changes or common period experiences, with a witty remark.
-3. If not on period and it's late: Offer a fun fact about the menstrual cycle or a joke about period cravings, and maybe mention that late periods are normal.
+3. If not on period but it's near: Include a joke about period cravings or a fun fact about the menstrual cycle.
+4. If not on period and it's late: Offer a fun fact about the menstrual cycle or a joke about period cravings, and maybe mention that late periods are normal.
 
-The insight should be relevant to the cycle phase without explicitly stating the cycle day or cycle length. Exclude emojis and greetings.
+The insight should be relevant to the cycle phase without explicitly stating the cycle day or cycle length. Must exclude emojis and greetings.
 ''';
   }
 
   Future<Insight> getInsightForDate(DateTime date) async {
-    final boxKey = date.withoutTime().toIso8601String();
+    late String insights;
 
-    if (_insightsBox.containsKey(boxKey)) {
-      return InsightMapper.fromJson(_insightsBox.get(boxKey)!);
+    final storageKey = date.withoutTime().toIso8601String();
+
+    if (_sharedPreferences.containsKey(storageKey)) {
+      return InsightMapper.fromJson(_sharedPreferences.getString(storageKey)!);
     }
 
     final cycleEvents = await _cycleEventsRepository.get();
-
-    if (cycleEvents.first.date.isAfter(date)) {
-      return const Insight(
-        dayOfCycle: 'No data available',
-        daysUntilNextPeriod: 'No data for predictions',
-        insights:
-            'Most recent event is in the future. You can go to future events to see insights.',
-      );
-    }
-
     final dayOfCycle = _getDayOfCycleFromEvents(cycleEvents, date);
     final daysUntilNextPeriod =
         _getDaysBeforeNextPeriodFromEvents(cycleEvents, date);
@@ -72,8 +65,15 @@ The insight should be relevant to the cycle phase without explicitly stating the
         _daysUntilNextPeriodToString(daysUntilNextPeriod);
     final hasPeriod = _isOnPeriod(cycleEvents, date);
 
-    final insights =
-        await _getInsightsFromGemini(dayOfCycle, averageCycleLength, hasPeriod);
+    try {
+      insights = await _getInsightsFromGemini(
+        dayOfCycle,
+        averageCycleLength,
+        hasPeriod,
+      );
+    } catch (e) {
+      insights = 'An error occurred while generating insights. :-(';
+    }
 
     final insight = Insight(
       dayOfCycle: dayOfCycleString,
@@ -81,7 +81,7 @@ The insight should be relevant to the cycle phase without explicitly stating the
       insights: insights,
     );
 
-    await _insightsBox.put(boxKey, insight.toJson());
+    await _sharedPreferences.setString(storageKey, insight.toJson());
 
     return insight;
   }
@@ -217,7 +217,7 @@ final insightsRepositoryProvider = Provider.autoDispose((ref) {
   return InsightsRepository(
     ref.watch(periodPredictionsRepositoryProvider),
     ref.watch(cycleEventsRepositoryProvider),
-    ref.watch(insightsBoxProvider),
+    ref.watch(sharedPreferencesProvider),
     ref.watch(geminiClientProvider),
   );
 });

@@ -13,4 +13,15 @@ extension StringExtensions on String {
 
     return result[0].toUpperCase() + result.substring(1);
   }
+
+  String snakeToCamel() {
+    return split('_').map((e) => e.capitalize()).join();
+  }
+
+  String camelToSnake() {
+    return replaceAllMapped(
+      RegExp(r'[A-Z]'),
+      (Match match) => '_${match.group(0)?.toLowerCase()}',
+    );
+  }
 }

@@ -42,7 +42,8 @@ class Insights extends ConsumerWidget {
           Text(
             state.maybeWhen(
               orElse: () => 'Lorem ipsum dolor sit amet',
-              data: (insight) => insight.daysUntilNextPeriod,
+              data: (insight) =>
+                  '${now.toReadableString()} - ${insight.daysUntilNextPeriod}',
             ),
             style: context.primaryTextTheme.titleMedium,
           ),

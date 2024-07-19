@@ -4,7 +4,7 @@ import 'package:awesome_period_tracker/core/app_assets.dart';
 import 'package:awesome_period_tracker/core/environment.dart';
 import 'package:awesome_period_tracker/core/firebase_options.dart';
 import 'package:awesome_period_tracker/core/providers/gemini_client_provider.dart';
-import 'package:awesome_period_tracker/core/providers/insights_box_provider.dart';
+import 'package:awesome_period_tracker/core/providers/shared_preferences_provider.dart';
 import 'package:awesome_period_tracker/features/app/app.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
@@ -14,7 +14,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
-import 'package:hive_flutter/hive_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   runZoned(() async {
@@ -35,9 +35,7 @@ void main() {
     const loader = SvgAssetLoader(AppAssets.mainIconNoBackground);
     svg.cache.putIfAbsent(loader.cacheKey(null), () => loader.loadBytes(null));
 
-    await Hive.initFlutter();
-
-    final insightsBox = await Hive.openBox<String>('insights');
+    final shredPreferences = await SharedPreferences.getInstance();
 
     final geminiClient = GeminiClient(
       model: GenerativeModel(
@@ -49,7 +47,7 @@ void main() {
     runApp(
       ProviderScope(
         overrides: [
-          insightsBoxProvider.overrideWithValue(insightsBox),
+          sharedPreferencesProvider.overrideWithValue(shredPreferences),
           geminiClientProvider.overrideWithValue(geminiClient),
         ],
         child: const App(),

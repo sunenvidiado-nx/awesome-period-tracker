@@ -27,9 +27,9 @@ dependencies:
   go_router: ^14.2.1
   google_fonts: ^6.2.1
   google_generative_ai: ^0.4.3
-  hive_flutter: ^1.1.0
   intl: any
   pinput: ^5.0.0
+  shared_preferences: ^2.2.3
   skeletonizer: ^1.4.1+1
   table_calendar: ^3.1.2
 
