@@ -13,32 +13,52 @@ class CycleEventsRepository {
 
   CollectionReference get _collection => _firestore.collection(_collectionPath);
 
-  /// Returns a list of [CycleEvent]s from Firestore.
-  ///
-  /// If [dateTime] is provided, only [CycleEvent]s that match the date will be returned.
-  Future<List<CycleEvent>> getCycleEvents([DateTime? dateTime]) async {
-    final query = dateTime == null
-        ? _collection.get()
-        : _collection
-            .where(
-              'date',
-              isEqualTo: Timestamp.fromDate(dateTime.withoutTime()),
-            )
-            .get();
+  Future<List<CycleEvent>> get([Map<String, dynamic>? query]) async {
+    late Query<Object?> firestoreQuery;
 
-    return query.then(
-      (snapshot) => snapshot.docs.map(CycleEvent.fromFirestore).toList(),
-    );
+    if (query != null) {
+      for (final entry in query.entries) {
+        firestoreQuery = _collection.where(entry.key, isEqualTo: entry.value);
+      }
+    } else {
+      firestoreQuery = _collection;
+    }
+
+    return firestoreQuery.get().then(
+          (snapshot) => snapshot.docs.map(CycleEvent.fromFirestore).toList(),
+        );
   }
 
-  /// Adds a [CycleEvent] to Firestore.
+  Future<CycleEvent?> getByDate(DateTime date) async {
+    final snapshot = await _collection
+        .where(
+          'date',
+          isEqualTo: Timestamp.fromDate(date.withoutTime()),
+        )
+        .get();
+
+    if (snapshot.docs.isEmpty) return null;
+
+    return CycleEvent.fromFirestore(snapshot.docs.first);
+  }
+
+  /// Create a new [CycleEvent] in Firestore.
   ///
   /// The [CycleEvent.date] will have its time removed before being added to Firestore.
-  Future<void> addCycleEvent(CycleEvent cycleEvent) async {
+  Future<void> create(CycleEvent cycleEvent) async {
     final updatedCycleEvent =
         cycleEvent.copyWith(date: cycleEvent.date.withoutTime());
 
     await _collection.add(updatedCycleEvent.toFirestore());
+  }
+
+  Future<void> update(CycleEvent cycleEvent) async {
+    final updatedCycleEvent =
+        cycleEvent.copyWith(date: cycleEvent.date.withoutTime());
+
+    await _collection
+        .doc(cycleEvent.id)
+        .update(updatedCycleEvent.toFirestore());
   }
 }
 

@@ -139,7 +139,8 @@ class _PeriodFlowStepState extends State<PeriodFlowStep> {
         },
       );
     } catch (e) {
-      // TODO
+      // ignore: use_build_context_synchronously
+      context.showErrorSnackbar();
     } finally {
       setState(() => _isSubmitting = false);
     }

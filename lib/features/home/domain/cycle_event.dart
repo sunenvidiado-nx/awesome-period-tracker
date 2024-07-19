@@ -35,6 +35,6 @@ class CycleEvent with CycleEventMappable {
 
   // Method to convert CycleEvent to a Map for Firestore
   Map<String, dynamic> toFirestore() {
-    return toMap()..['date'] = Timestamp.fromDate(date.toUtc());
+    return (toMap()..remove('id'))..['date'] = Timestamp.fromDate(date.toUtc());
   }
 }

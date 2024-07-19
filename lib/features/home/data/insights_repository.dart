@@ -22,13 +22,26 @@ class InsightsRepository {
   final Box<String> _insightsBox;
   final GeminiClient _geminiClient;
 
-  static String _geminiPrompt(int dayOfCycle, int cycleLengthInDays) {
+  static String _geminiPrompt(
+    int dayOfCycle,
+    int cycleLengthInDays,
+    bool hasPeriod,
+  ) {
     return '''
-      Day of cycle: $dayOfCycle
-      Cycle length: $cycleLengthInDays
+Generate a personalized insight based on the following menstrual cycle data:
 
-      Generate a personalized insight for a user based on the given menstrual cycle data above. Provide a friendly, informative message (max 25 words) about their cycle, period, or general health, including expectations for coming days. If in the ovulation window, include a witty joke about increased libido. If likely menstruating, incorporate a lighthearted reference to mood changes or common period experiences, along with a witty remark. Ensure the output excludes emojis.
-    ''';
+Day of cycle: $dayOfCycle
+Cycle length: $cycleLengthInDays
+Has period: $hasPeriod
+
+Provide a friendly, informative message (max 25 words) about the user's cycle, period, or general health, including expectations for coming days. Tailor the message as follows:
+
+1. If likely in the ovulation window: Include a witty joke about increased libido or sexual drive (e.g., "expect to get freaky").
+2. If on period: Incorporate a lighthearted reference to mood changes or common period experiences, with a witty remark.
+3. If not on period and it's late: Offer a fun fact about the menstrual cycle or a joke about period cravings, and maybe mention that late periods are normal.
+
+The insight should be relevant to the cycle phase without explicitly stating the cycle day or cycle length. Exclude emojis and greetings.
+''';
   }
 
   Future<Insight> getInsightForDate(DateTime date) async {
@@ -38,7 +51,7 @@ class InsightsRepository {
       return InsightMapper.fromJson(_insightsBox.get(boxKey)!);
     }
 
-    final cycleEvents = await _cycleEventsRepository.getCycleEvents();
+    final cycleEvents = await _cycleEventsRepository.get();
 
     if (cycleEvents.first.date.isAfter(date)) {
       return const Insight(
@@ -57,9 +70,10 @@ class InsightsRepository {
     final dayOfCycleString = _dayOfCycleToString(dayOfCycle);
     final daysUntilNextPeriodString =
         _daysUntilNextPeriodToString(daysUntilNextPeriod);
+    final hasPeriod = _isOnPeriod(cycleEvents, date);
 
     final insights =
-        await _getInsightsFromGemini(dayOfCycle, averageCycleLength);
+        await _getInsightsFromGemini(dayOfCycle, averageCycleLength, hasPeriod);
 
     final insight = Insight(
       dayOfCycle: dayOfCycleString,
@@ -72,12 +86,52 @@ class InsightsRepository {
     return insight;
   }
 
+  bool _isOnPeriod(List<CycleEvent> cycleEvents, DateTime today) {
+    // Find the most recent period event before today
+    final currentCycleStartDate = _getCurrentCycleStartDate(cycleEvents, today);
+
+    // If no start date is found, assume not on period
+    if (currentCycleStartDate == null) return false;
+
+    // Check for period events in the current cycle
+    return cycleEvents.any(
+      (event) =>
+          event.date.isAfter(currentCycleStartDate) &&
+          event.date.isBefore(today) &&
+          event.type == CycleEventType.period,
+    );
+  }
+
+// Helper method to find the start date of the current cycle based on the most recent period event before today
+  DateTime? _getCurrentCycleStartDate(
+    List<CycleEvent> cycleEvents, [
+    DateTime? today,
+  ]) {
+    today ??= DateTime.now();
+
+    // Filter for period events before today and sort them in reverse chronological order
+    final periodEventsBeforeToday = cycleEvents
+        .where(
+          (event) =>
+              event.type == CycleEventType.period &&
+              event.date.isBefore(today!),
+        )
+        .toList()
+      ..sort((a, b) => b.date.compareTo(a.date));
+
+    // Return the date of the most recent period event as the start of the current cycle
+    return periodEventsBeforeToday.isNotEmpty
+        ? periodEventsBeforeToday.first.date
+        : null;
+  }
+
   Future<String> _getInsightsFromGemini(
     int dayOfCycle,
     int cycleLengthInDays,
+    bool hasPeriod,
   ) async {
     final result = await _geminiClient.generateContentFromText(
-      prompt: _geminiPrompt(dayOfCycle, cycleLengthInDays),
+      prompt: _geminiPrompt(dayOfCycle, cycleLengthInDays, hasPeriod),
     );
 
     return result;

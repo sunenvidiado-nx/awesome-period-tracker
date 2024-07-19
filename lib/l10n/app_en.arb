@@ -24,5 +24,6 @@
       }
     }
   },
-  "cycleEventLoggedSuccessfully": "Cycle event logged successfully"
+  "cycleEventLoggedSuccessfully": "Cycle event logged successfully",
+  "anErrorOccuredWhileProcessingYourRequest": "An error occured while processing your request."
 }

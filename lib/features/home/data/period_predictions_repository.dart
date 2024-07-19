@@ -9,15 +9,12 @@ class PeriodPredictionsRepository {
 
   final AuthRepository _authRepository;
 
-  /// Generates a forecast of period events based on the given [events].
+  /// Generates a forecast of period events based on the given [events]. The forecast
+  /// will be generated from the first event in the list to the last event.
   ///
-  /// The forecast will be generated from the first event in the list to the last event.
-  ///
-  /// The [start] and [end] parameters can be used to specify the range of dates to generate predictions for.
-  ///
-  /// If [start] is not provided, it will default to the current date.
-  ///
-  /// If [end] is not provided, it will default to [start] + 365 days.
+  /// The [start] and [end] parameters can be used to specify the range of dates to
+  /// generate predictions for. If [start] is not provided, it will default to the
+  /// current date. If [end] is not provided, it will default to [start] + 365 days.
   List<CycleEvent> generatePeriodPredictions(
     List<CycleEvent> events, {
     DateTime? start,
@@ -129,11 +126,19 @@ class PeriodPredictionsRepository {
   ) {
     final predictions = <CycleEvent>[];
 
-    // Handle predictions for past events
-    for (var i = 0; i < actualEvents.length; i++) {
-      final event = actualEvents[i];
-      DateTime currentDate = event.date;
+    // Sort actual events by date
+    actualEvents.sort((a, b) => a.date.compareTo(b.date));
 
+    // Find the most recent actual period event
+    final mostRecentPeriod = actualEvents.lastWhere(
+      (e) => e.type == CycleEventType.period,
+      orElse: () => actualEvents.first,
+    );
+
+    DateTime currentDate = mostRecentPeriod.date;
+
+    // Generate predictions starting from the most recent period
+    while (currentDate.isBefore(endDate)) {
       for (int day = 0; day < averageBleedingDuration; day++) {
         final predictionDay = currentDate.add(Duration(days: day));
 
@@ -153,32 +158,14 @@ class PeriodPredictionsRepository {
         }
       }
 
-      // Generate predictions for future cycles
-      while (currentDate.isBefore(endDate)) {
-        currentDate = currentDate.add(Duration(days: averageCycleLength));
-
-        for (int day = 0; day < averageBleedingDuration; day++) {
-          final predictionDay = currentDate.add(Duration(days: day));
-
-          if (predictionDay.isAfter(startDate) &&
-              predictionDay.isBefore(endDate)) {
-            predictions.add(
-              CycleEvent(
-                date: predictionDay,
-                type: CycleEventType.period,
-                createdBy: _authRepository.getCurrentUser()!.uid,
-                isPrediction: true,
-              ),
-            );
-          }
-        }
-      }
+      // Move to the start of the next predicted cycle
+      currentDate = currentDate.add(Duration(days: averageCycleLength));
     }
 
-    // Sort and remove duplicates
+    // Sort predictions
     predictions.sort((a, b) => a.date.compareTo(b.date));
 
-    return predictions.toSet().toList();
+    return predictions;
   }
 
   List<CycleEvent> _mergePredictionsWithActualEvents(
