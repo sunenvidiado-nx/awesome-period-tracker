@@ -7,7 +7,6 @@ enum PeriodFlow {
 
   String get title => name.camelToTitle();
 
-  factory PeriodFlow.fromTitle(String title) {
-    return PeriodFlow.values.firstWhere((flow) => flow.title == title);
-  }
+  factory PeriodFlow.fromString(String string) => PeriodFlow.values
+      .firstWhere((flow) => flow.title == string.toLowerCase());
 }

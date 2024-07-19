@@ -18,6 +18,7 @@ final _lightTheme = ThemeData(
   iconButtonTheme: _iconButtonTheme,
   textButtonTheme: _textButtonTheme,
   checkboxTheme: _checkboxTheme,
+  snackBarTheme: _snackbarTheme,
 );
 
 const _colorScheme = ColorScheme.light(
@@ -67,14 +68,19 @@ final _appBarTheme = AppBarTheme(
 );
 
 final _elevatedButtonTheme = ElevatedButtonThemeData(
-  style: ElevatedButton.styleFrom(
-    elevation: 0,
-    foregroundColor: _colorScheme.surface,
-    backgroundColor: _colorScheme.primary,
-    textStyle: _primaryTextTheme.titleMedium?.copyWith(fontSize: 16),
-    padding: const EdgeInsets.all(16),
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(16),
+  style: ButtonStyle(
+    elevation: const WidgetStatePropertyAll(0),
+    foregroundColor: WidgetStatePropertyAll(_colorScheme.surface),
+    backgroundColor: WidgetStatePropertyAll(_colorScheme.primary),
+    textStyle: WidgetStatePropertyAll(
+      _primaryTextTheme.titleMedium?.copyWith(fontSize: 16),
+    ),
+    fixedSize: const WidgetStatePropertyAll(Size(double.infinity, 52)),
+    padding: const WidgetStatePropertyAll(EdgeInsets.all(16)),
+    shape: WidgetStatePropertyAll(
+      RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
     ),
   ),
 );
@@ -105,4 +111,11 @@ final _checkboxTheme = CheckboxThemeData(
   shape: RoundedRectangleBorder(
     borderRadius: BorderRadius.circular(16),
   ),
+);
+
+final _snackbarTheme = SnackBarThemeData(
+  behavior: SnackBarBehavior.floating,
+  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+  backgroundColor: _colorScheme.surface,
+  contentTextStyle: _primaryTextTheme.bodyMedium,
 );

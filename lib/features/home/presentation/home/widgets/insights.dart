@@ -11,19 +11,15 @@ final _insightProvider =
 });
 
 class Insights extends ConsumerWidget {
-  const Insights(
-    this.selectedDate, {
-    super.key,
-  });
-
-  final DateTime selectedDate;
+  const Insights({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.watch(_insightProvider(selectedDate));
+    final now = DateTime.now().withoutTime();
+    final state = ref.watch(_insightProvider(now));
 
     return Skeletonizer(
-      key: ValueKey(state.toString() + selectedDate.toString()),
+      key: ValueKey(state.toString() + now.toString()),
       enabled: state.isLoading || state.isReloading || state.isRefreshing,
       effect: ShimmerEffect(
         baseColor: context.colorScheme.shadow.withOpacity(0.1),
@@ -44,7 +40,10 @@ class Insights extends ConsumerWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            '${selectedDate.isToday ? context.l10n.today : selectedDate.toReadableString()} - ${state.maybeWhen(orElse: () => 'Lorem ipsum dolor sit amet', data: (insight) => insight.daysUntilNextPeriod)}',
+            state.maybeWhen(
+              orElse: () => 'Lorem ipsum dolor sit amet',
+              data: (insight) => insight.daysUntilNextPeriod,
+            ),
             style: context.primaryTextTheme.titleMedium,
           ),
           const SizedBox(height: 10),

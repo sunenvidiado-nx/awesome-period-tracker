@@ -205,6 +205,6 @@ class PeriodPredictionsRepository {
   }
 }
 
-final periodPredictionsRepositoryProvider = Provider((ref) {
+final periodPredictionsRepositoryProvider = Provider.autoDispose((ref) {
   return PeriodPredictionsRepository(ref.read(authRepositoryProvider));
 });

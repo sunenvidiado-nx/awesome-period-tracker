@@ -148,7 +148,7 @@ class InsightsRepository {
     if (daysUntilNextPeriod == -1) {
       return 'No data to predict period';
     } else if (daysUntilNextPeriod < 0) {
-      return 'Period may be slightly delayed';
+      return 'Period may be delayed';
     } else if (daysUntilNextPeriod == 0) {
       return 'Period may start today';
     } else if (daysUntilNextPeriod == 1) {
@@ -159,7 +159,7 @@ class InsightsRepository {
   }
 }
 
-final insightsRepositoryProvider = Provider((ref) {
+final insightsRepositoryProvider = Provider.autoDispose((ref) {
   return InsightsRepository(
     ref.watch(periodPredictionsRepositoryProvider),
     ref.watch(cycleEventsRepositoryProvider),

@@ -1,16 +1,15 @@
 import 'package:awesome_period_tracker/core/app_assets.dart';
 import 'package:awesome_period_tracker/core/extensions/build_context_extensions.dart';
-import 'package:awesome_period_tracker/core/widgets/calendar/calendar.dart';
 import 'package:awesome_period_tracker/core/widgets/cards/app_card.dart';
 import 'package:awesome_period_tracker/core/widgets/shadow/app_shadow.dart';
-import 'package:awesome_period_tracker/features/app/router.dart';
-import 'package:awesome_period_tracker/features/home/presentation/home_state_notifier.dart';
-import 'package:awesome_period_tracker/features/home/presentation/widgets/insights.dart';
-import 'package:awesome_period_tracker/features/home/presentation/widgets/log_cycle_events.dart';
+import 'package:awesome_period_tracker/features/home/presentation/home/home_state_provider.dart';
+import 'package:awesome_period_tracker/features/home/presentation/home/widgets/calendar.dart';
+import 'package:awesome_period_tracker/features/home/presentation/home/widgets/insights.dart';
+import 'package:awesome_period_tracker/features/home/presentation/home/widgets/log_cycle_events.dart';
+import 'package:awesome_period_tracker/features/home/presentation/log_cycle_event/log_cycle_event_bottom_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:go_router/go_router.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -45,17 +44,14 @@ class HomeScreen extends StatelessWidget {
         child: AppCard(
           child: Consumer(
             builder: (context, ref, child) {
-              final state = ref.watch(homeStateProvider);
+              final state = ref.watch(cycleEventsProvider);
 
               return Calendar(
-                cycleEvents: state.asData?.value.cycleEvents ?? [],
-                selectedDate:
-                    state.asData?.value.selectedDate ?? DateTime.now(),
-                onDaySelected: (selectedDay, _) {
-                  ref
-                      .read(homeStateProvider.notifier)
-                      .onDateSelected(selectedDay);
-                },
+                cycleEvents: state.maybeWhen(
+                  data: (cycleEvents) => cycleEvents,
+                  orElse: () => [],
+                ),
+                onDaySelected: (selectedDay, _) {},
               );
             },
           ),
@@ -74,39 +70,34 @@ class HomeScreen extends StatelessWidget {
   }
 
   Widget _buildInsightsSection(BuildContext context) {
-    return SliverToBoxAdapter(
+    return const SliverToBoxAdapter(
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
-        child: Consumer(
-          builder: (context, ref, child) {
-            final state = ref.watch(homeStateProvider);
-
-            return Insights(state.asData?.value.selectedDate ?? DateTime.now());
-          },
-        ),
+        padding: EdgeInsets.fromLTRB(20, 24, 20, 24),
+        child: Insights(),
       ),
     );
   }
 
   Widget _buildFab(BuildContext context) {
-    return Consumer(
-      builder: (context, ref, child) {
-        final state = ref.watch(homeStateProvider);
+    return AppShadow(
+      child: FloatingActionButton.extended(
+        elevation: 0,
+        onPressed: () async => _showCycleEventTypeBottomSheet(context),
+        label: Text(
+          context.l10n.logCycleEvent,
+          style: context.primaryTextTheme.titleMedium
+              ?.copyWith(color: context.colorScheme.surface),
+        ),
+        icon: const Icon(Icons.add_rounded),
+      ),
+    );
+  }
 
-        return AppShadow(
-          child: FloatingActionButton.extended(
-            elevation: 0,
-            onPressed: () =>
-                context.push(Routes.logEvent(state.asData?.value.selectedDate)),
-            label: Text(
-              context.l10n.logSymptoms,
-              style: context.primaryTextTheme.titleMedium
-                  ?.copyWith(color: context.colorScheme.surface),
-            ),
-            icon: const Icon(Icons.add_rounded),
-          ),
-        );
-      },
+  Future<void> _showCycleEventTypeBottomSheet(BuildContext context) async {
+    await showModalBottomSheet(
+      context: context,
+      barrierColor: context.colorScheme.shadow.withOpacity(0.3),
+      builder: (context) => const LogCycleEventBottomSheet(),
     );
   }
 }

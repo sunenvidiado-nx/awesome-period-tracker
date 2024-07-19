@@ -28,7 +28,7 @@ class App extends ConsumerWidget {
             value: SystemUiOverlayStyle(
               statusBarColor: Colors.transparent,
               statusBarIconBrightness: Brightness.light,
-              systemNavigationBarColor: theme.colorScheme.surface,
+              systemNavigationBarColor: theme.colorScheme.surfaceContainer,
               systemNavigationBarIconBrightness: Brightness.dark,
             ),
             child: child!,

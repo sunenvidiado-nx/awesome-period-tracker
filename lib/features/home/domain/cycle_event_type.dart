@@ -12,15 +12,15 @@ part 'cycle_event_type.mapper.dart';
 @MappableEnum()
 enum CycleEventType {
   period,
-  intimacy,
   symptoms,
+  intimacy,
   fertile;
 
   String get label => name.capitalize();
 
   Color get color {
     return switch (this) {
-      CycleEventType.period => AppColors.red,
+      CycleEventType.period => AppColors.pink,
       CycleEventType.intimacy => AppColors.orange,
       CycleEventType.fertile => AppColors.green,
       CycleEventType.symptoms => AppColors.black.withAlpha(100),

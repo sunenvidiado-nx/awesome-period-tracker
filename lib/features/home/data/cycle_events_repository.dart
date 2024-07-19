@@ -42,6 +42,6 @@ class CycleEventsRepository {
   }
 }
 
-final cycleEventsRepositoryProvider = Provider((ref) {
+final cycleEventsRepositoryProvider = Provider.autoDispose((ref) {
   return CycleEventsRepository(ref.watch(firebaseFirestoreProvider));
 });

@@ -8,16 +8,12 @@ import 'package:table_calendar/table_calendar.dart';
 class Calendar extends StatelessWidget {
   const Calendar({
     required this.cycleEvents,
-    required this.selectedDate,
     required this.onDaySelected,
-    this.calendarFormat = CalendarFormat.month,
     super.key,
   });
 
   final List<CycleEvent> cycleEvents;
   final Function(DateTime selectedDay, DateTime focusedDay) onDaySelected;
-  final DateTime selectedDate;
-  final CalendarFormat calendarFormat;
 
   @override
   Widget build(BuildContext context) {
@@ -26,8 +22,7 @@ class Calendar extends StatelessWidget {
       child: TableCalendar<CycleEvent>(
         firstDay: DateTime(DateTime.now().year - 10),
         lastDay: DateTime(DateTime.now().year + 10),
-        focusedDay: selectedDate,
-        calendarFormat: calendarFormat,
+        focusedDay: DateTime.now(),
         eventLoader: _getEventsForDay,
         calendarBuilders: _calendarBuilders(context),
         headerStyle: _headerStyle(context),
@@ -63,66 +58,18 @@ class Calendar extends StatelessWidget {
         color: context.colorScheme.primary,
         shape: BoxShape.circle,
       ),
-      todayTextStyle: context.primaryTextTheme.bodyMedium!,
+      todayTextStyle: context.primaryTextTheme.bodyMedium!.copyWith(
+        color: context.colorScheme.surface,
+      ),
+      todayDecoration: BoxDecoration(
+        color: context.colorScheme.secondary,
+        shape: BoxShape.circle,
+      ),
     );
   }
 
   CalendarBuilders<CycleEvent> _calendarBuilders(BuildContext context) {
-    return CalendarBuilders(
-      markerBuilder: _buildEventMarker,
-      todayBuilder: _buildToday,
-      defaultBuilder: _buildDefaultDay,
-    );
-  }
-
-  Widget _buildToday(
-    BuildContext context,
-    DateTime day,
-    DateTime focusedDay,
-  ) {
-    final isSelected = isSameDay(day, selectedDate);
-
-    return Container(
-      margin: const EdgeInsets.all(4),
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: context.colorScheme.secondary.withOpacity(isSelected ? 0.16 : 0),
-        border: Border.all(
-          color:
-              context.colorScheme.secondary.withOpacity(isSelected ? 0 : 0.5),
-          width: 1,
-        ),
-      ),
-      child: Center(
-        child: Text(
-          day.day.toString(),
-          style: context.primaryTextTheme.bodyMedium,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDefaultDay(
-    BuildContext context,
-    DateTime day,
-    DateTime focusedDay,
-  ) {
-    final isSelected = isSameDay(day, selectedDate);
-
-    return Container(
-      margin: const EdgeInsets.all(4),
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color:
-            context.colorScheme.secondary.withOpacity(isSelected ? 0.16 : 0.0),
-      ),
-      child: Center(
-        child: Text(
-          day.day.toString(),
-          style: context.primaryTextTheme.bodyMedium,
-        ),
-      ),
-    );
+    return CalendarBuilders(markerBuilder: _buildEventMarker);
   }
 
   Widget _buildEventMarker(

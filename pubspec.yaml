@@ -8,6 +8,7 @@ environment:
   flutter: ">=3.22.2"
 
 dependencies:
+  animations: ^2.0.11
   cloud_firestore: ^5.1.0
   cupertino_icons: ^1.0.6
   dart_mappable: ^4.2.2

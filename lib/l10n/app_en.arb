@@ -11,11 +11,18 @@
     }
   },
   "flowLevel": "Flow Level",
-  "logSymptoms": "Log Symptoms",
+  "logCycleEvent": "Log cycle event",
   "today": "Today",
-  "period": "Period",
-  "intimacy": "Intimacy",
+  "whatWouldYouLikeToLog": "What would you like to log?",
   "fertility": "Fertility",
-  "symptoms": "Symptoms",
-  "symptomsExample": "e.g. Headache, cramps, etc."
+  "logPeriod": "Log period",
+  "logPeriodForDate": "Log period for {date}",
+  "@logPeriodForDate": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "cycleEventLoggedSuccessfully": "Cycle event logged successfully"
 }
