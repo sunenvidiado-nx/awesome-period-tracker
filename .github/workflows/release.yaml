@@ -19,7 +19,7 @@ jobs:
       - uses: actions/setup-java@v2
         with:
           distribution: "zulu"
-          java-version: "15"
+          java-version: "17"
 
       - uses: kuhnroyal/flutter-fvm-config-action@v2
         id: fvm_config
