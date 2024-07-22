@@ -9,12 +9,7 @@ import 'package:awesome_period_tracker/features/home/domain/insight.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-enum _MenstruationPhase {
-  menstruation,
-  follicular,
-  ovulation,
-  luteal;
-}
+enum MenstruationPhase { menstruation, follicular, ovulation, luteal }
 
 class InsightsRepository {
   const InsightsRepository(
@@ -31,11 +26,17 @@ class InsightsRepository {
 
   static String _geminiPrompt(
     int dayOfCycle,
-    int cycleLengthInDays,
-    _MenstruationPhase menstruationPhase,
+    int averageCycleLength,
+    MenstruationPhase phase,
   ) {
     return '''
-Generate a 25-word personalized insight based on a given menstrual cycle data. Provide a friendly, casual message about the user's cycle, period, or health, including expectations for coming days. Tailor the message as follows:
+Generate a 25-word personalized insight based on a given menstrual cycle data. Provide a friendly, casual message about the user's cycle, period, or health, including expectations for coming days. The menstrual cycle data is as follows:
+
+- Day of cycle: Day $dayOfCycle
+- Average cycle length: $averageCycleLength days
+- Current phase: ${phase.name}
+
+Tailor the insight as follows:
 
 1. Menstruating: Humorously reference mood changes or common period experiences and symptoms.
 2. Follicular: Mention increased energy or motivation, or a fun fact about the current phase.
@@ -44,22 +45,14 @@ Generate a 25-word personalized insight based on a given menstrual cycle data. P
 5. Late period: Offer a fun menstrual cycle fact or normalize late periods with humor.
 
 Guidelines:
+- The message CANNOT have emojis and greetings (like "Hello" or "Hi there"). DO NOT USE EMOJIS OR GREETINGS. THIS IS THE MOST IMPORTANT GUIDELINE.
 - Make it relevant to the cycle phase without explicitly stating cycle day or length.
 - Aim for a lighthearted, positive, and friendly tone.
 - Use friendly language and gentle humor.
-- MUST exclude emojis and greetings.
-
-The menstrual cycle data is as follows:
-
-- Day of cycle: Day $dayOfCycle
-- Average cycle length: $cycleLengthInDays days
-- Current phase: ${menstruationPhase.name}
 ''';
   }
 
   Future<Insight> getInsightForDate(DateTime date) async {
-    late String insights;
-
     final storageKey = date.withoutTime().toIso8601String();
 
     if (_sharedPreferences.containsKey(storageKey)) {
@@ -67,205 +60,103 @@ The menstrual cycle data is as follows:
     }
 
     final cycleEvents = await _cycleEventsRepository.get();
-    final dayOfCycle = _getDayOfCycleFromEvents(cycleEvents, date);
+    final dayOfCycle = _calculateDayOfCycle(cycleEvents, date);
     final daysUntilNextPeriod =
-        _getDaysBeforeNextPeriodFromEvents(cycleEvents, date);
-
-    final averageCycleLength = _getAverageCycleLengthFromEvents(cycleEvents);
-    final dayOfCycleString = _dayOfCycleToString(dayOfCycle);
-    final daysUntilNextPeriodString =
-        _daysUntilNextPeriodToString(daysUntilNextPeriod);
-
-    final menstruationPhase = _determineMenstruationPhase(
+        _calculateDaysUntilNextPeriod(cycleEvents, date);
+    final averageCycleLength =
+        _cyclePredictionsRepository.calculateAverageCycleLength(cycleEvents);
+    final phase = _determineMenstruationPhase(
       dayOfCycle,
       averageCycleLength,
       cycleEvents,
     );
 
-    try {
-      insights = await _getInsightsFromGemini(
-        dayOfCycle,
-        averageCycleLength,
-        menstruationPhase,
-      );
-    } catch (e) {
-      insights = 'An error occurred while generating insights. :-(';
-    }
-
+    final insights =
+        await _generateInsights(dayOfCycle, averageCycleLength, phase);
     final insight = Insight(
-      dayOfCycle: dayOfCycleString,
-      daysUntilNextPeriod: daysUntilNextPeriodString,
+      dayOfCycle: _formatDayOfCycle(dayOfCycle),
+      daysUntilNextPeriod: _formatDaysUntilNextPeriod(daysUntilNextPeriod),
       insights: insights,
     );
 
     await _sharedPreferences.setString(storageKey, insight.toJson());
-
     return insight;
   }
 
-  _MenstruationPhase _determineMenstruationPhase(
+  Future<String> _generateInsights(
     int dayOfCycle,
     int averageCycleLength,
-    List<CycleEvent> cycleEvents,
+    MenstruationPhase phase,
+  ) async {
+    try {
+      return await _geminiClient.generateContentFromText(
+        prompt: _geminiPrompt(dayOfCycle, averageCycleLength, phase),
+      );
+    } catch (e) {
+      return 'An error occurred while generating insights. :-(';
+    }
+  }
+
+  MenstruationPhase _determineMenstruationPhase(
+    int dayOfCycle,
+    int averageCycleLength,
+    List<CycleEvent> events,
   ) {
     final menstruationDays = _cyclePredictionsRepository
-        .calculateAverageBleedingDuration(cycleEvents);
+        .calculateAverageEventDuration(events, CycleEventType.period);
+    final ovulationDay = (averageCycleLength / 2).round();
 
-    final ovulationDay =
-        (averageCycleLength / 2).round(); // Approx. middle of the cycle
+    if (dayOfCycle <= menstruationDays) return MenstruationPhase.menstruation;
+    if (dayOfCycle < ovulationDay) return MenstruationPhase.follicular;
+    if (dayOfCycle == ovulationDay) return MenstruationPhase.ovulation;
 
-    if (dayOfCycle <= menstruationDays) {
-      return _MenstruationPhase.menstruation;
-    } else if (dayOfCycle < ovulationDay) {
-      return _MenstruationPhase.follicular;
-    } else if (dayOfCycle == ovulationDay) {
-      return _MenstruationPhase.ovulation;
-    } else {
-      return _MenstruationPhase.luteal;
-    }
+    return MenstruationPhase.luteal;
   }
 
-  bool _isOnPeriod(List<CycleEvent> cycleEvents, DateTime today) {
-    // Find the most recent period event before today
-    final currentCycleStartDate = _getCurrentCycleStartDate(cycleEvents, today);
+  int _calculateDayOfCycle(List<CycleEvent> events, DateTime date) {
+    if (events.isEmpty) return -1;
 
-    // If no start date is found, assume not on period
-    if (currentCycleStartDate == null) return false;
-
-    // Check for period events in the current cycle
-    return cycleEvents.any(
-      (event) =>
-          event.date.isAfter(currentCycleStartDate) &&
-          event.date.isBefore(today) &&
-          event.type == CycleEventType.period,
-    );
-  }
-
-  bool _isFertile(List<CycleEvent> cycleEvents, DateTime today) {
-    // Find the most recent period event before today
-    final currentCycleStartDate = _getCurrentCycleStartDate(cycleEvents, today);
-
-    // If no start date is found, assume not fertile
-    if (currentCycleStartDate == null) return false;
-
-    // Calculate the day of the cycle
-    final dayOfCycle = today.difference(currentCycleStartDate).inDays + 1;
-
-    // Check if the day of the cycle is within the fertile window
-    return dayOfCycle >= 10 && dayOfCycle <= 17;
-  }
-
-  // Helper method to find the start date of the current cycle based on the most recent period event before today
-  DateTime? _getCurrentCycleStartDate(
-    List<CycleEvent> cycleEvents, [
-    DateTime? today,
-  ]) {
-    today ??= DateTime.now();
-
-    // Filter for period events before today and sort them in reverse chronological order
-    final periodEventsBeforeToday = cycleEvents
-        .where(
-          (event) =>
-              event.type == CycleEventType.period &&
-              event.date.isBefore(today!),
-        )
-        .toList()
+    final sortedEvents = events.where((e) => !e.isPrediction).toList()
       ..sort((a, b) => b.date.compareTo(a.date));
+    if (sortedEvents.first.date.isAfter(date)) return -2;
+    final lastPeriodStart =
+        sortedEvents.firstWhere((e) => e.type == CycleEventType.period);
 
-    // Return the date of the most recent period event as the start of the current cycle
-    return periodEventsBeforeToday.isNotEmpty
-        ? periodEventsBeforeToday.first.date
-        : null;
+    return date.difference(lastPeriodStart.date).inDays + 1;
   }
 
-  Future<String> _getInsightsFromGemini(
-    int dayOfCycle,
-    int cycleLengthInDays,
-    _MenstruationPhase menstruationPhase,
-  ) async {
-    final result = await _geminiClient.generateContentFromText(
-      prompt: _geminiPrompt(
-        dayOfCycle,
-        cycleLengthInDays,
-        menstruationPhase,
-      ),
-    );
+  int _calculateDaysUntilNextPeriod(List<CycleEvent> events, DateTime date) {
+    if (events.isEmpty) return -1;
 
-    return result;
+    final sortedEvents = events.where((e) => !e.isPrediction).toList()
+      ..sort((a, b) => b.date.compareTo(a.date));
+    final lastPeriod =
+        sortedEvents.firstWhere((e) => e.type == CycleEventType.period);
+    final averageCycleLength =
+        _cyclePredictionsRepository.calculateAverageCycleLength(events);
+    final nextPeriodStart =
+        lastPeriod.date.add(Duration(days: averageCycleLength));
+
+    if (nextPeriodStart.isBefore(date)) return 0;
+
+    return nextPeriodStart.difference(date).inDays;
   }
 
-  int _getDaysBeforeNextPeriodFromEvents(
-    List<CycleEvent> cycleEvents,
-    DateTime selectedDate,
-  ) {
-    if (cycleEvents.isEmpty) {
-      return -1; // Indicates unable to predict
-    }
+  String _formatDayOfCycle(int day) {
+    if (day == -1) return 'No cycle data available';
+    if (day == -2) return 'Most recent event is future';
+    if (day == 1) return 'Day 1 of period';
 
-    cycleEvents.sort((a, b) => b.date.compareTo(a.date));
-
-    final mostRecentPeriodStart = cycleEvents.firstWhere(
-      (event) => event.type == CycleEventType.period && !event.isPrediction,
-      orElse: () => cycleEvents.first,
-    );
-
-    final averageCycleLength = _getAverageCycleLengthFromEvents(cycleEvents);
-
-    final predictedNextPeriodStart =
-        mostRecentPeriodStart.date.add(Duration(days: averageCycleLength));
-
-    return predictedNextPeriodStart.difference(selectedDate).inDays;
+    return 'Day $day of cycle';
   }
 
-  int _getAverageCycleLengthFromEvents(List<CycleEvent> cycleEvents) {
-    return _cyclePredictionsRepository.calculateAverageCycleLength(cycleEvents);
-  }
+  String _formatDaysUntilNextPeriod(int days) {
+    if (days == -1) return 'No data to predict period';
+    if (days < 1) return 'Period may be delayed';
+    if (days == 0) return 'Period may start today';
+    if (days == 1) return 'Period may start tomorrow';
 
-  int _getDayOfCycleFromEvents(
-    List<CycleEvent> cycleEvents,
-    DateTime selectedDate,
-  ) {
-    if (cycleEvents.isEmpty) {
-      return -1; // Indicates unable to determine
-    }
-
-    cycleEvents.sort((a, b) => b.date.compareTo(a.date));
-    final mostRecentEvent = cycleEvents.first;
-
-    if (mostRecentEvent.date.isAfter(selectedDate)) {
-      return -2; // Indicates most recent event is in the future
-    }
-
-    final mostRecentPeriodStart =
-        cycleEvents.firstWhere((event) => event.type == CycleEventType.period);
-
-    return selectedDate.difference(mostRecentPeriodStart.date).inDays + 1;
-  }
-
-  String _dayOfCycleToString(int dayOfCycle) {
-    if (dayOfCycle == -1) {
-      return 'No cycle data available';
-    } else if (dayOfCycle == -2) {
-      return 'Most recent event is future';
-    } else if (dayOfCycle == 1) {
-      return 'Day 1 of period';
-    } else {
-      return 'Day $dayOfCycle of cycle';
-    }
-  }
-
-  String _daysUntilNextPeriodToString(int daysUntilNextPeriod) {
-    if (daysUntilNextPeriod == -1) {
-      return 'No data to predict period';
-    } else if (daysUntilNextPeriod < 0) {
-      return 'Period may be delayed';
-    } else if (daysUntilNextPeriod == 0) {
-      return 'Period may start today';
-    } else if (daysUntilNextPeriod == 1) {
-      return 'Period may start tomorrow';
-    } else {
-      return '$daysUntilNextPeriod days until next period';
-    }
+    return '$days days until next period';
   }
 }
 

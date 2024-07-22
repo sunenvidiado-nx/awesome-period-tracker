@@ -1,3 +1,6 @@
+// ignore_for_file: prefer_const_constructors
+
+import 'package:awesome_period_tracker/core/extensions/list_extensions.dart';
 import 'package:awesome_period_tracker/features/home/domain/cycle_event.dart';
 import 'package:awesome_period_tracker/features/home/domain/cycle_event_type.dart';
 import 'package:awesome_period_tracker/features/pin_login/domain/auth_repository.dart';
@@ -6,49 +9,28 @@ import 'package:table_calendar/table_calendar.dart';
 
 class CyclePredictionsRepository {
   const CyclePredictionsRepository(this._authRepository);
-
   final AuthRepository _authRepository;
 
-  /// Generates a forecast of period events based on the given [events].
-  List<CycleEvent> generatePeriodPredictions(
-    List<CycleEvent> events, {
-    DateTime? start,
-    DateTime? end,
-  }) {
-    return _generatePredictions(
-      events,
-      CycleEventType.period,
-      start: start,
-      end: end,
-    );
-  }
-
-  /// Generates a forecast of ovulation events based on the given [events].
-  List<CycleEvent> generateOvulationPredictions(
-    List<CycleEvent> events, {
-    DateTime? start,
-    DateTime? end,
-  }) {
-    return _generatePredictions(
-      events,
-      CycleEventType.fertile,
-      start: start,
-      end: end,
-    );
-  }
-
-  /// Generates a forecast of both period and ovulation events based on the given [events].
+  /// Generates cycle predictions (period and ovulation) for the given [events].
   List<CycleEvent> generateFullCyclePredictions(
     List<CycleEvent> events, {
     DateTime? start,
     DateTime? end,
   }) {
-    final periodPredictions =
-        generatePeriodPredictions(events, start: start, end: end);
-    final ovulationPredictions =
-        generateOvulationPredictions(events, start: start, end: end);
+    final periodPredictions = _generatePredictions(
+      events,
+      CycleEventType.period,
+      start: start,
+      end: end,
+    );
+    final ovulationPredictions = _generatePredictions(
+      events,
+      CycleEventType.fertile,
+      start: start,
+      end: end,
+    );
     return [...periodPredictions, ...ovulationPredictions]
-      ..sort((a, b) => a.date.compareTo(b.date));
+      ..sort((a, b) => a.localDate.compareTo(b.localDate));
   }
 
   List<CycleEvent> _generatePredictions(
@@ -59,129 +41,87 @@ class CyclePredictionsRepository {
   }) {
     if (events.isEmpty) return [];
 
-    start ??= DateTime.now();
-    end ??= start.add(const Duration(days: 365));
+    final sortedEvents = events.where((e) => !e.isPrediction).toList()
+      ..sort((a, b) => a.localDate.compareTo(b.localDate));
+    final startDate = start ?? DateTime.now();
+    final endDate = end ?? startDate.add(const Duration(days: 365));
 
-    final sortedEvents = events.toList()
-      ..sort((a, b) => a.date.compareTo(b.date));
-
-    final adjustedStart = sortedEvents.first.date.isBefore(start)
-        ? sortedEvents.first.date
-        : start;
-
-    final averageCycleLength = calculateAverageCycleLength(sortedEvents);
-    final averageDuration = predictionType == CycleEventType.period
-        ? calculateAverageBleedingDuration(sortedEvents)
-        : calculateAverageFertileWindowDuration(sortedEvents);
-
-    final actualEventsInRange = sortedEvents
-        .where(
-          (e) =>
-              !e.isPrediction &&
-              e.date.isAfter(adjustedStart.subtract(const Duration(days: 1))) &&
-              e.date.isBefore(end!.add(const Duration(days: 1))),
-        )
-        .toList();
+    final averageCycleLength = _calculateAverage(
+      sortedEvents,
+      (e) => e.localDate
+          .difference(sortedEvents[sortedEvents.indexOf(e) - 1].localDate)
+          .inDays,
+      defaultValue: 28,
+      minValue: 21,
+      maxValue: 35,
+    );
+    final averageDuration =
+        calculateAverageEventDuration(sortedEvents, predictionType);
 
     final predictions = _createPredictions(
-      actualEventsInRange,
-      adjustedStart,
-      end,
+      sortedEvents,
+      startDate,
+      endDate,
       averageCycleLength,
       averageDuration,
       predictionType,
     );
 
-    return _mergePredictionsWithActualEvents(predictions, actualEventsInRange);
+    return _mergePredictionsWithActualEvents(predictions, sortedEvents);
+  }
+
+  int _calculateAverage(
+    List<CycleEvent> events,
+    int Function(CycleEvent) getDifference, {
+    required int defaultValue,
+    required int minValue,
+    required int maxValue,
+  }) {
+    if (events.length < 2) return defaultValue;
+
+    final total =
+        events.skip(1).fold(0, (sum, event) => sum + getDifference(event));
+    final average = total ~/ (events.length - 1);
+
+    return (average >= minValue && average <= maxValue)
+        ? average
+        : defaultValue;
+  }
+
+  int calculateAverageEventDuration(
+    List<CycleEvent> events,
+    CycleEventType type,
+  ) {
+    final relevantEvents = events.where((e) => e.type == type).toList();
+    if (relevantEvents.length < 5) return 5;
+
+    int durationCount = 1;
+    int totalDuration = 1;
+    DateTime? previousDate;
+
+    for (final event in relevantEvents.skip(1)) {
+      if (previousDate == null ||
+          event.localDate.difference(previousDate).inDays > 1) {
+        durationCount++;
+      }
+      totalDuration++;
+      previousDate = event.localDate;
+    }
+
+    final averageDuration = totalDuration ~/ durationCount;
+    return (averageDuration >= 5 && averageDuration <= 7) ? averageDuration : 5;
   }
 
   int calculateAverageCycleLength(List<CycleEvent> events) {
-    final actualEvents = events.where((e) => !e.isPrediction).toList();
-
-    if (actualEvents.length < 2) {
-      return 28; // Default to 28 if not enough data
-    }
-
-    int totalDays = 0;
-
-    for (var i = 1; i < actualEvents.length; i++) {
-      totalDays +=
-          actualEvents[i].date.difference(actualEvents[i - 1].date).inDays;
-    }
-
-    final averageCycleLength = totalDays ~/ (actualEvents.length - 1);
-
-    if (averageCycleLength < 21 || averageCycleLength > 35) {
-      return 28; // Default to 28 if the average is out of range
-    }
-
-    return averageCycleLength;
-  }
-
-  int calculateAverageBleedingDuration(List<CycleEvent> events) {
-    final actualPeriodEvents = events
-        .where((e) => !e.isPrediction && e.type == CycleEventType.period)
-        .toList();
-
-    if (actualPeriodEvents.length < 5) {
-      return 5; // Default to 5 if not enough data
-    }
-
-    int totalDuration = 0;
-    int periodCount = 0;
-    DateTime? previousDate;
-
-    for (final event in actualPeriodEvents) {
-      if (previousDate == null ||
-          event.date.difference(previousDate).inDays > 1) {
-        periodCount++;
-      }
-
-      totalDuration++;
-      previousDate = event.date;
-    }
-
-    final averageBleedingDuration =
-        periodCount == 0 ? 5 : totalDuration ~/ periodCount;
-
-    if (averageBleedingDuration < 3 || averageBleedingDuration > 7) {
-      return 5; // Default to 5 if the average is out of range
-    }
-
-    return averageBleedingDuration;
-  }
-
-  int calculateAverageFertileWindowDuration(List<CycleEvent> events) {
-    final actualOvulationEvents = events
-        .where((e) => !e.isPrediction && e.type == CycleEventType.fertile)
-        .toList();
-
-    if (actualOvulationEvents.length < 5) {
-      return 5; // Default to 5 if not enough data
-    }
-
-    int totalDuration = 0;
-    int fertilityCount = 0;
-    DateTime? previousDate;
-
-    for (final event in actualOvulationEvents) {
-      if (previousDate == null ||
-          event.date.difference(previousDate).inDays > 1) {
-        fertilityCount++;
-      }
-
-      totalDuration++;
-      previousDate = event.date;
-    }
-
-    final averageFertilityDuration =
-        fertilityCount == 0 ? 5 : totalDuration ~/ fertilityCount;
-
-    if (averageFertilityDuration < 3 || averageFertilityDuration > 7) {
-      return 5; // Default to 5 if the average is out of range
-    }
-
-    return averageFertilityDuration;
+    return _calculateAverage(
+      events,
+      (e) => e.localDate
+          .difference(events[events.indexOf(e) - 1].localDate)
+          .inDays,
+      defaultValue: 28,
+      minValue: 21,
+      maxValue: 35,
+    );
   }
 
   List<CycleEvent> _createPredictions(
@@ -192,29 +132,46 @@ class CyclePredictionsRepository {
     int averageDuration,
     CycleEventType predictionType,
   ) {
+    late DateTime currentDate;
+
+    final today = DateTime.now();
     final predictions = <CycleEvent>[];
 
-    final mostRecentPeriod = actualEvents.lastWhere(
-      (e) => e.type == CycleEventType.period,
-      orElse: () => actualEvents.first,
-    );
+    // Find the most recent period event
+    final mostRecentPeriod =
+        actualEvents.lastWhereOrNull((e) => e.type == CycleEventType.period);
 
-    DateTime currentDate = mostRecentPeriod.date;
+    // Determine where to start predictions
+    if (mostRecentPeriod != null && mostRecentPeriod.date.isBefore(today)) {
+      // If the most recent period is before today, start predictions from today
+      currentDate = today;
+    } else {
+      // Otherwise, start predictions from the most recent period date
+      currentDate = mostRecentPeriod != null ? mostRecentPeriod.date : today;
+    }
 
-    while (currentDate.isBefore(endDate)) {
-      final daysOffset = predictionType == CycleEventType.fertile
-          ? ((averageCycleLength / 2).round() - (averageDuration / 2).round())
-          : 0;
+    // Calculate the number of predictions to make
+    final numberOfCycles =
+        ((endDate.difference(currentDate).inDays / averageCycleLength).ceil());
 
-      for (int day = 0; day < averageDuration; day++) {
-        final predictionDay = currentDate.add(Duration(days: day + daysOffset));
+    for (var cycle = 0; cycle < numberOfCycles; cycle++) {
+      final cycleStartDate =
+          currentDate.add(Duration(days: cycle * averageCycleLength));
 
-        if (predictionDay.isAfter(startDate) &&
-            predictionDay.isBefore(endDate) &&
-            !actualEvents.any((e) => isSameDay(e.date, predictionDay))) {
+      for (var day = 0; day < averageDuration; day++) {
+        final daysOffset = predictionType == CycleEventType.fertile
+            ? ((averageCycleLength / 2).round() - (averageDuration / 2).round())
+            : 0;
+
+        final predictionDate =
+            cycleStartDate.add(Duration(days: day + daysOffset));
+
+        if (predictionDate.isAfter(startDate) &&
+            predictionDate.isBefore(endDate) &&
+            !actualEvents.any((e) => isSameDay(e.date, predictionDate))) {
           predictions.add(
             CycleEvent(
-              date: predictionDay,
+              date: predictionDate,
               type: predictionType,
               createdBy: _authRepository.getCurrentUser()!.uid,
               isPrediction: true,
@@ -222,8 +179,6 @@ class CyclePredictionsRepository {
           );
         }
       }
-
-      currentDate = currentDate.add(Duration(days: averageCycleLength));
     }
 
     return predictions..sort((a, b) => a.date.compareTo(b.date));
@@ -234,18 +189,14 @@ class CyclePredictionsRepository {
     List<CycleEvent> actualEvents,
   ) {
     final mergedEvents = List<CycleEvent>.from(actualEvents);
+    mergedEvents.addAll(
+      predictions.where(
+        (prediction) => !actualEvents
+            .any((actual) => isSameDay(actual.localDate, prediction.localDate)),
+      ),
+    );
 
-    for (final prediction in predictions) {
-      final bool overlaps = actualEvents.any(
-        (actual) => isSameDay(actual.date, prediction.date),
-      );
-
-      if (!overlaps) {
-        mergedEvents.add(prediction);
-      }
-    }
-
-    return mergedEvents..sort((a, b) => a.date.compareTo(b.date));
+    return mergedEvents..sort((a, b) => a.localDate.compareTo(b.localDate));
   }
 }
 
