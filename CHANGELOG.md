@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.5] - 2024-07-22
+
+### Fixed
+
+- Fixed a bug with how insights were generated and cached.
+
 ## [1.0.4] - 2024-07-22
 
 ### Changed
@@ -10,7 +16,7 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
-- Fix how the fertile window predictions are generated.
+- Fixed how the fertile window predictions are generated.
 
 ## [1.0.3] - 2024-07-22
 
