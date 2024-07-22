@@ -14,6 +14,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
@@ -37,6 +38,8 @@ void main() {
 
     final shredPreferences = await SharedPreferences.getInstance();
 
+    await _clearSharedPreferences(shredPreferences);
+
     final geminiClient = GeminiClient(
       model: GenerativeModel(
         model: 'gemini-1.5-flash-latest',
@@ -54,4 +57,17 @@ void main() {
       ),
     );
   });
+}
+
+Future<void> _clearSharedPreferences(SharedPreferences prefs) async {
+  const key = 'app_version';
+  final packageInfo = await PackageInfo.fromPlatform();
+
+  final isCurrentVersionNew =
+      prefs.containsKey(key) && prefs.getString(key) == packageInfo.version;
+
+  if (!isCurrentVersionNew) {
+    await prefs.clear();
+    await prefs.setString(key, packageInfo.version);
+  }
 }
