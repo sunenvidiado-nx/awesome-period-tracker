@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.4] - 2024-07-22
+
+### Changed
+
+- Instead of using one prompt to generate insights, Gemini now uses multiple prompts to provide more accurate insights.
+
+### Fixed
+
+- Fix how the fertile window predictions are generated.
+
 ## [1.0.3] - 2024-07-22
 
 ### Changed
