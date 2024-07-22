@@ -1,13 +1,18 @@
 import 'package:awesome_period_tracker/core/extensions/build_context_extensions.dart';
 import 'package:awesome_period_tracker/core/extensions/date_time_extensions.dart';
 import 'package:awesome_period_tracker/features/home/data/insights_repository.dart';
+import 'package:awesome_period_tracker/features/home/presentation/home/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 final _insightProvider =
     FutureProvider.family.autoDispose((ref, DateTime selectedDate) async {
-  return ref.read(insightsRepositoryProvider).getInsightForDate(selectedDate);
+  final predictions = await ref.watch(cyclePredictionsProvider.future);
+
+  return ref
+      .read(insightsRepositoryProvider)
+      .getInsightForDate(selectedDate, predictions);
 });
 
 class Insights extends ConsumerWidget {

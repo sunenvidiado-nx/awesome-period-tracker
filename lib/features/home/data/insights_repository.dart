@@ -1,86 +1,51 @@
-import 'package:awesome_period_tracker/core/extensions/date_time_extensions.dart';
 import 'package:awesome_period_tracker/core/providers/gemini_client_provider.dart';
 import 'package:awesome_period_tracker/core/providers/shared_preferences_provider.dart';
-import 'package:awesome_period_tracker/features/home/data/cycle_events_repository.dart';
-import 'package:awesome_period_tracker/features/home/data/cycle_predictions_repository.dart';
-import 'package:awesome_period_tracker/features/home/domain/cycle_event.dart';
-import 'package:awesome_period_tracker/features/home/domain/cycle_event_type.dart';
+import 'package:awesome_period_tracker/features/home/domain/cycle_predictions.dart';
 import 'package:awesome_period_tracker/features/home/domain/insight.dart';
+import 'package:awesome_period_tracker/features/home/domain/menstruation_phase.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-enum MenstruationPhase { menstruation, follicular, ovulation, luteal }
-
 class InsightsRepository {
   const InsightsRepository(
-    this._cyclePredictionsRepository,
-    this._cycleEventsRepository,
     this._sharedPreferences,
     this._geminiClient,
   );
 
-  final CyclePredictionsRepository _cyclePredictionsRepository;
-  final CycleEventsRepository _cycleEventsRepository;
   final SharedPreferences _sharedPreferences;
   final GeminiClient _geminiClient;
 
-  static String _geminiPrompt(
-    int dayOfCycle,
-    int averageCycleLength,
-    MenstruationPhase phase,
-  ) {
-    return '''
-Generate a 25-word personalized insight based on a given menstrual cycle data. Provide a friendly, casual message about the user's cycle, period, or health, including expectations for coming days. The menstrual cycle data is as follows:
+  // Generate random strings here: http://bit.ly/random-strings-generator
+  static const _insightKey = 'o5EnMpHTYU1l';
 
-- Day of cycle: Day $dayOfCycle
-- Average cycle length: $averageCycleLength days
-- Current phase: ${phase.name}
+  Future<Insight> getInsightForDate(
+    DateTime date,
+    CyclePredictions predictions,
+  ) async {
+    // if (_sharedPreferences.containsKey(_insightKey)) {
+    //   return InsightMapper.fromJson(_sharedPreferences.getString(_insightKey)!);
+    // }
 
-Tailor the insight as follows:
+    final geminiInsight = await _generateInsights(
+      predictions.dayOfCycle,
+      predictions.averageCycleLength,
+      predictions.phase,
+    );
 
-1. Menstruating: Humorously reference mood changes or common period experiences and symptoms.
-2. Follicular: Mention increased energy or motivation, or a fun fact about the current phase.
-3. Ovulation: Include a playful joke about increased libido (e.g., "expect to get freaky" or similar).
-4. Luteal: Joke about period cravings or share a fun cycle fact. Mention pre-period symptoms.
-5. Late period: Offer a fun menstrual cycle fact or normalize late periods with humor.
+    final insight = Insight(
+      dayOfCycle: _formatDayOfCycle(predictions.dayOfCycle),
+      daysUntilNextPeriod:
+          _formatDaysUntilNextPeriod(predictions.daysUntilNextPeriod),
+      insights: geminiInsight,
+    );
 
-Guidelines:
-- The message CANNOT have emojis and greetings (like "Hello" or "Hi there"). DO NOT USE EMOJIS OR GREETINGS. THIS IS THE MOST IMPORTANT GUIDELINE.
-- Make it relevant to the cycle phase without explicitly stating cycle day or length.
-- Aim for a lighthearted, positive, and friendly tone.
-- Use friendly language and gentle humor.
-''';
+    await _sharedPreferences.setString(_insightKey, insight.toJson());
+
+    return insight;
   }
 
-  Future<Insight> getInsightForDate(DateTime date) async {
-    final storageKey = date.withoutTime().toIso8601String();
-
-    if (_sharedPreferences.containsKey(storageKey)) {
-      return InsightMapper.fromJson(_sharedPreferences.getString(storageKey)!);
-    }
-
-    final cycleEvents = await _cycleEventsRepository.get();
-    final dayOfCycle = _calculateDayOfCycle(cycleEvents, date);
-    final daysUntilNextPeriod =
-        _calculateDaysUntilNextPeriod(cycleEvents, date);
-    final averageCycleLength =
-        _cyclePredictionsRepository.calculateAverageCycleLength(cycleEvents);
-    final phase = _determineMenstruationPhase(
-      dayOfCycle,
-      averageCycleLength,
-      cycleEvents,
-    );
-
-    final insights =
-        await _generateInsights(dayOfCycle, averageCycleLength, phase);
-    final insight = Insight(
-      dayOfCycle: _formatDayOfCycle(dayOfCycle),
-      daysUntilNextPeriod: _formatDaysUntilNextPeriod(daysUntilNextPeriod),
-      insights: insights,
-    );
-
-    await _sharedPreferences.setString(storageKey, insight.toJson());
-    return insight;
+  Future<void> clearCache() async {
+    await _sharedPreferences.remove(_insightKey);
   }
 
   Future<String> _generateInsights(
@@ -97,51 +62,6 @@ Guidelines:
     }
   }
 
-  MenstruationPhase _determineMenstruationPhase(
-    int dayOfCycle,
-    int averageCycleLength,
-    List<CycleEvent> events,
-  ) {
-    final menstruationDays = _cyclePredictionsRepository
-        .calculateAverageEventDuration(events, CycleEventType.period);
-    final ovulationDay = (averageCycleLength / 2).round();
-
-    if (dayOfCycle <= menstruationDays) return MenstruationPhase.menstruation;
-    if (dayOfCycle < ovulationDay) return MenstruationPhase.follicular;
-    if (dayOfCycle == ovulationDay) return MenstruationPhase.ovulation;
-
-    return MenstruationPhase.luteal;
-  }
-
-  int _calculateDayOfCycle(List<CycleEvent> events, DateTime date) {
-    if (events.isEmpty) return -1;
-
-    final sortedEvents = events.where((e) => !e.isPrediction).toList()
-      ..sort((a, b) => b.date.compareTo(a.date));
-    if (sortedEvents.first.date.isAfter(date)) return -2;
-    final lastPeriodStart =
-        sortedEvents.firstWhere((e) => e.type == CycleEventType.period);
-
-    return date.difference(lastPeriodStart.date).inDays + 1;
-  }
-
-  int _calculateDaysUntilNextPeriod(List<CycleEvent> events, DateTime date) {
-    if (events.isEmpty) return -1;
-
-    final sortedEvents = events.where((e) => !e.isPrediction).toList()
-      ..sort((a, b) => b.date.compareTo(a.date));
-    final lastPeriod =
-        sortedEvents.firstWhere((e) => e.type == CycleEventType.period);
-    final averageCycleLength =
-        _cyclePredictionsRepository.calculateAverageCycleLength(events);
-    final nextPeriodStart =
-        lastPeriod.date.add(Duration(days: averageCycleLength));
-
-    if (nextPeriodStart.isBefore(date)) return 0;
-
-    return nextPeriodStart.difference(date).inDays;
-  }
-
   String _formatDayOfCycle(int day) {
     if (day == -1) return 'No cycle data available';
     if (day == -2) return 'Most recent event is future';
@@ -151,19 +71,55 @@ Guidelines:
   }
 
   String _formatDaysUntilNextPeriod(int days) {
-    if (days == -1) return 'No data to predict period';
+    if (days == -69) return 'No data to predict period';
     if (days < 1) return 'Period may be delayed';
     if (days == 0) return 'Period may start today';
     if (days == 1) return 'Period may start tomorrow';
 
     return '$days days until next period';
   }
+
+  String _geminiPrompt(
+    int dayOfCycle,
+    int averageCycleLength,
+    MenstruationPhase phase,
+  ) {
+    if (phase == MenstruationPhase.follicular) {
+      return '''
+      You are a funny yet supportive friend providing casual advice about the menstrual cycle. They are currently on day $dayOfCycle of their cycle, with an average cycle length of $averageCycleLength days, and is currently in the follicular phase. Give this person a friendly, casual message about the follicular phase, including expectations for the coming days. It should be 30 words long and not include emojis or greetings like "Hi" or "Hello".
+      ''';
+    }
+
+    if (phase == MenstruationPhase.ovulation) {
+      return '''
+      You are funny yet supportive friend providing casual advice about the menstrual cycle. The person is currently in the ovulation phase, and is currently on day $dayOfCycle of their cycle, with an average cycle length of $averageCycleLength days. Give this person a friendly, casual message about the ovulation phase, including expectations for the coming days. It should be 30 words long and not include emojis or greetings like "Hi" or "Hello". Add joke or quip about being "frisky" or "energetic" during this and the coming days.
+      ''';
+    }
+
+    if (phase == MenstruationPhase.luteal) {
+      if (dayOfCycle > averageCycleLength) {
+        return '''
+        You are funny yet supportive friend providing casual advice about the menstrual cycle. The person is currently in the luteal phase, and their period is likely late. They are on day $dayOfCycle of their cycle, with an average cycle length of $averageCycleLength days. Craft a friendly, casual message about the luteal phase, including expectations for the coming days. Use friendly language and gentle humor. Limit the response to a maximum of 30 words. Do not use emojis or greetings like "Hi" or "Hello". Maintain a supportive and understanding tone throughout. Consider mentioning common premenstrual symptoms like mood changes, bloating, or food cravings, but maintain a positive and supportive tone. Their period is late, but it's okay! Encourage them to relax and take care of themselves and that late periods are normal. Mention that they are in the luteal phase without explicitly stating that.
+        ''';
+      }
+
+      return '''
+    You are funny yet supportive friend providing casual advice about the menstrual cycle. The person is currently in the luteal phase, and is currently on day $dayOfCycle of their cycle, with an average cycle length of $averageCycleLength days. Craft a friendly, casual message about the luteal phase, including expectations for the coming days. Mention that they are in the luteal phase without explicitly stating cycle day or length. Use friendly language and gentle humor. Limit the response to a maximum of 30 words. Do not use emojis or greetings like "Hi" or "Hello". Maintain a supportive and understanding tone throughout. Consider mentioning common premenstrual symptoms like mood changes, and physical symptoms but don't mention specific physical symptoms that might make them feel bad about themselves. Encourage them to take care of themselves and practice self-care.
+      ''';
+    }
+
+    if (phase == MenstruationPhase.menstruation) {
+      return '''
+    You are funny yet supportive friend providing casual advice about the menstrual cycle. The person is currently in the menstruation phase and their period has started. They are on day $dayOfCycle of their cycle, with an average cycle length of $averageCycleLength days. Craft a friendly, casual message about the menstruation phase, including expectations for the coming days. Use friendly language and gentle humor. Limit the response to a maximum of 30 words. Do not use emojis or greetings like "Hi" or "Hello". Maintain a supportive and understanding tone throughout. Consider mentioning common menstrual symptoms like cramps, or physical symptoms but don't mention specific physical symptoms that might make them feel bad about themselves. Encourage them to take care of themselves and practice self-care.
+      ''';
+    }
+
+    return '';
+  }
 }
 
 final insightsRepositoryProvider = Provider.autoDispose((ref) {
   return InsightsRepository(
-    ref.watch(cyclePredictionsRepositoryProvider),
-    ref.watch(cycleEventsRepositoryProvider),
     ref.watch(sharedPreferencesProvider),
     ref.watch(geminiClientProvider),
   );

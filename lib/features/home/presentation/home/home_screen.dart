@@ -2,7 +2,8 @@ import 'package:awesome_period_tracker/core/app_assets.dart';
 import 'package:awesome_period_tracker/core/extensions/build_context_extensions.dart';
 import 'package:awesome_period_tracker/core/widgets/cards/app_card.dart';
 import 'package:awesome_period_tracker/core/widgets/shadow/app_shadow.dart';
-import 'package:awesome_period_tracker/features/home/presentation/home/home_state_provider.dart';
+import 'package:awesome_period_tracker/features/home/data/cycle_events_repository.dart';
+import 'package:awesome_period_tracker/features/home/data/cycle_predictions_repository.dart';
 import 'package:awesome_period_tracker/features/home/presentation/home/widgets/calendar.dart';
 import 'package:awesome_period_tracker/features/home/presentation/home/widgets/insights.dart';
 import 'package:awesome_period_tracker/features/home/presentation/home/widgets/log_cycle_events.dart';
@@ -10,6 +11,14 @@ import 'package:awesome_period_tracker/features/home/presentation/log_cycle_even
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+
+final cyclePredictionsProvider = FutureProvider.autoDispose((ref) async {
+  final events = await ref.read(cycleEventsRepositoryProvider).get();
+
+  return ref
+      .read(cyclePredictionsRepositoryProvider)
+      .generateFullCyclePredictions(events);
+});
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -47,11 +56,11 @@ class HomeScreen extends StatelessWidget {
         child: AppCard(
           child: Consumer(
             builder: (context, ref, child) {
-              final state = ref.watch(cycleEventsProvider);
+              final state = ref.watch(cyclePredictionsProvider);
 
               return Calendar(
                 cycleEvents: state.maybeWhen(
-                  data: (cycleEvents) => cycleEvents,
+                  data: (predictions) => predictions.events,
                   orElse: () => [],
                 ),
                 onDaySelected: (selectedDay, _) {},
