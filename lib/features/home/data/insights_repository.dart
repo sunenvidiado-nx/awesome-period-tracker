@@ -5,6 +5,7 @@ import 'package:awesome_period_tracker/features/home/domain/insight.dart';
 import 'package:awesome_period_tracker/features/home/domain/menstruation_phase.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:table_calendar/table_calendar.dart';
 
 class InsightsRepository {
   const InsightsRepository(
@@ -23,7 +24,14 @@ class InsightsRepository {
     CyclePredictions predictions,
   ) async {
     if (_sharedPreferences.containsKey(_insightKey)) {
-      return InsightMapper.fromJson(_sharedPreferences.getString(_insightKey)!);
+      final cachedInsight =
+          InsightMapper.fromJson(_sharedPreferences.getString(_insightKey)!);
+
+      if (isSameDay(cachedInsight.date, date)) {
+        return cachedInsight;
+      }
+
+      await clearCache();
     }
 
     final geminiInsight = await _generateInsights(
@@ -37,6 +45,7 @@ class InsightsRepository {
       daysUntilNextPeriod:
           _formatDaysUntilNextPeriod(predictions.daysUntilNextPeriod),
       insights: geminiInsight,
+      date: date,
     );
 
     await _sharedPreferences.setString(_insightKey, insight.toJson());
