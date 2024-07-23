@@ -4,7 +4,7 @@
 
 # Awesome Period Tracker
 
-A simple yet awesome period tracker app, because your cycle deserves a standing ovation. Built with Flutter. 🩵
+A simple yet awesome period tracker app, because your cycle deserves a standing ovulation. Built with Flutter. 🩵
 
 ## Features
 
