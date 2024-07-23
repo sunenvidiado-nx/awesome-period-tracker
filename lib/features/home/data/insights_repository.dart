@@ -1,3 +1,4 @@
+import 'package:awesome_period_tracker/core/extensions/string_extensions.dart';
 import 'package:awesome_period_tracker/core/providers/gemini_client_provider.dart';
 import 'package:awesome_period_tracker/core/providers/shared_preferences_provider.dart';
 import 'package:awesome_period_tracker/features/home/domain/cycle_predictions.dart';
@@ -128,7 +129,10 @@ class InsightsRepository {
     You are a funny, supportive, and friendly medical expert providing casual advice about the menstrual cycle. The person is on day $dayOfCycle of their $averageCycleLength-day cycle, in the $phaseInfo. Craft a casual, friendly message about this phase. $additionalInfo Use gentle humor and a supportive tone.
 
     FINAL REMINDER: YOUR RESPONSE MUST BE EXACTLY 25 WORDS OR LESS. NO EMOJIS. NO GREETINGS. FAILURE TO FOLLOW THESE RULES WILL RESULT IN IMMEDIATE TERMINATION OF THIS CONVERSATION.
-    ''';
+    '''
+        // I know, it's specified already on the prompt, but
+        // Gemini is dumb and keeps adding emojis anyway sometimes
+        .removeEmojis();
   }
 }
 

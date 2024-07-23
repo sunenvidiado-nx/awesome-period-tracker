@@ -33,20 +33,12 @@ class CyclePredictionsRepository {
     final phase =
         _determineMenstruationPhase(dayOfCycle, averageCycleLength, events);
 
-    final periodPredictions = _generatePredictions(
+    final predictions = _generatePredictions(
       events,
-      CycleEventType.period,
       startDate,
       endDate,
       averageCycleLength,
       averagePeriodLength,
-    );
-    final ovulationPredictions = _generatePredictions(
-      events,
-      CycleEventType.fertile,
-      startDate,
-      endDate,
-      averageCycleLength,
       averageFertilityWindowLength,
     );
 
@@ -57,29 +49,8 @@ class CyclePredictionsRepository {
       averageFertilityWindowLength: averageFertilityWindowLength,
       daysUntilNextPeriod: daysUntilNextPeriod,
       phase: phase,
-      events: [...periodPredictions, ...ovulationPredictions]
-        ..sort((a, b) => a.localDate.compareTo(b.localDate)),
+      events: _mergePredictionsWithActualEvents(events, predictions),
     );
-  }
-
-  List<CycleEvent> _generatePredictions(
-    List<CycleEvent> events,
-    CycleEventType predictionType,
-    DateTime startDate,
-    DateTime endDate,
-    int averageCycleLength,
-    int averageDuration,
-  ) {
-    final predictions = _createPredictions(
-      events,
-      startDate,
-      endDate,
-      averageCycleLength,
-      averageDuration,
-      predictionType,
-    );
-
-    return _mergePredictionsWithActualEvents(predictions, events);
   }
 
   int _getDayOfCurrentCycle(List<CycleEvent> events) {
@@ -167,67 +138,89 @@ class CyclePredictionsRepository {
         : defaultValue;
   }
 
-  List<CycleEvent> _createPredictions(
+  List<CycleEvent> _generatePredictions(
     List<CycleEvent> actualEvents,
     DateTime startDate,
     DateTime endDate,
     int averageCycleLength,
     int averageDuration,
-    CycleEventType predictionType,
+    int fertileDuration,
   ) {
     final predictions = <CycleEvent>[];
+    final today = DateTime.now();
+    final mostRecentPeriod =
+        actualEvents.lastWhereOrNull((e) => e.type == CycleEventType.period);
+    final currentDate =
+        (mostRecentPeriod != null && mostRecentPeriod.date.isBefore(today))
+            ? today
+            : (mostRecentPeriod?.date ?? today);
+    final numberOfCycles =
+        ((endDate.difference(currentDate).inDays / averageCycleLength).ceil());
 
-    if (predictionType == CycleEventType.period) {
-      final today = DateTime.now();
-      final mostRecentPeriod =
-          actualEvents.lastWhereOrNull((e) => e.type == CycleEventType.period);
-      final currentDate =
-          (mostRecentPeriod != null && mostRecentPeriod.date.isBefore(today))
-              ? today
-              : (mostRecentPeriod?.date ?? today);
+    for (var cycle = 0; cycle < numberOfCycles; cycle++) {
+      final cycleStartDate =
+          currentDate.add(Duration(days: cycle * averageCycleLength));
 
-      final numberOfCycles =
-          ((endDate.difference(currentDate).inDays / averageCycleLength)
-              .ceil());
-
-      for (var cycle = 0; cycle < numberOfCycles; cycle++) {
-        final cycleStartDate =
-            currentDate.add(Duration(days: cycle * averageCycleLength));
-        final daysOffset = predictionType == CycleEventType.fertile
-            ? ((averageCycleLength / 2).round() - (averageDuration / 2).round())
-            : 0;
-
-        for (var day = 0; day < averageDuration; day++) {
-          final predictionDate =
-              cycleStartDate.add(Duration(days: day + daysOffset));
-          if (predictionDate.isAfter(startDate) &&
-              predictionDate.isBefore(endDate) &&
-              !actualEvents.any((e) => isSameDay(e.date, predictionDate))) {
-            predictions.add(
-              CycleEvent(
-                date: predictionDate,
-                type: predictionType,
-                createdBy: _authRepository.getCurrentUser()!.uid,
-                isPrediction: true,
-              ),
-            );
-          }
-        }
-      }
-    }
-
-    if (predictionType == CycleEventType.fertile) {
-      final ovulationDay = (averageCycleLength / 2).round();
-      final ovulationDate = startDate.add(Duration(days: ovulationDay));
-
+      // Menstruation predictions
       for (var day = 0; day < averageDuration; day++) {
-        final predictionDate = ovulationDate.add(Duration(days: day));
-        if (predictionDate.isBefore(endDate) &&
+        final predictionDate = cycleStartDate.add(Duration(days: day));
+        if (predictionDate.isAfter(startDate) &&
+            predictionDate.isBefore(endDate) &&
             !actualEvents.any((e) => isSameDay(e.date, predictionDate))) {
           predictions.add(
             CycleEvent(
               date: predictionDate,
-              type: predictionType,
+              type: CycleEventType.period,
+              createdBy: _authRepository.getCurrentUser()!.uid,
+              isPrediction: true,
+            ),
+          );
+        }
+      }
+
+      // Fertile day predictions
+      final ovulationDay = (averageCycleLength / 2).round();
+      final fertileStartDay = ovulationDay - (fertileDuration / 2).round();
+      for (var day = fertileStartDay;
+          day < fertileStartDay + fertileDuration;
+          day++) {
+        final predictionDate = cycleStartDate.add(Duration(days: day));
+        if (predictionDate.isAfter(startDate) &&
+            predictionDate.isBefore(endDate) &&
+            !actualEvents.any((e) => isSameDay(e.date, predictionDate))) {
+          predictions.add(
+            CycleEvent(
+              date: predictionDate,
+              type: CycleEventType.fertile,
+              createdBy: _authRepository.getCurrentUser()!.uid,
+              isPrediction: true,
+            ),
+          );
+        }
+      }
+    }
+
+    // Generate ovulation predictions for previous cycles
+    final firstCycleStartDate = currentDate
+        .subtract(Duration(days: averageCycleLength * (numberOfCycles - 1)));
+
+    for (var cycle = 0; cycle < numberOfCycles; cycle++) {
+      final cycleStartDate =
+          firstCycleStartDate.add(Duration(days: cycle * averageCycleLength));
+
+      // Ovulation predictions for each cycle
+      final ovulationDay = (averageCycleLength / 2).round();
+      for (var day = ovulationDay - (fertileDuration / 2).round();
+          day <= ovulationDay + (fertileDuration / 2).round();
+          day++) {
+        final predictionDate = cycleStartDate.add(Duration(days: day));
+        if (predictionDate.isAfter(startDate) &&
+            predictionDate.isBefore(endDate) &&
+            !actualEvents.any((e) => isSameDay(e.date, predictionDate))) {
+          predictions.add(
+            CycleEvent(
+              date: predictionDate,
+              type: CycleEventType.fertile,
               createdBy: _authRepository.getCurrentUser()!.uid,
               isPrediction: true,
             ),
