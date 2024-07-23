@@ -6,7 +6,6 @@ import 'package:awesome_period_tracker/features/home/data/cycle_events_repositor
 import 'package:awesome_period_tracker/features/home/data/cycle_predictions_repository.dart';
 import 'package:awesome_period_tracker/features/home/presentation/home/widgets/calendar.dart';
 import 'package:awesome_period_tracker/features/home/presentation/home/widgets/insights.dart';
-import 'package:awesome_period_tracker/features/home/presentation/home/widgets/log_cycle_events.dart';
 import 'package:awesome_period_tracker/features/home/presentation/log_cycle_event/log_cycle_event_bottom_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -30,7 +29,6 @@ class HomeScreen extends StatelessWidget {
         slivers: [
           _buildAppBar(context),
           _buildCalendarSection(context),
-          _buildLogCycleEventTypesSection(context),
           _buildInsightsSection(context),
         ],
       ),
@@ -52,7 +50,7 @@ class HomeScreen extends StatelessWidget {
   Widget _buildCalendarSection(BuildContext context) {
     return SliverToBoxAdapter(
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 18, 16, 20),
+        padding: const EdgeInsets.fromLTRB(16, 18, 16, 0),
         child: AppCard(
           child: Consumer(
             builder: (context, ref, child) {
@@ -68,15 +66,6 @@ class HomeScreen extends StatelessWidget {
             },
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildLogCycleEventTypesSection(BuildContext context) {
-    return const SliverToBoxAdapter(
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 16),
-        child: LogCycleEventTypes(),
       ),
     );
   }

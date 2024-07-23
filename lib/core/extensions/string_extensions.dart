@@ -1,3 +1,5 @@
+import 'package:flutter_emoji/flutter_emoji.dart';
+
 extension StringExtensions on String {
   String capitalize() {
     return '${this[0].toUpperCase()}${substring(1)}';
@@ -23,5 +25,9 @@ extension StringExtensions on String {
       RegExp(r'[A-Z]'),
       (Match match) => '_${match.group(0)?.toLowerCase()}',
     );
+  }
+
+  String removeEmojis() {
+    return EmojiParser().unemojify(this);
   }
 }
