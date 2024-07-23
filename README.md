@@ -8,7 +8,7 @@ A simple yet awesome period tracker app, because your cycle deserves a standing 
 
 ## Features
 
-- Track your period.
+- Track cycle events (period, fertile days, symptoms, intimacy).
 - That's it (for now).
 
 ## Setup
