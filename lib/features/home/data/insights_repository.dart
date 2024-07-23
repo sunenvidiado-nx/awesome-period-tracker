@@ -5,6 +5,7 @@ import 'package:awesome_period_tracker/features/home/domain/insight.dart';
 import 'package:awesome_period_tracker/features/home/domain/menstruation_phase.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:table_calendar/table_calendar.dart';
 
 class InsightsRepository {
   const InsightsRepository(
@@ -23,7 +24,12 @@ class InsightsRepository {
     CyclePredictions predictions,
   ) async {
     if (_sharedPreferences.containsKey(_insightKey)) {
-      return InsightMapper.fromJson(_sharedPreferences.getString(_insightKey)!);
+      final cachedInsight =
+          InsightMapper.fromJson(_sharedPreferences.getString(_insightKey)!);
+
+      if (isSameDay(cachedInsight.date, date.toUtc())) {
+        return cachedInsight;
+      }
     }
 
     final geminiInsight = await _generateInsights(
@@ -37,6 +43,7 @@ class InsightsRepository {
       daysUntilNextPeriod:
           _formatDaysUntilNextPeriod(predictions.daysUntilNextPeriod),
       insights: geminiInsight,
+      date: date.toUtc(),
     );
 
     await _sharedPreferences.setString(_insightKey, insight.toJson());
@@ -84,37 +91,44 @@ class InsightsRepository {
     int averageCycleLength,
     MenstruationPhase phase,
   ) {
-    if (phase == MenstruationPhase.follicular) {
-      return '''
-      You are a funny, supportive, and friendly medical expert providing casual advice about the menstrual cycle. Someone is currently on day $dayOfCycle of their cycle, with an average cycle length of $averageCycleLength days, and is currently in the follicular phase. Give this person a casual message about the follicular phase, including expectations for the coming days. It should be 30 words long and not include emojis or greetings like "Hi" or "Hello".
-      ''';
+    String phaseInfo = '';
+    String additionalInfo = '';
+
+    switch (phase) {
+      case MenstruationPhase.follicular:
+        phaseInfo = 'follicular phase';
+        additionalInfo =
+            'Give expectations for the coming days and about the phase.';
+        break;
+      case MenstruationPhase.ovulation:
+        phaseInfo = 'ovulation phase';
+        additionalInfo =
+            'Add a joke about being "frisky" or "energetic" during this and coming days.';
+        break;
+      case MenstruationPhase.luteal:
+        phaseInfo = 'luteal phase';
+        if (dayOfCycle > averageCycleLength) {
+          additionalInfo =
+              'Mention common premenstrual symptoms and insights regarding the current phase. Mention that their period is late but it\'s normal. Consider adding a joke about periods or being late.';
+        } else {
+          additionalInfo =
+              'Mention common premenstrual symptoms. Add a joke about this phase and useful facts about it.';
+        }
+        break;
+      case MenstruationPhase.menstruation:
+        phaseInfo = 'menstruation phase';
+        additionalInfo =
+            'Add a witty joke about periods. Encourage self-care and symptom preparedness.';
+        break;
     }
 
-    if (phase == MenstruationPhase.ovulation) {
-      return '''
-        You are a funny, supportive, and friendly medical expert providing casual advice about the menstrual cycle. The person is currently in the ovulation phase, and is currently on day $dayOfCycle of their cycle, with an average cycle length of $averageCycleLength days. Give this person a friendly, casual message about the ovulation phase, including expectations for the coming days. It should be 30 words long and not include emojis or greetings like "Hi" or "Hello". Add joke or quip about being "frisky" or "energetic" during this and the coming days.
-      ''';
-    }
+    return '''
+    CRITICAL INSTRUCTIONS: YOUR RESPONSE MUST BE EXACTLY 30 WORDS OR LESS. NO EMOJIS ALLOWED. NO GREETINGS LIKE "HI" OR "HELLO".
 
-    if (phase == MenstruationPhase.luteal) {
-      if (dayOfCycle > averageCycleLength) {
-        return '''
-          You are a funny, supportive, and friendly medical expert providing casual advice about the menstrual cycle. The person is currently in the luteal phase, and their period is likely late. They are on day $dayOfCycle of their cycle, with an average cycle length of $averageCycleLength days. Craft a casual message about what they will experiencing during this phase, including expectations for the coming days. Use friendly language and gentle humor. Limit the response to a maximum of 30 words. Do not use emojis or greetings like "Hi" or "Hello". Consider mentioning common premenstrual symptoms. Their period is late, but it's okay! Late periods are normal. Add a joke at the end about periods or being late and encourage them to take care of themselves and be prepared for symptoms.
-        ''';
-      }
+    You are a funny, supportive, and friendly medical expert providing casual advice about the menstrual cycle. The person is on day $dayOfCycle of their $averageCycleLength-day cycle, in the $phaseInfo. Craft a casual, friendly message about this phase. $additionalInfo Use gentle humor and a supportive tone.
 
-      return '''
-      You are a funny, supportive, and friendly medical expert providing casual advice about the menstrual cycle. The person is currently in the luteal phase, and is currently on day $dayOfCycle of their cycle, with an average cycle length of $averageCycleLength days. Craft a friendly, casual message about the current phase, including expectations for the coming days. Mention that they are in the luteal phase without explicitly stating cycle day or length. Use friendly language and gentle humor. Limit the response to a maximum of 30 words. Do not use emojis or greetings like "Hi" or "Hello". Maintain a supportive and understanding tone throughout. Consider mentioning common premenstrual symptoms like mood changes, and physical symptoms but don't mention specific physical symptoms that might make them feel bad about themselves (like bloating or acne). Add a joke about the current phase to cheer them up.
-      ''';
-    }
-
-    if (phase == MenstruationPhase.menstruation) {
-      return '''
-      You are a funny, supportive, and friendly medical expert providing casual advice about the menstrual cycle. The person is currently in the menstruation phase and their period has started. They are on day $dayOfCycle of their cycle, with an average cycle length of $averageCycleLength days. Craft a friendly, casual message about the menstruation phase, including expectations for the coming days. Use friendly language and gentle humor. Limit the response to a maximum of 30 words. Do not use emojis or greetings like "Hi" or "Hello". Maintain a supportive and understanding tone throughout. Add a joke about how periods are a natural part of life and encourage them to take care of themselves and be prepared for symptoms. Or any period jokes in general.
-      ''';
-    }
-
-    return '';
+    FINAL REMINDER: YOUR RESPONSE MUST BE EXACTLY 25 WORDS OR LESS. NO EMOJIS. NO GREETINGS. FAILURE TO FOLLOW THESE RULES WILL RESULT IN IMMEDIATE TERMINATION OF THIS CONVERSATION.
+    ''';
   }
 }
 

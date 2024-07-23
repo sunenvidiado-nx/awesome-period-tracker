@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
+final _now = DateTime.now();
+
 final _insightProvider =
     FutureProvider.family.autoDispose((ref, DateTime selectedDate) async {
   final predictions = await ref.watch(cyclePredictionsProvider.future);
@@ -20,11 +22,10 @@ class Insights extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final now = DateTime.now().withoutTime();
-    final state = ref.watch(_insightProvider(now));
+    final state = ref.watch(_insightProvider(_now));
 
     return Skeletonizer(
-      key: ValueKey(state.toString() + now.toString()),
+      key: ValueKey(state.toString() + _now.toString()),
       enabled: state.isLoading || state.isReloading || state.isRefreshing,
       effect: ShimmerEffect(
         baseColor: context.colorScheme.shadow.withOpacity(0.1),
@@ -48,7 +49,7 @@ class Insights extends ConsumerWidget {
             state.maybeWhen(
               orElse: () => 'Lorem ipsum dolor sit amet consectetur',
               data: (insight) =>
-                  '${now.toReadableString()} - ${insight.daysUntilNextPeriod}',
+                  '${_now.toReadableString()} - ${insight.daysUntilNextPeriod}',
             ),
             style: context.primaryTextTheme.titleMedium,
           ),
@@ -56,7 +57,7 @@ class Insights extends ConsumerWidget {
           Text(
             state.maybeWhen(
               orElse: () =>
-                  'Cool fun insights here. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec nec odio vitae nunc ultricies.',
+                  'Cool fun insights here. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec nec odio vitae nunc ultricies lacinia. Donec nec odio vitae nunc.',
               data: (insight) => insight.insights,
             ),
             style: context.textTheme.titleMedium,
