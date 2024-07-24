@@ -2,11 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### Added
+
+- Feature to toggle between light and dark mode.
+
 ## [1.0.7] - 2024-07-24
 
 ### Added
 
-- Feature to log intimate activities during the menstrual cycle.
+- Feature to log intimate activities.
 
 ### Changed
 

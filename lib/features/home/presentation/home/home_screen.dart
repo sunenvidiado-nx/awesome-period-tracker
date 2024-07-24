@@ -40,6 +40,28 @@ class HomeScreen extends StatelessWidget {
     return SliverAppBar(
       toolbarHeight: 40,
       automaticallyImplyLeading: false,
+      // TODO - Uncomment this code to add a theme switcher to the app bar
+      // leading: Consumer(
+      //   builder: (context, ref, child) {
+      //     final themeMode = ref.watch(themeModeProvider);
+
+      //     return AnimatedSwitcher(
+      //       duration: const Duration(milliseconds: 450),
+      //       child: Padding(
+      //         padding: const EdgeInsets.only(top: 4),
+      //         child: IconButton(
+      //           icon: Icon(
+      //             themeMode == ThemeMode.dark
+      //                 ? Icons.brightness_7_rounded
+      //                 : Icons.brightness_4_rounded,
+      //             color: context.colorScheme.onSurface.withOpacity(0.6),
+      //           ),
+      //           onPressed: ref.read(themeModeProvider.notifier).toggleTheme,
+      //         ),
+      //       ),
+      //     );
+      //   },
+      // ),
       title: Padding(
         padding: const EdgeInsets.only(top: 8),
         child: SvgPicture.asset(AppAssets.mainIconNoBackground, height: 25),

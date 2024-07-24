@@ -1,3 +1,4 @@
+import 'package:awesome_period_tracker/core/extensions/build_context_extensions.dart';
 import 'package:awesome_period_tracker/features/app/router.dart';
 import 'package:awesome_period_tracker/features/app/theme.dart';
 import 'package:flutter/material.dart';
@@ -11,14 +12,17 @@ class App extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final routerConfig = ref.read(routerProvider);
-    final theme = ref.read(themeProvider);
+    final routerConfig = ref.watch(routerProvider);
+    final themeMode = ref.watch(themeModeProvider);
+    final (lightTheme, darkTheme) = ref.watch(themesProvider);
 
     return MaterialApp.router(
       title: 'Awesome Period Tracker',
       debugShowCheckedModeBanner: false,
       routerConfig: routerConfig,
-      theme: theme,
+      theme: lightTheme,
+      darkTheme: darkTheme,
+      themeMode: themeMode,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       builder: (context, child) {
@@ -27,9 +31,13 @@ class App extends ConsumerWidget {
           child: AnnotatedRegion(
             value: SystemUiOverlayStyle(
               statusBarColor: Colors.transparent,
-              statusBarIconBrightness: Brightness.light,
-              systemNavigationBarColor: theme.colorScheme.surfaceContainer,
-              systemNavigationBarIconBrightness: Brightness.dark,
+              statusBarIconBrightness: themeMode == ThemeMode.dark
+                  ? Brightness.light
+                  : Brightness.dark,
+              systemNavigationBarColor: context.colorScheme.surfaceContainer,
+              systemNavigationBarIconBrightness: themeMode == ThemeMode.dark
+                  ? Brightness.light
+                  : Brightness.dark,
             ),
             child: child!,
           ),
