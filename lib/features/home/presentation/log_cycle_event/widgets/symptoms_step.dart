@@ -131,7 +131,7 @@ class _SymptomsStepState extends State<SymptomsStep> {
           : TextField(
               controller: _additionalInfoController,
               decoration: InputDecoration(
-                hintText: context.l10n.additionalInfoOptional,
+                hintText: context.l10n.describeOtherSymptomsOptional,
               ),
               style: context.textTheme.bodyMedium,
               maxLines: 2,

@@ -27,7 +27,7 @@
   "insomniaFatigueAcneNauseaEtc": "Insomnia, fatigue, acne, nausea, etc.",
   "moodSwingsIrritabilityAnxietyEtc": "Mood swings, irritability, anxiety, etc.",
   "anySymptomNotListedOrCategorized": "Symptoms not listed or categorized.",
-  "additionalInfoOptional": "Additional info (optional)",
+  "describeOtherSymptomsOptional": "Describe other symptoms (optional)",
   "usedProtection": "Used protection",
   "didNotUseProtection": "Did not use protection"
 }
