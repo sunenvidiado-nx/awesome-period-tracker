@@ -69,12 +69,12 @@ class Calendar extends StatelessWidget {
           date.year != DateTime.now().year;
 
       return Positioned.fill(
-        top: 25,
+        top: 24,
         child: Icon(
           Icons.favorite,
           color: context.colorScheme.error
               .withOpacity(isBeforeOrAfterCurrentMonth ? 0.5 : 1),
-          size: 11,
+          size: 10,
         ),
       );
     }

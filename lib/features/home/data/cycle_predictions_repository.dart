@@ -90,7 +90,7 @@ class CyclePredictionsRepository {
     }
 
     final averageDuration = totalDuration ~/ durationCount;
-    return (averageDuration >= 5 && averageDuration <= 7) ? averageDuration : 5;
+    return (averageDuration >= 5) ? averageDuration : 5;
   }
 
   MenstruationPhase _determineMenstruationPhase(
@@ -166,7 +166,11 @@ class CyclePredictionsRepository {
         final predictionDate = cycleStartDate.add(Duration(days: day));
         if (predictionDate.isAfter(startDate) &&
             predictionDate.isBefore(endDate) &&
-            !actualEvents.any((e) => isSameDay(e.date, predictionDate))) {
+            !actualEvents.any(
+              (e) =>
+                  isSameDay(e.date, predictionDate) &&
+                  e.type == CycleEventType.period,
+            )) {
           predictions.add(
             CycleEvent(
               date: predictionDate,
@@ -187,7 +191,11 @@ class CyclePredictionsRepository {
         final predictionDate = cycleStartDate.add(Duration(days: day));
         if (predictionDate.isAfter(startDate) &&
             predictionDate.isBefore(endDate) &&
-            !actualEvents.any((e) => isSameDay(e.date, predictionDate))) {
+            !actualEvents.any(
+              (e) =>
+                  isSameDay(e.date, predictionDate) &&
+                  e.type == CycleEventType.fertile,
+            )) {
           predictions.add(
             CycleEvent(
               date: predictionDate,
@@ -208,15 +216,20 @@ class CyclePredictionsRepository {
       final cycleStartDate =
           firstCycleStartDate.add(Duration(days: cycle * averageCycleLength));
 
-      // Ovulation predictions for each cycle
+      // Fertile window predictions for each cycle
       final ovulationDay = (averageCycleLength / 2).round();
-      for (var day = ovulationDay - (fertileDuration / 2).round();
-          day <= ovulationDay + (fertileDuration / 2).round();
+      final fertileStartDay = ovulationDay - (fertileDuration / 2).round();
+      for (var day = fertileStartDay;
+          day < fertileStartDay + fertileDuration;
           day++) {
         final predictionDate = cycleStartDate.add(Duration(days: day));
         if (predictionDate.isAfter(startDate) &&
             predictionDate.isBefore(endDate) &&
-            !actualEvents.any((e) => isSameDay(e.date, predictionDate))) {
+            !actualEvents.any(
+              (e) =>
+                  isSameDay(e.date, predictionDate) &&
+                  e.type == CycleEventType.fertile,
+            )) {
           predictions.add(
             CycleEvent(
               date: predictionDate,
@@ -233,14 +246,17 @@ class CyclePredictionsRepository {
   }
 
   List<CycleEvent> _mergePredictionsWithActualEvents(
-    List<CycleEvent> predictions,
     List<CycleEvent> actualEvents,
+    List<CycleEvent> predictions,
   ) {
     final mergedEvents = List<CycleEvent>.from(actualEvents);
     mergedEvents.addAll(
       predictions.where(
-        (prediction) => !actualEvents
-            .any((actual) => isSameDay(actual.localDate, prediction.localDate)),
+        (prediction) => !actualEvents.any(
+          (actual) =>
+              isSameDay(actual.localDate, prediction.localDate) &&
+              actual.type == prediction.type,
+        ),
       ),
     );
 

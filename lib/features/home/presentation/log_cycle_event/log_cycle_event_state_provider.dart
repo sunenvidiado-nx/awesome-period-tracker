@@ -47,63 +47,52 @@ class LogCycleEventStateNotifier
   }
 
   Future<void> logPeriod(PeriodFlow flow) async {
-    late CycleEvent? cycleEvent;
-
-    cycleEvent = await ref.read(cycleEventsRepositoryProvider).get({
-      'createdBy': ref.read(authRepositoryProvider).getCurrentUser()!.uid,
-      'date': Timestamp.fromDate(_now.withoutTime()),
-      'type': CycleEventType.period.name,
-    }).then(
-      (value) => value.firstWhereOrNull((e) => isSameDay(e.date, _now)),
-    );
-
-    if (cycleEvent != null) {
-      cycleEvent = cycleEvent.copyWith(additionalData: flow.name);
-
-      return await ref.read(cycleEventsRepositoryProvider).update(cycleEvent);
-    }
-
-    cycleEvent = CycleEvent(
-      date: _now,
-      additionalData: flow.name,
-      type: CycleEventType.period,
-      createdBy: ref.read(authRepositoryProvider).getCurrentUser()!.uid,
-    );
-
-    return await ref.read(cycleEventsRepositoryProvider).create(cycleEvent);
+    await _createOrUpdateEventByType(CycleEventType.period, flow.name);
   }
 
   Future<void> logSymptoms(
     List<Symptoms> symptoms,
     String? addtionalInfo,
   ) async {
-    late CycleEvent? cycleEvent;
-
     final updatedSymptoms = [
       ...symptoms.map((e) => e.title),
       if (addtionalInfo != null) addtionalInfo,
     ].join(Symptoms.separator);
 
+    await _createOrUpdateEventByType(CycleEventType.symptoms, updatedSymptoms);
+  }
+
+  Future<void> logIntimacy(bool didUseProtection) async {
+    await _createOrUpdateEventByType(
+      CycleEventType.intimacy,
+      didUseProtection ? 'Used protection' : 'Did not use protection',
+    );
+  }
+
+  Future<void> _createOrUpdateEventByType(
+    CycleEventType type,
+    String additionalData,
+  ) async {
+    late CycleEvent? cycleEvent;
+
     cycleEvent = await ref.read(cycleEventsRepositoryProvider).get({
       'createdBy': ref.read(authRepositoryProvider).getCurrentUser()!.uid,
       'date': Timestamp.fromDate(_now.withoutTime()),
-      'type': CycleEventType.symptoms.name,
+      'type': type.name,
     }).then(
       (value) => value.firstWhereOrNull((e) => isSameDay(e.date, _now)),
     );
 
     if (cycleEvent != null) {
-      cycleEvent = cycleEvent.copyWith(
-        additionalData: updatedSymptoms,
-      );
+      cycleEvent = cycleEvent.copyWith(additionalData: additionalData);
 
       return await ref.read(cycleEventsRepositoryProvider).update(cycleEvent);
     }
 
     cycleEvent = CycleEvent(
       date: _now,
-      additionalData: updatedSymptoms,
-      type: CycleEventType.symptoms,
+      additionalData: additionalData,
+      type: type,
       createdBy: ref.read(authRepositoryProvider).getCurrentUser()!.uid,
     );
 

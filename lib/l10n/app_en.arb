@@ -17,13 +17,17 @@
   "fertility": "Fertility",
   "logPeriod": "Log period",
   "logSymptoms": "Log symptoms",
+  "logIntimacy": "Log intimacy",
   "logPeriodForToday": "Log period for today",
   "logSymptomsExperiencedToday": "Log symptoms experienced today",
+  "logIntimateActivityForToday": "Log intimate activity for today",
   "cycleEventLoggedSuccessfully": "Cycle event logged successfully",
   "anErrorOccurredWhileProcessingYourRequest": "An error occurred while processing your request.",
   "crampsHeadachesSorenessEtc": "Cramps, headaches, soreness, etc.",
   "insomniaFatigueAcneNauseaEtc": "Insomnia, fatigue, acne, nausea, etc.",
   "moodSwingsIrritabilityAnxietyEtc": "Mood swings, irritability, anxiety, etc.",
   "anySymptomNotListedOrCategorized": "Symptoms not listed or categorized.",
-  "additionalInfoOptional": "Additional info (optional)"
+  "additionalInfoOptional": "Additional info (optional)",
+  "usedProtection": "Used protection",
+  "didNotUseProtection": "Did not use protection"
 }

@@ -19,9 +19,9 @@ enum CycleEventType {
   Color get color {
     return switch (this) {
       CycleEventType.period => AppColors.pink,
-      CycleEventType.intimacy => AppColors.orange,
+      CycleEventType.intimacy => AppColors.red,
       CycleEventType.fertile => AppColors.green,
-      CycleEventType.symptoms => AppColors.black.withAlpha(100),
+      CycleEventType.symptoms => AppColors.orange,
     };
   }
 

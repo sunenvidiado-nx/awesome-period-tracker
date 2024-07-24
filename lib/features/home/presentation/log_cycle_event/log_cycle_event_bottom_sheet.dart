@@ -3,6 +3,7 @@ import 'package:awesome_period_tracker/core/extensions/build_context_extensions.
 import 'package:awesome_period_tracker/features/home/domain/cycle_event_type.dart';
 import 'package:awesome_period_tracker/features/home/presentation/log_cycle_event/log_cycle_event_state_provider.dart';
 import 'package:awesome_period_tracker/features/home/presentation/log_cycle_event/widgets/cycle_event_types_step.dart';
+import 'package:awesome_period_tracker/features/home/presentation/log_cycle_event/widgets/intimacy_step.dart';
 import 'package:awesome_period_tracker/features/home/presentation/log_cycle_event/widgets/period_flow_step.dart';
 import 'package:awesome_period_tracker/features/home/presentation/log_cycle_event/widgets/symptoms_step.dart';
 import 'package:flutter/material.dart';
@@ -50,6 +51,7 @@ class _LogCycleEventBottomSheetState
               child: switch (state.selectedCycleEventType) {
                 CycleEventType.period => const PeriodFlowStep(),
                 CycleEventType.symptoms => const SymptomsStep(),
+                CycleEventType.intimacy => const IntimacyStep(),
                 _ => const CycleEventTypesStep(),
               },
             ),

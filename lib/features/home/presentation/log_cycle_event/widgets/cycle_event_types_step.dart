@@ -8,12 +8,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class CycleEventTypesStep extends ConsumerWidget {
   const CycleEventTypesStep({super.key});
 
-  // TODO All types should be visible when the feature is fully implemented
-  static const _visibleTypes = [
-    CycleEventType.period,
-    CycleEventType.symptoms,
-  ];
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Padding(
@@ -26,7 +20,7 @@ class CycleEventTypesStep extends ConsumerWidget {
             style: context.primaryTextTheme.titleLarge,
           ),
           const SizedBox(height: 16),
-          for (final type in _visibleTypes)
+          for (final type in CycleEventType.values)
             _buildCycleEventTypeTile(context, ref, type),
         ],
       ),
@@ -53,7 +47,7 @@ class CycleEventTypesStep extends ConsumerWidget {
               height: 28,
               decoration: BoxDecoration(
                 color: type.color.withOpacity(
-                  type == CycleEventType.symptoms ? 0.14 : 0.25,
+                  type == CycleEventType.intimacy ? 0.18 : 0.25,
                 ),
                 borderRadius: BorderRadius.circular(8),
               ),
