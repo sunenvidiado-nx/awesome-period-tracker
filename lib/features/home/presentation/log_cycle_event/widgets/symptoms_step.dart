@@ -108,6 +108,10 @@ class _SymptomsStepState extends State<SymptomsStep> {
             ),
             onTap: () => setState(() {
               if (_selectedSymptoms.contains(symptom)) {
+                if (_selectedSymptoms.length == 1) {
+                  return; // If only one symptom is selected, it should not be removed
+                }
+
                 _selectedSymptoms.remove(symptom);
               } else {
                 _selectedSymptoms.add(symptom);
@@ -147,17 +151,14 @@ class _SymptomsStepState extends State<SymptomsStep> {
   Widget _buildSubmitButton() {
     return AppShadow(
       child: Consumer(
-        builder: (context, ref, child) {
-          return ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              minimumSize: const Size(double.infinity, 48),
-            ),
-            onPressed: _isSubmitting ? null : () => _onSubmit(context, ref),
-            child: _isSubmitting
-                ? AppLoader(color: context.colorScheme.surface, size: 30)
-                : Text(context.l10n.logSymptoms),
-          );
-        },
+        builder: (context, ref, child) => ElevatedButton(
+          onPressed: _isSubmitting && _selectedSymptoms.isEmpty
+              ? null
+              : () => _onSubmit(context, ref),
+          child: _isSubmitting
+              ? AppLoader(color: context.colorScheme.surface, size: 30)
+              : Text(context.l10n.logSymptoms),
+        ),
       ),
     );
   }

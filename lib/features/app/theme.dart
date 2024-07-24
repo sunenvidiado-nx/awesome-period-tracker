@@ -72,6 +72,7 @@ final _elevatedButtonTheme = ElevatedButtonThemeData(
     elevation: const WidgetStatePropertyAll(0),
     foregroundColor: WidgetStatePropertyAll(_colorScheme.surface),
     backgroundColor: WidgetStatePropertyAll(_colorScheme.primary),
+    minimumSize: const WidgetStatePropertyAll(Size(double.infinity, 48)),
     textStyle: WidgetStatePropertyAll(
       _primaryTextTheme.titleMedium?.copyWith(fontSize: 16),
     ),
