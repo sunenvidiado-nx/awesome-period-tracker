@@ -19,18 +19,22 @@ class Calendar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(4, 4, 4, 12),
-      child: TableCalendar<CycleEvent>(
-        firstDay: DateTime(DateTime.now().year - 10),
-        lastDay: DateTime(DateTime.now().year + 10),
-        focusedDay: DateTime.now(),
-        eventLoader: _getEventsForDay,
-        headerStyle: _headerStyle(context),
-        onDaySelected: onDaySelected,
-        calendarBuilders: CalendarBuilders(
-          markerBuilder: _markerBuilder,
-          todayBuilder: _todayBuilder,
-          defaultBuilder: _defaultBuilder,
+      padding: const EdgeInsets.fromLTRB(4, 4, 4, 8),
+      child: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 300),
+        child: TableCalendar<CycleEvent>(
+          key: ValueKey(cycleEvents),
+          firstDay: DateTime(DateTime.now().year - 10),
+          lastDay: DateTime(DateTime.now().year + 10),
+          focusedDay: DateTime.now(),
+          eventLoader: _getEventsForDay,
+          headerStyle: _headerStyle(context),
+          onDaySelected: onDaySelected,
+          calendarBuilders: CalendarBuilders(
+            markerBuilder: _markerBuilder,
+            todayBuilder: _todayBuilder,
+            defaultBuilder: _defaultBuilder,
+          ),
         ),
       ),
     );
@@ -105,7 +109,7 @@ class Calendar extends StatelessWidget {
       child: Container(
         margin: const EdgeInsets.all(5),
         decoration: BoxDecoration(
-          color: event?.type.color.withOpacity(event.isPrediction ? 0.5 : 1) ??
+          color: event?.type.color.withOpacity(event.isPrediction ? 0.2 : 1) ??
               Colors.transparent,
           shape: BoxShape.circle,
         ),
@@ -142,7 +146,7 @@ class Calendar extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.all(11),
       decoration: BoxDecoration(
-        color: event.type.color.withOpacity(event.isPrediction ? 0.5 : 1),
+        color: event.type.color.withOpacity(event.isPrediction ? 0.2 : 1),
         shape: BoxShape.circle,
       ),
       alignment: Alignment.center,
