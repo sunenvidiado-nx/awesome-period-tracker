@@ -20,7 +20,8 @@ class CycleEventTypesStep extends ConsumerWidget {
             style: context.primaryTextTheme.titleLarge,
           ),
           const SizedBox(height: 16),
-          for (final type in CycleEventType.values)
+          for (final type in CycleEventType.values
+              .where((type) => type != CycleEventType.fertile))
             _buildCycleEventTypeTile(context, ref, type),
         ],
       ),
