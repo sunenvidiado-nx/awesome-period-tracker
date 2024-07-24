@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.7] - 2024-07-24
+
+### Added
+
+- Feature to log intimate activities during the menstrual cycle.
+
+### Changed
+
+- Updated calendar marker colors for cycle events.
+- Changed the label for the "Other symptoms" textfield.
+
+### Fixed
+
+- Fixed issue where generated predictions didn't account for other types of cycle events.
+
 ## [1.0.6] - 2024-07-23
 
 ### Changed
