@@ -91,13 +91,13 @@ const _lightColorScheme = ColorScheme.light(
   error: AppColors.red,
   surface: Colors.white,
   surfaceContainer: AppColors.white,
-  shadow: Colors.black54,
+  shadow: AppColors.black,
 );
 
 TextTheme _textTheme(ColorScheme colorScheme) =>
     GoogleFonts.dmSansTextTheme().apply(
-      displayColor: colorScheme.shadow.withAlpha(200),
-      bodyColor: colorScheme.shadow.withAlpha(200),
+      displayColor: colorScheme.shadow,
+      bodyColor: colorScheme.shadow,
     );
 
 TextTheme _primaryTextTheme(TextTheme baseTextTheme) =>

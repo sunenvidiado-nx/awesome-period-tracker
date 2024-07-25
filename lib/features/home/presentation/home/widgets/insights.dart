@@ -1,31 +1,20 @@
 import 'package:awesome_period_tracker/core/extensions/build_context_extensions.dart';
 import 'package:awesome_period_tracker/core/extensions/date_time_extensions.dart';
-import 'package:awesome_period_tracker/features/home/data/insights_repository.dart';
-import 'package:awesome_period_tracker/features/home/presentation/home/home_screen.dart';
+import 'package:awesome_period_tracker/features/home/application/date_insights_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:skeletonizer/skeletonizer.dart';
-
-final _now = DateTime.now();
-
-final _insightProvider =
-    FutureProvider.family.autoDispose((ref, DateTime selectedDate) async {
-  final predictions = await ref.watch(cyclePredictionsProvider.future);
-
-  return ref
-      .read(insightsRepositoryProvider)
-      .getInsightForDate(selectedDate, predictions);
-});
 
 class Insights extends ConsumerWidget {
   const Insights({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.watch(_insightProvider(_now));
+    final now = DateTime.now().withoutTime();
+    final state = ref.watch(dateInsightsProvider(now));
 
     return Skeletonizer(
-      key: ValueKey(state.toString() + _now.toString()),
+      key: ValueKey(state.toString() + now.toString()),
       enabled: state.isLoading || state.isReloading || state.isRefreshing,
       effect: ShimmerEffect(
         baseColor: context.colorScheme.shadow.withOpacity(0.1),
@@ -49,7 +38,7 @@ class Insights extends ConsumerWidget {
             state.maybeWhen(
               orElse: () => 'Lorem ipsum dolor sit amet consectetur',
               data: (insight) =>
-                  '${_now.toReadableString()} - ${insight.daysUntilNextPeriod}',
+                  '${now.toReadableString()} - ${insight.daysUntilNextPeriod}',
             ),
             style: context.primaryTextTheme.titleMedium,
           ),

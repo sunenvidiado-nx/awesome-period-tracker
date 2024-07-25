@@ -3,10 +3,10 @@ import 'package:awesome_period_tracker/core/widgets/app_loader/app_loader.dart';
 import 'package:awesome_period_tracker/core/widgets/cards/app_card.dart';
 import 'package:awesome_period_tracker/core/widgets/shadow/app_shadow.dart';
 import 'package:awesome_period_tracker/core/widgets/snackbars/app_snackbar.dart';
+import 'package:awesome_period_tracker/features/home/application/cycle_predictions_provider.dart';
+import 'package:awesome_period_tracker/features/home/application/log_cycle_event_state_provider.dart';
 import 'package:awesome_period_tracker/features/home/data/insights_repository.dart';
 import 'package:awesome_period_tracker/features/home/domain/period_flow.dart';
-import 'package:awesome_period_tracker/features/home/presentation/home/home_screen.dart';
-import 'package:awesome_period_tracker/features/home/presentation/log_cycle_event/log_cycle_event_state_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

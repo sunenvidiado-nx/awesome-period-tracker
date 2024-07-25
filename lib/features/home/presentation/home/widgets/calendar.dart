@@ -30,6 +30,12 @@ class Calendar extends StatelessWidget {
           eventLoader: _getEventsForDay,
           headerStyle: _headerStyle(context),
           onDaySelected: onDaySelected,
+          daysOfWeekStyle: DaysOfWeekStyle(
+            weekdayStyle: context.primaryTextTheme.bodyMedium!,
+            weekendStyle: context.primaryTextTheme.bodyMedium!.copyWith(
+              color: context.colorScheme.shadow.withOpacity(0.5),
+            ),
+          ),
           calendarBuilders: CalendarBuilders(
             markerBuilder: _markerBuilder,
             todayBuilder: _todayBuilder,
