@@ -25,7 +25,7 @@ class Calendar extends StatelessWidget {
       child: AnimatedSwitcher(
         duration: const Duration(milliseconds: 270),
         child: TableCalendar<CycleEvent>(
-          key: ValueKey((cycleEvents, selectedDate)),
+          key: ValueKey(cycleEvents),
           firstDay: DateTime(DateTime.now().year - 10),
           lastDay: DateTime(DateTime.now().year + 10),
           focusedDay: selectedDate,

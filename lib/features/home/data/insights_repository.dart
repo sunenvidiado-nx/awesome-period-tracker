@@ -1,3 +1,4 @@
+import 'package:awesome_period_tracker/core/extensions/date_time_extensions.dart';
 import 'package:awesome_period_tracker/core/extensions/string_extensions.dart';
 import 'package:awesome_period_tracker/core/providers/gemini_client_provider.dart';
 import 'package:awesome_period_tracker/core/providers/shared_preferences_provider.dart';
@@ -17,16 +18,17 @@ class InsightsRepository {
   final SharedPreferences _sharedPreferences;
   final GeminiClient _geminiClient;
 
-  // Generate random strings here: http://bit.ly/random-strings-generator
-  static const _insightKey = 'o5EnMpHTYU1l';
+  Future<Insight> getInsightForDate({
+    required DateTime date,
+    required bool isPast,
+    required CyclePredictions predictions,
+    bool useCache = true,
+  }) async {
+    final prefsKey = date.toYmdString();
 
-  Future<Insight> getInsightForDate(
-    DateTime date,
-    CyclePredictions predictions,
-  ) async {
-    if (_sharedPreferences.containsKey(_insightKey)) {
+    if (_sharedPreferences.containsKey(prefsKey) && useCache) {
       final cachedInsight =
-          InsightMapper.fromJson(_sharedPreferences.getString(_insightKey)!);
+          InsightMapper.fromJson(_sharedPreferences.getString(prefsKey)!);
 
       if (isSameDay(cachedInsight.date, date.toUtc())) {
         return cachedInsight;
@@ -37,6 +39,7 @@ class InsightsRepository {
       predictions.dayOfCycle,
       predictions.averageCycleLength,
       predictions.phase,
+      isPast,
     );
 
     final insight = Insight(
@@ -47,23 +50,24 @@ class InsightsRepository {
       date: date.toUtc(),
     );
 
-    await _sharedPreferences.setString(_insightKey, insight.toJson());
+    await _sharedPreferences.setString(prefsKey, insight.toJson());
 
     return insight;
   }
 
   Future<void> clearCache() async {
-    await _sharedPreferences.remove(_insightKey);
+    await _sharedPreferences.clear();
   }
 
   Future<String> _generateInsights(
     int dayOfCycle,
     int averageCycleLength,
     MenstruationPhase phase,
+    bool isPast,
   ) async {
     try {
       return await _geminiClient.generateContentFromText(
-        prompt: _geminiPrompt(dayOfCycle, averageCycleLength, phase),
+        prompt: _geminiPrompt(dayOfCycle, averageCycleLength, phase, isPast),
       );
     } catch (e) {
       return 'An error occurred while generating insights. :-(';
@@ -91,9 +95,10 @@ class InsightsRepository {
     int dayOfCycle,
     int averageCycleLength,
     MenstruationPhase phase,
+    bool isPast,
   ) {
-    String phaseInfo = '';
-    String additionalInfo = '';
+    String phaseInfo;
+    String additionalInfo;
 
     switch (phase) {
       case MenstruationPhase.follicular:
@@ -123,6 +128,17 @@ class InsightsRepository {
         break;
     }
 
+    if (isPast) {
+      return '''
+      CRITICAL INSTRUCTIONS: YOUR RESPONSE MUST BE EXACTLY 30 WORDS OR LESS. NO EMOJIS ALLOWED. NO GREETINGS LIKE "HI" OR "HELLO".
+
+      You are a funny, supportive, and friendly medical expert providing a casual summary about a previous menstrual cycle log. The person was on day $dayOfCycle of their $averageCycleLength-day cycle, in the $phaseInfo. Provide a brief summary of what they likely experienced during this phase. $additionalInfo Use gentle humor and a supportive tone.
+
+      FINAL REMINDER: YOUR RESPONSE MUST BE EXACTLY 25 WORDS OR LESS. NO EMOJIS. NO GREETINGS. FAILURE TO FOLLOW THESE RULES WILL RESULT IN IMMEDIATE TERMINATION OF THIS CONVERSATION.
+      '''
+          .removeEmojis();
+    }
+
     return '''
     CRITICAL INSTRUCTIONS: YOUR RESPONSE MUST BE EXACTLY 30 WORDS OR LESS. NO EMOJIS ALLOWED. NO GREETINGS LIKE "HI" OR "HELLO".
 
@@ -130,8 +146,6 @@ class InsightsRepository {
 
     FINAL REMINDER: YOUR RESPONSE MUST BE EXACTLY 25 WORDS OR LESS. NO EMOJIS. NO GREETINGS. FAILURE TO FOLLOW THESE RULES WILL RESULT IN IMMEDIATE TERMINATION OF THIS CONVERSATION.
     '''
-        // I know, it's specified already on the prompt, but
-        // Gemini is dumb and keeps adding emojis anyway sometimes
         .removeEmojis();
   }
 }
