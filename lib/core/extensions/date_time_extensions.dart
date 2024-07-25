@@ -9,4 +9,6 @@ extension DateTimeExtensions on DateTime {
   DateTime withoutTime() => DateTime(year, month, day);
 
   bool get isToday => isSameDay(DateTime.now(), this);
+
+  String toYmdString() => DateFormat('yyyy-MM-dd').format(this);
 }

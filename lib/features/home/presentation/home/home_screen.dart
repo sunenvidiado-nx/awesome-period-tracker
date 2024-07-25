@@ -1,5 +1,6 @@
 import 'package:awesome_period_tracker/core/app_assets.dart';
 import 'package:awesome_period_tracker/core/extensions/build_context_extensions.dart';
+import 'package:awesome_period_tracker/core/extensions/date_time_extensions.dart';
 import 'package:awesome_period_tracker/core/widgets/cards/app_card.dart';
 import 'package:awesome_period_tracker/core/widgets/shadow/app_shadow.dart';
 import 'package:awesome_period_tracker/features/home/application/cycle_predictions_provider.dart';
@@ -10,24 +11,31 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  late DateTime _selectedDate = DateTime.now().withoutTime();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: CustomScrollView(
         slivers: [
-          _buildAppBar(context),
-          _buildCalendarSection(context),
-          _buildInsightsSection(context),
+          _buildAppBar(),
+          _buildCalendarSection(),
+          _buildInsightsSection(),
         ],
       ),
-      floatingActionButton: _buildFab(context),
+      floatingActionButton: _buildFab(),
     );
   }
 
-  Widget _buildAppBar(BuildContext context) {
+  Widget _buildAppBar() {
     return SliverAppBar(
       toolbarHeight: 40,
       automaticallyImplyLeading: false,
@@ -60,7 +68,7 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildCalendarSection(BuildContext context) {
+  Widget _buildCalendarSection() {
     return SliverToBoxAdapter(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(16, 18, 16, 0),
@@ -70,11 +78,12 @@ class HomeScreen extends StatelessWidget {
               final state = ref.watch(cyclePredictionsProvider);
 
               return Calendar(
+                onDaySelected: (date, _) => _onDaySelected(date),
+                selectedDate: _selectedDate,
                 cycleEvents: state.maybeWhen(
                   data: (predictions) => predictions.events,
                   orElse: () => [],
                 ),
-                onDaySelected: (selectedDay, _) {},
               );
             },
           ),
@@ -83,20 +92,24 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildInsightsSection(BuildContext context) {
+  void _onDaySelected(DateTime selectedDay) {
+    setState(() => _selectedDate = selectedDay);
+  }
+
+  Widget _buildInsightsSection() {
     return const SliverToBoxAdapter(
       child: Padding(
-        padding: EdgeInsets.fromLTRB(20, 24, 20, 24),
+        padding: EdgeInsets.fromLTRB(16, 16, 16, 0),
         child: Insights(),
       ),
     );
   }
 
-  Widget _buildFab(BuildContext context) {
+  Widget _buildFab() {
     return AppShadow(
       child: FloatingActionButton.extended(
         elevation: 0,
-        onPressed: () async => _showCycleEventTypeBottomSheet(context),
+        onPressed: _showCycleEventTypeBottomSheet,
         label: Text(
           context.l10n.logCycleEvent,
           style: context.primaryTextTheme.titleMedium
@@ -107,7 +120,7 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Future<void> _showCycleEventTypeBottomSheet(BuildContext context) async {
+  Future<void> _showCycleEventTypeBottomSheet() async {
     await showModalBottomSheet(
       context: context,
       scrollControlDisabledMaxHeightRatio: 0.9,

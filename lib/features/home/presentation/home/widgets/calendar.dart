@@ -10,26 +10,29 @@ class Calendar extends StatelessWidget {
   const Calendar({
     required this.cycleEvents,
     required this.onDaySelected,
+    required this.selectedDate,
     super.key,
   });
 
   final List<CycleEvent> cycleEvents;
   final Function(DateTime selectedDay, DateTime focusedDay) onDaySelected;
+  final DateTime selectedDate;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(4, 4, 4, 8),
       child: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 300),
+        duration: const Duration(milliseconds: 270),
         child: TableCalendar<CycleEvent>(
-          key: ValueKey(cycleEvents),
+          key: ValueKey((cycleEvents, selectedDate)),
           firstDay: DateTime(DateTime.now().year - 10),
           lastDay: DateTime(DateTime.now().year + 10),
-          focusedDay: DateTime.now(),
+          focusedDay: selectedDate,
           eventLoader: _getEventsForDay,
           headerStyle: _headerStyle(context),
           onDaySelected: onDaySelected,
+          selectedDayPredicate: (day) => isSameDay(selectedDate, day),
           daysOfWeekStyle: DaysOfWeekStyle(
             weekdayStyle: context.primaryTextTheme.bodyMedium!,
             weekendStyle: context.primaryTextTheme.bodyMedium!.copyWith(
@@ -39,6 +42,7 @@ class Calendar extends StatelessWidget {
           calendarBuilders: CalendarBuilders(
             markerBuilder: _markerBuilder,
             todayBuilder: _todayBuilder,
+            selectedBuilder: _selectedBuilder,
             defaultBuilder: _defaultBuilder,
           ),
         ),
@@ -93,8 +97,8 @@ class Calendar extends StatelessWidget {
     DateTime date,
     DateTime focusedDay,
   ) {
+    final isTodayFocused = isSameDay(date, focusedDay);
     final events = _getEventsForDay(date).toList();
-
     final event = events.firstWhereOrNull(
       (event) =>
           event.type == CycleEventType.period ||
@@ -106,8 +110,10 @@ class Calendar extends StatelessWidget {
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         border: Border.all(
-          color:
-              event?.type.color ?? context.colorScheme.shadow.withOpacity(0.35),
+          color: isTodayFocused
+              ? event?.type.color ??
+                  context.colorScheme.shadow.withOpacity(0.35)
+              : Colors.transparent,
           width: 1.2,
         ),
       ),
@@ -129,6 +135,36 @@ class Calendar extends StatelessWidget {
                     : context.colorScheme.surface
                 : null,
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _selectedBuilder(
+    BuildContext context,
+    DateTime date,
+    DateTime focusedDay,
+  ) {
+    // If the selected day is today, return a "today" widget
+    if (isSameDay(selectedDate, focusedDay)) {
+      return _todayBuilder(context, date, focusedDay);
+    }
+
+    return Container(
+      margin: const EdgeInsets.all(4),
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        border: Border.all(
+          color: context.colorScheme.shadow.withOpacity(0.5),
+          width: 1.2,
+        ),
+      ),
+      child: Container(
+        margin: const EdgeInsets.all(5),
+        alignment: Alignment.center,
+        child: Text(
+          date.day.toString(),
         ),
       ),
     );
