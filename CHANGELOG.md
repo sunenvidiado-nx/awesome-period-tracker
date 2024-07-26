@@ -2,13 +2,6 @@
 
 All notable changes to this project will be documented in this file.
 
-## [Unreleased]
-
-### Added
-
-- Feature to toggle between light and dark mode.
-- Feature to view details about a given cycle day.
-
 ## [1.0.8] - 2024-07-26
 
 ### Fixed
