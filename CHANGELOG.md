@@ -7,6 +7,13 @@ All notable changes to this project will be documented in this file.
 ### Added
 
 - Feature to toggle between light and dark mode.
+- Feature to view details about a given cycle day.
+
+## [1.0.8] - 2024-07-26
+
+### Fixed
+
+- Fixed issue with the insights and predictions when logging new cycle events.
 
 ## [1.0.7] - 2024-07-24
 
