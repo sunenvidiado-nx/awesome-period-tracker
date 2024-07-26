@@ -1,4 +1,4 @@
-import 'package:remove_emoji/remove_emoji.dart';
+import 'package:flutter_emoji/flutter_emoji.dart';
 
 extension StringExtensions on String {
   String capitalize() {
@@ -28,6 +28,6 @@ extension StringExtensions on String {
   }
 
   String removeEmojis() {
-    return RemoveEmoji().clean(this);
+    return EmojiParser().unemojify(this);
   }
 }

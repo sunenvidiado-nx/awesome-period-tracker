@@ -46,7 +46,7 @@ class InsightsRepository {
       dayOfCycle: _formatDayOfCycle(predictions.dayOfCycle),
       daysUntilNextPeriod:
           _formatDaysUntilNextPeriod(predictions.daysUntilNextPeriod),
-      insights: geminiInsight,
+      insights: geminiInsight.removeEmojis(),
       date: date.toUtc(),
     );
 
@@ -135,8 +135,7 @@ class InsightsRepository {
       You are a funny, supportive, and friendly medical expert providing a casual summary about a previous menstrual cycle log. The person was on day $dayOfCycle of their $averageCycleLength-day cycle, in the $phaseInfo. Provide a brief summary of what they likely experienced during this phase. $additionalInfo Use gentle humor and a supportive tone.
 
       FINAL REMINDER: YOUR RESPONSE MUST BE EXACTLY 25 WORDS OR LESS. NO EMOJIS. NO GREETINGS. FAILURE TO FOLLOW THESE RULES WILL RESULT IN IMMEDIATE TERMINATION OF THIS CONVERSATION.
-      '''
-          .removeEmojis();
+      ''';
     }
 
     return '''
@@ -145,8 +144,7 @@ class InsightsRepository {
     You are a funny, supportive, and friendly medical expert providing casual advice about the menstrual cycle. The person is on day $dayOfCycle of their $averageCycleLength-day cycle, in the $phaseInfo. Craft a casual, friendly message about this phase. $additionalInfo Use gentle humor and a supportive tone.
 
     FINAL REMINDER: YOUR RESPONSE MUST BE EXACTLY 25 WORDS OR LESS. NO EMOJIS. NO GREETINGS. FAILURE TO FOLLOW THESE RULES WILL RESULT IN IMMEDIATE TERMINATION OF THIS CONVERSATION.
-    '''
-        .removeEmojis();
+    ''';
   }
 }
 
