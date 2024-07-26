@@ -1,18 +1,18 @@
 import 'package:awesome_period_tracker/core/extensions/list_extensions.dart';
 import 'package:awesome_period_tracker/features/home/domain/cycle_event.dart';
 import 'package:awesome_period_tracker/features/home/domain/cycle_event_type.dart';
-import 'package:awesome_period_tracker/features/home/domain/cycle_predictions.dart';
+import 'package:awesome_period_tracker/features/home/domain/cycle_forecast.dart';
 import 'package:awesome_period_tracker/features/home/domain/menstruation_phase.dart';
 import 'package:awesome_period_tracker/features/pin_login/domain/auth_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:table_calendar/table_calendar.dart';
 
-class CyclePredictionsRepository {
+class CycleForecastRepository {
   final AuthRepository _authRepository;
 
-  const CyclePredictionsRepository(this._authRepository);
+  const CycleForecastRepository(this._authRepository);
 
-  CyclePredictions generateFullCyclePredictions(
+  CycleForecast generateFullCycleForecast(
     List<CycleEvent> events, {
     DateTime? start,
     DateTime? end,
@@ -42,7 +42,8 @@ class CyclePredictionsRepository {
       averageFertilityWindowLength,
     );
 
-    return CyclePredictions(
+    return CycleForecast(
+      date: DateTime.now(),
       dayOfCycle: dayOfCycle,
       averageCycleLength: averageCycleLength,
       averagePeriodLength: averagePeriodLength,
@@ -55,18 +56,47 @@ class CyclePredictionsRepository {
 
   int _getDayOfCurrentCycle(List<CycleEvent> events) {
     if (events.isEmpty) return 0;
-    final lastPeriod =
-        events.firstWhere((e) => e.type == CycleEventType.period);
-    return DateTime.now().difference(lastPeriod.date).inDays + 1;
+
+    final now = DateTime.now();
+    final lastPeriod = events.lastWhere((e) => e.type == CycleEventType.period);
+
+    if (isSameDay(lastPeriod.date, now)) {
+      return 1;
+    } else {
+      return now.difference(lastPeriod.date).inDays + 1;
+    }
   }
 
   int _calculateAverageCycleLength(List<CycleEvent> events) {
-    return _calculateAverage(
-      events,
-      (e, prev) => e.localDate.difference(prev.localDate).inDays,
-      defaultValue: 28,
-      minValue: 21,
-    );
+    final periodEvents = events
+        .where((e) => e.type == CycleEventType.period)
+        .toList()
+      ..sort((a, b) => a.date.compareTo(b.date));
+
+    if (periodEvents.length < 2) return 28; // Default value
+
+    final periodStarts = <DateTime>[];
+    DateTime? lastDate;
+    for (final event in periodEvents) {
+      if (lastDate == null || event.date.difference(lastDate).inDays > 1) {
+        periodStarts.add(event.date);
+      }
+      lastDate = event.date;
+    }
+
+    if (periodStarts.length < 2) return 28; // Default value
+
+    final cycleLengths = <int>[];
+    for (int i = 1; i < periodStarts.length; i++) {
+      final difference = periodStarts[i].difference(periodStarts[i - 1]).inDays;
+      cycleLengths.add(difference);
+    }
+
+    final average = cycleLengths.reduce((a, b) => a + b) ~/ cycleLengths.length;
+
+    return (average >= 21 && average <= 35)
+        ? average
+        : 28; // Apply min/max constraints
   }
 
   int _calculateAverageEventDuration(
@@ -115,27 +145,6 @@ class CyclePredictionsRepository {
             daysUntilNextPeriod <= averageCycleLength)
         ? daysUntilNextPeriod
         : -1;
-  }
-
-  int _calculateAverage(
-    List<CycleEvent> events,
-    int Function(CycleEvent, CycleEvent) getDifference, {
-    required int defaultValue,
-    required int minValue,
-    int? maxValue,
-  }) {
-    if (events.length < 2) return defaultValue;
-
-    final total = events.skip(1).fold(
-          0,
-          (sum, event) =>
-              sum + getDifference(event, events[events.indexOf(event) - 1]),
-        );
-    final average = total ~/ (events.length - 1);
-
-    return (average >= minValue && (maxValue == null || average <= maxValue))
-        ? average
-        : defaultValue;
   }
 
   List<CycleEvent> _generatePredictions(
@@ -265,5 +274,5 @@ class CyclePredictionsRepository {
 }
 
 final cyclePredictionsRepositoryProvider = Provider.autoDispose((ref) {
-  return CyclePredictionsRepository(ref.read(authRepositoryProvider));
+  return CycleForecastRepository(ref.read(authRepositoryProvider));
 });

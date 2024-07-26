@@ -1,4 +1,4 @@
-import 'package:awesome_period_tracker/features/home/application/cycle_predictions_provider.dart';
+import 'package:awesome_period_tracker/features/home/application/cycle_forecast_provider.dart';
 import 'package:awesome_period_tracker/features/home/data/insights_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -16,12 +16,10 @@ class InsightsProviderParams {
 
 final insightsProvider = FutureProvider.family
     .autoDispose((ref, InsightsProviderParams params) async {
-  final predictions = await ref.watch(cyclePredictionsProvider.future);
+  final forecast = await ref.watch(cycleForecastProvider.future);
 
   return ref.read(insightsRepositoryProvider).getInsightForDate(
-        isPast: params.isPast,
-        date: params.date,
-        predictions: predictions,
+        forecast: forecast,
         useCache: params.useCache,
       );
 });

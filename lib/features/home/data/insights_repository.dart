@@ -2,7 +2,7 @@ import 'package:awesome_period_tracker/core/extensions/date_time_extensions.dart
 import 'package:awesome_period_tracker/core/extensions/string_extensions.dart';
 import 'package:awesome_period_tracker/core/providers/gemini_client_provider.dart';
 import 'package:awesome_period_tracker/core/providers/shared_preferences_provider.dart';
-import 'package:awesome_period_tracker/features/home/domain/cycle_predictions.dart';
+import 'package:awesome_period_tracker/features/home/domain/cycle_forecast.dart';
 import 'package:awesome_period_tracker/features/home/domain/insight.dart';
 import 'package:awesome_period_tracker/features/home/domain/menstruation_phase.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -19,35 +19,44 @@ class InsightsRepository {
   final GeminiClient _geminiClient;
 
   Future<Insight> getInsightForDate({
-    required DateTime date,
-    required bool isPast,
-    required CyclePredictions predictions,
+    required CycleForecast forecast,
     bool useCache = true,
   }) async {
-    final prefsKey = date.toYmdString();
+    final prefsKey = forecast.date.toYmdString();
 
-    if (_sharedPreferences.containsKey(prefsKey) && useCache) {
-      final cachedInsight =
-          InsightMapper.fromJson(_sharedPreferences.getString(prefsKey)!);
+    try {
+      if (_sharedPreferences.containsKey(prefsKey) && useCache) {
+        final cachedInsight =
+            InsightMapper.fromJson(_sharedPreferences.getString(prefsKey)!);
 
-      if (isSameDay(cachedInsight.date, date.toUtc())) {
-        return cachedInsight;
+        final isCacheValid = isSameDay(
+              cachedInsight.date,
+              forecast.date.toUtc(),
+            ) &&
+            cachedInsight.dayOfCycle == forecast.dayOfCycle &&
+            cachedInsight.daysUntilNextPeriod == forecast.daysUntilNextPeriod;
+
+        if (isCacheValid) {
+          return cachedInsight;
+        }
       }
+    } catch (e) {
+      // On exceptions, do nothing and generate new a new insight.
+      // This is to prevent app crashes due to corrupted cache data.
     }
 
     final geminiInsight = await _generateInsights(
-      predictions.dayOfCycle,
-      predictions.averageCycleLength,
-      predictions.phase,
-      isPast,
+      forecast.dayOfCycle,
+      forecast.averageCycleLength,
+      forecast.phase,
+      false, // TODO Change to dynamic
     );
 
     final insight = Insight(
-      dayOfCycle: _formatDayOfCycle(predictions.dayOfCycle),
-      daysUntilNextPeriod:
-          _formatDaysUntilNextPeriod(predictions.daysUntilNextPeriod),
+      dayOfCycle: forecast.dayOfCycle,
+      daysUntilNextPeriod: forecast.daysUntilNextPeriod,
       insights: geminiInsight.removeEmojis(),
-      date: date.toUtc(),
+      date: forecast.date.toUtc(),
     );
 
     await _sharedPreferences.setString(prefsKey, insight.toJson());
@@ -72,23 +81,6 @@ class InsightsRepository {
     } catch (e) {
       return 'An error occurred while generating insights. :-(';
     }
-  }
-
-  String _formatDayOfCycle(int day) {
-    if (day == -1) return 'No cycle data available';
-    if (day == -2) return 'Most recent event is future';
-    if (day == 1) return 'Day 1 of period';
-
-    return 'Day $day of cycle';
-  }
-
-  String _formatDaysUntilNextPeriod(int days) {
-    if (days == -69) return 'No data to predict period';
-    if (days < 1) return 'Period may be delayed';
-    if (days == 0) return 'Period may start today';
-    if (days == 1) return 'Period may start tomorrow';
-
-    return '$days days until next period';
   }
 
   String _geminiPrompt(

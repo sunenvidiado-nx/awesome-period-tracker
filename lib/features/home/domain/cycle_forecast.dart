@@ -1,8 +1,9 @@
 import 'package:awesome_period_tracker/features/home/domain/cycle_event.dart';
 import 'package:awesome_period_tracker/features/home/domain/menstruation_phase.dart';
 
-class CyclePredictions {
-  const CyclePredictions({
+class CycleForecast {
+  const CycleForecast({
+    required this.date,
     required this.dayOfCycle,
     required this.daysUntilNextPeriod,
     required this.averageCycleLength,
@@ -12,6 +13,7 @@ class CyclePredictions {
     required this.events,
   });
 
+  final DateTime date;
   final int dayOfCycle;
   final int daysUntilNextPeriod;
   final int averageCycleLength;

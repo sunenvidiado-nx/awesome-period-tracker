@@ -1,5 +1,4 @@
 import 'package:awesome_period_tracker/core/extensions/build_context_extensions.dart';
-import 'package:awesome_period_tracker/core/extensions/date_time_extensions.dart';
 import 'package:awesome_period_tracker/features/home/application/insights_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -31,7 +30,7 @@ class Insights extends ConsumerWidget {
           Text(
             state.maybeWhen(
               orElse: () => 'Lorem ipsum dolor',
-              data: (insight) => insight.dayOfCycle,
+              data: (insight) => insight.dayOfCycleMessage,
             ),
             style: context.primaryTextTheme.titleLarge,
           ),
@@ -39,8 +38,7 @@ class Insights extends ConsumerWidget {
           Text(
             state.maybeWhen(
               orElse: () => 'Lorem ipsum dolor sit amet consectetur',
-              data: (insight) =>
-                  '${_insightsProviderParams.date.toReadableString()} - ${insight.daysUntilNextPeriod}',
+              data: (insight) => insight.daysUntilNextPeriodMessage,
             ),
             style: context.primaryTextTheme.titleMedium,
           ),

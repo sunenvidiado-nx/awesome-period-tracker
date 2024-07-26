@@ -3,7 +3,7 @@ import 'package:awesome_period_tracker/core/extensions/build_context_extensions.
 import 'package:awesome_period_tracker/core/extensions/date_time_extensions.dart';
 import 'package:awesome_period_tracker/core/widgets/cards/app_card.dart';
 import 'package:awesome_period_tracker/core/widgets/shadow/app_shadow.dart';
-import 'package:awesome_period_tracker/features/home/application/cycle_predictions_provider.dart';
+import 'package:awesome_period_tracker/features/home/application/cycle_forecast_provider.dart';
 import 'package:awesome_period_tracker/features/home/presentation/home/widgets/calendar.dart';
 import 'package:awesome_period_tracker/features/home/presentation/home/widgets/insights.dart';
 import 'package:awesome_period_tracker/features/home/presentation/log_cycle_event/log_cycle_event_bottom_sheet.dart';
@@ -75,7 +75,7 @@ class _HomeScreenState extends State<HomeScreen> {
         child: AppCard(
           child: Consumer(
             builder: (context, ref, child) {
-              final state = ref.watch(cyclePredictionsProvider);
+              final state = ref.watch(cycleForecastProvider);
 
               return Calendar(
                 onDaySelected: (date, _) => _onDaySelected(date),

@@ -3,7 +3,7 @@ import 'package:awesome_period_tracker/core/widgets/app_loader/app_loader.dart';
 import 'package:awesome_period_tracker/core/widgets/cards/app_card.dart';
 import 'package:awesome_period_tracker/core/widgets/shadow/app_shadow.dart';
 import 'package:awesome_period_tracker/core/widgets/snackbars/app_snackbar.dart';
-import 'package:awesome_period_tracker/features/home/application/cycle_predictions_provider.dart';
+import 'package:awesome_period_tracker/features/home/application/cycle_forecast_provider.dart';
 import 'package:awesome_period_tracker/features/home/application/log_cycle_event_state_provider.dart';
 import 'package:awesome_period_tracker/features/home/data/insights_repository.dart';
 import 'package:flutter/material.dart';
@@ -122,7 +122,7 @@ class _IntimacyStepState extends State<IntimacyStep> {
           .then(
         (_) {
           ref.read(insightsRepositoryProvider).clearCache();
-          ref.invalidate(cyclePredictionsProvider);
+          ref.invalidate(cycleForecastProvider);
           context.showSnackbar(context.l10n.cycleEventLoggedSuccessfully);
           Navigator.of(context).pop();
         },
