@@ -8,7 +8,7 @@
     "*.dart": "$(capture).*.dart",
     "Jenkinsfile.*": "Jenkinsfile.$(capture), Jenkinsfile.$(capture).nightly"
   },
-  "dart.flutterSdkPath": ".fvm/versions/3.22.2",
+  "dart.flutterSdkPath": ".fvm/versions/3.22.3",
   "search.exclude": {
     "**/.fvm": true
   },
@@ -16,7 +16,6 @@
     "**/.fvm": true
   },
   "files.exclude": {
-    // ".dart_tool/": true,
     "coverage/": true,
     ".flutter-plugins": true,
     ".metadata": true,
@@ -24,5 +23,13 @@
     ".fvm*": true,
     "*.iml": true,
     "*.idea": true
-  }
+  },
+  "cSpell.words": [
+    "cupertino",
+    "firestore",
+    "pinput",
+    "riverpod",
+    "skeletonizer",
+    "svgs"
+  ]
 }
