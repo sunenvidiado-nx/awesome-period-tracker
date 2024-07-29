@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.9] - 2024-07-29]
+
+### Added
+
+- When logging the first period event for the new cycle, predictions for that cycle become actual events, and the next cycle's predictions are generated based on the new data.
+
+### Fixed
+
+- Fixed issue with forecasts not updating correctly when new cycle events are logged.
+
 ## [1.0.8] - 2024-07-26
 
 ### Fixed
