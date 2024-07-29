@@ -8,7 +8,6 @@ class CycleForecast {
     required this.daysUntilNextPeriod,
     required this.averageCycleLength,
     required this.averagePeriodLength,
-    required this.averageFertilityWindowLength,
     required this.phase,
     required this.events,
   });
@@ -18,7 +17,6 @@ class CycleForecast {
   final int daysUntilNextPeriod;
   final int averageCycleLength;
   final int averagePeriodLength;
-  final int averageFertilityWindowLength;
   final MenstruationPhase phase;
   final List<CycleEvent> events;
 }

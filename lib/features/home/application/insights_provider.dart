@@ -18,7 +18,7 @@ final insightsProvider = FutureProvider.family
     .autoDispose((ref, InsightsProviderParams params) async {
   final forecast = await ref.watch(cycleForecastProvider.future);
 
-  return ref.read(insightsRepositoryProvider).getInsightForDate(
+  return ref.read(insightsRepositoryProvider).getInsightForForecast(
         forecast: forecast,
         useCache: params.useCache,
       );

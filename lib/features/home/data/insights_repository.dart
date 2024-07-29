@@ -18,7 +18,7 @@ class InsightsRepository {
   final SharedPreferences _sharedPreferences;
   final GeminiClient _geminiClient;
 
-  Future<Insight> getInsightForDate({
+  Future<Insight> getInsightForForecast({
     required CycleForecast forecast,
     bool useCache = true,
   }) async {
