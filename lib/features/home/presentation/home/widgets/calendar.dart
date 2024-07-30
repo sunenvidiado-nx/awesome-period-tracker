@@ -141,7 +141,7 @@ class Calendar extends StatelessWidget {
     DateTime focusedDay,
   ) {
     // If the selected day is today, return a "today" widget
-    if (isSameDay(selectedDate, focusedDay)) {
+    if (isSameDay(selectedDate, focusedDay) && date.isToday) {
       return _todayBuilder(context, date, focusedDay);
     }
 
