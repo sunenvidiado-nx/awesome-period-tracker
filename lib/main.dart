@@ -1,9 +1,9 @@
 import 'dart:async';
 
-import 'package:awesome_period_tracker/app/app.dart';
 import 'package:awesome_period_tracker/core/app_assets.dart';
 import 'package:awesome_period_tracker/core/firebase_options.dart';
 import 'package:awesome_period_tracker/core/providers/shared_preferences_provider.dart';
+import 'package:awesome_period_tracker/features/app/presentation/app.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';

@@ -1,8 +1,8 @@
-import 'package:awesome_period_tracker/app/router.dart';
 import 'package:awesome_period_tracker/core/app_assets.dart';
 import 'package:awesome_period_tracker/core/extensions/build_context_extensions.dart';
 import 'package:awesome_period_tracker/core/extensions/exception_extensions.dart';
 import 'package:awesome_period_tracker/core/widgets/app_loader/app_loader_dialog.dart';
+import 'package:awesome_period_tracker/features/app/application/router_provider.dart';
 import 'package:awesome_period_tracker/features/pin_login/domain/auth_repository.dart';
 import 'package:awesome_period_tracker/features/pin_login/presentation/widgets/pin_input_field.dart';
 import 'package:flutter/material.dart';
