@@ -11,4 +11,7 @@ extension DateTimeExtensions on DateTime {
   bool get isToday => isSameDay(DateTime.now(), this);
 
   String toYmdString() => DateFormat('yyyy-MM-dd').format(this);
+
+  bool isSameMonth(DateTime other) =>
+      year == other.year && month == other.month;
 }

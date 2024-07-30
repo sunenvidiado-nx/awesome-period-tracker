@@ -1,5 +1,6 @@
 import 'package:awesome_period_tracker/core/extensions/build_context_extensions.dart';
 import 'package:awesome_period_tracker/core/extensions/color_extensions.dart';
+import 'package:awesome_period_tracker/core/extensions/date_time_extensions.dart';
 import 'package:awesome_period_tracker/features/home/domain/cycle_event.dart';
 import 'package:awesome_period_tracker/features/home/domain/cycle_event_type.dart';
 import 'package:collection/collection.dart';
@@ -157,9 +158,7 @@ class Calendar extends StatelessWidget {
       child: Container(
         margin: const EdgeInsets.all(5),
         alignment: Alignment.center,
-        child: Text(
-          date.day.toString(),
-        ),
+        child: Text(date.day.toString()),
       ),
     );
   }
@@ -169,15 +168,19 @@ class Calendar extends StatelessWidget {
     DateTime date,
     DateTime focusedDay,
   ) {
+    if (!date.isSameMonth(focusedDay)) return null;
+
     final events = _getEventsForDay(date).toList();
 
     if (events.isEmpty) return null;
 
-    final event = events.firstWhere(
+    final event = events.firstWhereOrNull(
       (event) =>
           event.type == CycleEventType.period ||
           event.type == CycleEventType.fertile,
     );
+
+    if (event == null) return null;
 
     return Container(
       margin: const EdgeInsets.all(11),
