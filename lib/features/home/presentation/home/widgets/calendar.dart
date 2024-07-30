@@ -106,7 +106,7 @@ class Calendar extends StatelessWidget {
         shape: BoxShape.circle,
         border: Border.all(
           color: isTodayFocused
-              ? event?.type.color ??
+              ? event?.type.color.darken(0.1) ??
                   context.colorScheme.shadow.withOpacity(0.35)
               : Colors.transparent,
           width: 1.2,
@@ -140,8 +140,11 @@ class Calendar extends StatelessWidget {
     DateTime date,
     DateTime focusedDay,
   ) {
+    final events = _getEventsForDay(date).toList();
+
     // If the selected day is today, return a "today" widget
-    if (isSameDay(selectedDate, focusedDay) && date.isToday) {
+    if ((isSameDay(selectedDate, focusedDay) && date.isToday) ||
+        events.isNotEmpty) {
       return _todayBuilder(context, date, focusedDay);
     }
 
