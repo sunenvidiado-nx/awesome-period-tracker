@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.11] - 2024-07-30
+
+### Fixed
+
+- Rework how forecasts are generated.
+
 ## [1.0.10] - 2024-07-30
 
 ## Fixed
