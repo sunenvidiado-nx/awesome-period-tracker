@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.10] - 2024-07-30
+
+## Fixed
+
+- Fixed issue with calendar date being highlighted incorrectly when date is outside the current month.
+- Fixed issue with forecast when logging symptoms/intimate.
+
 ## [1.0.9] - 2024-07-29]
 
 ### Added
