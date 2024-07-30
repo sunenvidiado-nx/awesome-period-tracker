@@ -7,5 +7,5 @@ final cycleForecastProvider = FutureProvider.autoDispose((ref) async {
 
   return ref
       .read(cyclePredictionsRepositoryProvider)
-      .generateFullCycleForecast(events);
+      .createForecastForEvents(events);
 });

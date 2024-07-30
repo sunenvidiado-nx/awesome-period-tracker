@@ -11,11 +11,10 @@ class CycleForecastRepository {
 
   static const _defaultCycleLength = 28;
   static const _defaultPeriodLength = 6;
-  static const _minimumCycleLength = 21;
-  static const _maximumCycleLength = 35;
+  static const _maximumCycleLength = 40;
   static const _systemId = 'system';
 
-  CycleForecast generateFullCycleForecast(
+  CycleForecast createForecastForEvents(
     List<CycleEvent> events, {
     DateTime? start,
     DateTime? end,
@@ -117,7 +116,7 @@ class CycleForecastRepository {
 
     final average = cycleLengths.reduce((a, b) => a + b) ~/ cycleLengths.length;
 
-    return (average >= _minimumCycleLength && average <= _maximumCycleLength)
+    return (average >= _defaultCycleLength && average <= _maximumCycleLength)
         ? average
         : _defaultCycleLength;
   }
@@ -184,12 +183,21 @@ class CycleForecastRepository {
   ) {
     final predictions = <CycleEvent>[];
 
+    // Filter out symptom and intimacy events for prediction purposes
+    final filteredEvents = actualEvents
+        .where(
+          (e) =>
+              e.type == CycleEventType.period ||
+              e.type == CycleEventType.fertile,
+        )
+        .toList();
+
     // Find the most recent actual period event that is the first day of a period
     final mostRecentPeriod =
-        actualEvents.where((e) => e.type == CycleEventType.period).where((e) {
-      final index = actualEvents.indexOf(e);
+        filteredEvents.where((e) => e.type == CycleEventType.period).where((e) {
+      final index = filteredEvents.indexOf(e);
       return index == 0 ||
-          e.date.difference(actualEvents[index - 1].date).inDays > 1;
+          e.date.difference(filteredEvents[index - 1].date).inDays > 1;
     }).lastOrNull;
 
     // If there's no actual period data, use today as the start date
@@ -204,14 +212,14 @@ class CycleForecastRepository {
           currentDate.add(Duration(days: cycle * averageCycleLength));
 
       // Only generate predictions for dates after the most recent actual event
-      if (cycleStartDate.isBefore(actualEvents.last.date)) {
+      if (cycleStartDate.isBefore(filteredEvents.last.date)) {
         continue;
       }
 
       // Menstruation predictions
       for (var day = 0; day < averageDuration; day++) {
         final predictionDate = cycleStartDate.add(Duration(days: day));
-        final setAsActualEvent = actualEvents.any(
+        final setAsActualEvent = filteredEvents.any(
           (e) =>
               e.date == cycleStartDate &&
               e.type == CycleEventType.period &&
@@ -222,7 +230,7 @@ class CycleForecastRepository {
           predictionDate,
           startDate,
           endDate,
-          actualEvents,
+          filteredEvents,
           CycleEventType.period,
         )) {
           predictions.add(
@@ -304,13 +312,13 @@ class CycleForecastRepository {
     DateTime predictionDate,
     DateTime startDate,
     DateTime endDate,
-    List<CycleEvent> actualEvents,
+    List<CycleEvent> filteredEvents,
     CycleEventType type,
   ) {
     return predictionDate.isAfter(startDate) &&
         predictionDate.isBefore(endDate) &&
-        predictionDate.isAfter(actualEvents.last.date) &&
-        !actualEvents.any((e) => e.date == predictionDate && e.type == type);
+        predictionDate.isAfter(filteredEvents.last.date) &&
+        !filteredEvents.any((e) => e.date == predictionDate && e.type == type);
   }
 
   CycleEvent _createPrediction(
@@ -330,35 +338,16 @@ class CycleForecastRepository {
     List<CycleEvent> actualEvents,
     List<CycleEvent> predictions,
   ) {
-    final mergedEvents = <CycleEvent>[];
-    var predictionIndex = 0;
-    var actualIndex = 0;
+    final mergedEvents = [...actualEvents];
 
-    while (actualIndex < actualEvents.length &&
-        predictionIndex < predictions.length) {
-      final actualEvent = actualEvents[actualIndex];
-      final prediction = predictions[predictionIndex];
-
-      if (actualEvent.date.isBefore(prediction.date)) {
-        mergedEvents.add(actualEvent);
-        actualIndex++;
-      } else {
+    for (final prediction in predictions) {
+      if (!mergedEvents
+          .any((e) => e.date == prediction.date && e.type == prediction.type)) {
         mergedEvents.add(prediction);
-        predictionIndex++;
       }
     }
 
-    while (actualIndex < actualEvents.length) {
-      mergedEvents.add(actualEvents[actualIndex]);
-      actualIndex++;
-    }
-
-    while (predictionIndex < predictions.length) {
-      mergedEvents.add(predictions[predictionIndex]);
-      predictionIndex++;
-    }
-
-    return mergedEvents;
+    return mergedEvents..sort((a, b) => a.date.compareTo(b.date));
   }
 }
 
