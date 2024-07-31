@@ -26,7 +26,7 @@ class CycleInsights extends ConsumerWidget {
           width: double.infinity,
           height: 250,
           child: Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(18),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

@@ -15,8 +15,9 @@ class CycleForecastRepository {
   static const _maximumCycleLength = 40;
   static const _systemId = 'system';
 
-  CycleForecast createForecastForEvents(
-    List<CycleEvent> events, {
+  CycleForecast createForecastForDateFromEvents({
+    required DateTime date,
+    required List<CycleEvent> events,
     DateTime? start,
     DateTime? end,
   }) {
@@ -25,7 +26,7 @@ class CycleForecastRepository {
     final startDate = start ?? events.first.date;
     final endDate = end ?? startDate.add(const Duration(days: 365));
 
-    final dayOfCycle = _getDayOfCurrentCycle(events);
+    final dayOfCycle = _getDayOfCurrentCycle(events, date);
     final averageCycleLength = _calculateAverageCycleLength(events);
     final averagePeriodLength =
         _calculateAveragePeriodDuration(events, CycleEventType.period);
@@ -40,32 +41,34 @@ class CycleForecastRepository {
       averagePeriodLength,
     );
 
+    final mergedEvents = _mergePredictionsWithActualEvents(events, predictions);
+
+    final periodOrOvulationToday = mergedEvents.firstWhereOrNull(
+      (e) =>
+          isSameDay(e.date, date) &&
+          (e.type == CycleEventType.fertile || e.type == CycleEventType.period),
+    );
+
     final phase = _determineMenstruationPhase(
       dayOfCycle,
       averageCycleLength,
-      events.firstWhereOrNull(
-        (e) =>
-            isSameDay(e.date, DateTime.now()) &&
-            (e.type == CycleEventType.period ||
-                e.type == CycleEventType.fertile),
-      ),
+      periodOrOvulationToday,
     );
 
     return CycleForecast(
-      date: DateTime.now(),
+      date: date,
       dayOfCycle: dayOfCycle,
       averageCycleLength: averageCycleLength,
       averagePeriodLength: averagePeriodLength,
       daysUntilNextPeriod: daysUntilNextPeriod,
       phase: phase,
-      events: _mergePredictionsWithActualEvents(events, predictions),
+      events: mergedEvents,
     );
   }
 
-  int _getDayOfCurrentCycle(List<CycleEvent> events) {
+  int _getDayOfCurrentCycle(List<CycleEvent> events, DateTime now) {
     if (events.isEmpty) return 0;
 
-    final now = DateTime.now().withoutTime();
     final mostRecentPeriod =
         events.lastWhere((e) => e.type == CycleEventType.period);
 
@@ -308,6 +311,6 @@ class CycleForecastRepository {
   }
 }
 
-final cyclePredictionsRepositoryProvider = Provider.autoDispose((ref) {
+final cycleForecastRepositoryProvider = Provider.autoDispose((ref) {
   return const CycleForecastRepository();
 });
