@@ -5,7 +5,8 @@ import 'package:awesome_period_tracker/core/widgets/cards/app_card.dart';
 import 'package:awesome_period_tracker/core/widgets/shadow/app_shadow.dart';
 import 'package:awesome_period_tracker/features/home/application/cycle_forecast_provider.dart';
 import 'package:awesome_period_tracker/features/home/presentation/home/widgets/calendar.dart';
-import 'package:awesome_period_tracker/features/home/presentation/home/widgets/insights.dart';
+import 'package:awesome_period_tracker/features/home/presentation/home/widgets/cycle_insights.dart';
+import 'package:awesome_period_tracker/features/home/presentation/home/widgets/info_cards.dart';
 import 'package:awesome_period_tracker/features/home/presentation/log_cycle_event/log_cycle_event_bottom_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -28,7 +29,9 @@ class _HomeScreenState extends State<HomeScreen> {
         slivers: [
           _buildAppBar(),
           _buildCalendarSection(),
-          _buildInsightsSection(),
+          _buildCardsSection(),
+          _buildCycleInsightsSection(),
+          const SliverToBoxAdapter(child: SizedBox(height: 120)),
         ],
       ),
       floatingActionButton: _buildFab(),
@@ -39,7 +42,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return SliverAppBar(
       toolbarHeight: 40,
       automaticallyImplyLeading: false,
-      // TODO - Uncomment this code to add a theme switcher to the app bar
+      // TODO Uncomment this code to add a theme switcher to the app bar
       // leading: Consumer(
       //   builder: (context, ref, child) {
       //     final themeMode = ref.watch(themeModeProvider);
@@ -63,7 +66,7 @@ class _HomeScreenState extends State<HomeScreen> {
       // ),
       title: Padding(
         padding: const EdgeInsets.only(top: 8),
-        child: SvgPicture.asset(AppAssets.mainIconNoBackground, height: 25),
+        child: SvgPicture.asset(AppAssets.mainIconLong, height: 28),
       ),
     );
   }
@@ -71,7 +74,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildCalendarSection() {
     return SliverToBoxAdapter(
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 18, 16, 0),
+        padding: const EdgeInsets.fromLTRB(8, 12, 8, 0),
         child: AppCard(
           child: Consumer(
             builder: (context, ref, child) {
@@ -96,11 +99,20 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() => _selectedDate = selectedDay);
   }
 
-  Widget _buildInsightsSection() {
+  Widget _buildCardsSection() {
     return const SliverToBoxAdapter(
       child: Padding(
-        padding: EdgeInsets.fromLTRB(16, 16, 16, 0),
-        child: Insights(),
+        padding: EdgeInsets.fromLTRB(8, 8, 8, 0),
+        child: InfoCards(),
+      ),
+    );
+  }
+
+  Widget _buildCycleInsightsSection() {
+    return SliverToBoxAdapter(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
+        child: CycleInsights(date: _selectedDate),
       ),
     );
   }
@@ -110,6 +122,7 @@ class _HomeScreenState extends State<HomeScreen> {
       child: FloatingActionButton.extended(
         elevation: 0,
         onPressed: _showCycleEventTypeBottomSheet,
+        backgroundColor: context.colorScheme.tertiary,
         label: Text(
           context.l10n.logCycleEvent,
           style: context.primaryTextTheme.titleMedium

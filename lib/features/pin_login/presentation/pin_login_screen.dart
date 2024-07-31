@@ -33,7 +33,7 @@ class _PinLoginScreenState extends ConsumerState<PinLoginScreen> {
             child: Column(
               children: [
                 SvgPicture.asset(
-                  AppAssets.mainIconNoBackground,
+                  AppAssets.mainIcon,
                   height: 60,
                 ),
                 const SizedBox(height: 18),

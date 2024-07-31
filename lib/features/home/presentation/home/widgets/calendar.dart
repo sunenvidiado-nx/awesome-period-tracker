@@ -109,7 +109,7 @@ class Calendar extends StatelessWidget {
               ? event?.type.color.darken(0.1) ??
                   context.colorScheme.shadow.withOpacity(0.35)
               : Colors.transparent,
-          width: 1.2,
+          width: 2.3,
         ),
       ),
       alignment: Alignment.center,
@@ -155,7 +155,7 @@ class Calendar extends StatelessWidget {
         shape: BoxShape.circle,
         border: Border.all(
           color: context.colorScheme.shadow.withOpacity(0.5),
-          width: 1.2,
+          width: 2.3,
         ),
       ),
       child: Container(

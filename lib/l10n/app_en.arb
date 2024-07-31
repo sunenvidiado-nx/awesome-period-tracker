@@ -29,5 +29,71 @@
   "anySymptomNotListedOrCategorized": "Symptoms not listed or categorized.",
   "describeOtherSymptomsOptional": "Describe other symptoms (optional)",
   "usedProtection": "Used protection",
-  "didNotUseProtection": "Did not use protection"
+  "didNotUseProtection": "Did not use protection",
+  "genericError": "An error occurred while processing your request.",
+  "shortGenericError": "An error occurred.",
+  "veryShortGenericError": "Error.",
+  "youreOnYourCyclePhase": "You're on your {cycle} phase",
+  "@youreOnYourCyclePhase": {
+    "placeholders": {
+      "cycle": {
+        "type": "String"
+      }
+    }
+  },
+  "cycleDay": "Cycle Day",
+  "dayN": "Day {n}",
+  "@dayN": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "nDaysUntilNextPeriod": "{n} days until next period",
+  "@nDaysUntilNextPeriod": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "oneDayUntilNextPeriod": "1 day until next period",
+  "phase": "Phase",
+  "preparingForPhase": "Preparing for {phase}",
+  "@preparingForPhase": {
+    "placeholders": {
+      "phase": {
+        "type": "String"
+      }
+    }
+  },
+  "fertileWindow": "Fertile window",
+  "inNDays": "In {n} days",
+  "@inNDays": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "inOneDay": "In 1 day",
+  "ovulationStartsOnDate": "Ovulation starts on {date}",
+  "@ovulationStartsOnDate": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "intimacy": "Intimacy",
+  "usedProtectionYesOrNo": "Used protection: {yesOrNo}",
+  "@usedProtectionYesOrNo": {
+    "placeholders": {
+      "yesOrNo": {
+        "type": "String"
+      }
+    }
+  },
+  "cycleInsights": "Cycle Insights"
 }

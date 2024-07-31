@@ -29,34 +29,29 @@ class InsightsRepository {
         final cachedInsight =
             InsightMapper.fromJson(_sharedPreferences.getString(prefsKey)!);
 
-        final isCacheValid = isSameDay(
-              cachedInsight.date,
-              forecast.date.toUtc(),
-            ) &&
-            cachedInsight.dayOfCycle == forecast.dayOfCycle &&
-            cachedInsight.daysUntilNextPeriod == forecast.daysUntilNextPeriod;
+        final isCacheValid =
+            isSameDay(cachedInsight.date, forecast.date.toUtc());
 
-        if (isCacheValid) {
-          return cachedInsight;
-        }
+        if (isCacheValid) return cachedInsight;
       }
     } catch (e) {
       // On exceptions, do nothing and generate new a new insight.
       // This is to prevent app crashes due to corrupted cache data.
     }
 
+    const isPast = false; // TODO Make this dymaic
+
     final geminiInsight = await _generateInsights(
       forecast.dayOfCycle,
       forecast.averageCycleLength,
       forecast.phase,
-      false, // TODO Change to dynamic
+      isPast,
     );
 
     final insight = Insight(
-      dayOfCycle: forecast.dayOfCycle,
-      daysUntilNextPeriod: forecast.daysUntilNextPeriod,
       insights: geminiInsight.removeEmojis(),
       date: forecast.date.toUtc(),
+      isPast: isPast,
     );
 
     await _sharedPreferences.setString(prefsKey, insight.toJson());
@@ -96,47 +91,54 @@ class InsightsRepository {
       case MenstruationPhase.follicular:
         phaseInfo = 'follicular phase';
         additionalInfo =
-            'Give expectations for the coming days and about the phase.';
+            'Give expectations for coming days. Add a light-hearted comment about renewed energy or optimism.';
         break;
       case MenstruationPhase.ovulation:
         phaseInfo = 'ovulation phase';
         additionalInfo =
-            'Add a joke about being "frisky" or "energetic" during this and coming days.';
+            'Discuss fertility peaks. Include a playful remark about feeling "frisky" or extra energetic.';
         break;
       case MenstruationPhase.luteal:
         phaseInfo = 'luteal phase';
         if (dayOfCycle > averageCycleLength) {
           additionalInfo =
-              'Mention common premenstrual symptoms and insights regarding the current phase. Mention that their period is late but it\'s normal. Consider adding a joke about periods or being late.';
+              'Mention common premenstrual symptoms. Note the period is late but it\'s normal. Add a light joke about being fashionably late.';
         } else {
           additionalInfo =
-              'Mention common premenstrual symptoms. Add a joke about this phase and useful facts about it.';
+              'Discuss common premenstrual symptoms. Share an interesting fact about this phase with a gentle joke.';
         }
         break;
       case MenstruationPhase.menstruation:
         phaseInfo = 'menstruation phase';
         additionalInfo =
-            'Add a witty joke about periods. Encourage self-care and symptom preparedness.';
+            'Encourage self-care and symptom management. Add a witty, relatable joke about periods.';
         break;
     }
 
-    if (isPast) {
-      return '''
-      CRITICAL INSTRUCTIONS: YOUR RESPONSE MUST BE EXACTLY 30 WORDS OR LESS. NO EMOJIS ALLOWED. NO GREETINGS LIKE "HI" OR "HELLO".
-
-      You are a funny, supportive, and friendly medical expert providing a casual summary about a previous menstrual cycle log. The person was on day $dayOfCycle of their $averageCycleLength-day cycle, in the $phaseInfo. Provide a brief summary of what they likely experienced during this phase. $additionalInfo Use gentle humor and a supportive tone. No need to mention which cycle day they are on as that's already provided somewhere else.
-
-      FINAL REMINDER: YOUR RESPONSE MUST BE EXACTLY 25 WORDS OR LESS. NO EMOJIS. NO GREETINGS. FAILURE TO FOLLOW THESE RULES WILL RESULT IN IMMEDIATE TERMINATION OF THIS CONVERSATION.
-      ''';
-    }
+    final timeContext = isPast ? 'previous' : 'current';
+    final summaryOrAdvice =
+        isPast ? 'Summarize likely experiences' : 'Provide friendly advice and useful insights';
 
     return '''
-    CRITICAL INSTRUCTIONS: YOUR RESPONSE MUST BE EXACTLY 30 WORDS OR LESS. NO EMOJIS ALLOWED. NO GREETINGS LIKE "HI" OR "HELLO".
+CRITICAL INSTRUCTIONS: YOUR RESPONSE MUST BE EXACTLY 45 WORDS OR LESS. NO EMOJIS OR GREETINGS ALLOWED.
 
-    You are a funny, supportive, and friendly medical expert providing casual advice about the menstrual cycle. The person is on day $dayOfCycle of their $averageCycleLength-day cycle, in the $phaseInfo. Craft a casual, friendly message about this phase. $additionalInfo Use gentle humor and a supportive tone. No need to mention which cycle day they are on as that's already provided somewhere else.
+You are a supportive medical expert discussing a $timeContext menstrual cycle. The person ${isPast ? 'was' : 'is'} on day $dayOfCycle of a $averageCycleLength-day cycle, in the $phaseInfo.
 
-    FINAL REMINDER: YOUR RESPONSE MUST BE EXACTLY 25 WORDS OR LESS. NO EMOJIS. NO GREETINGS. FAILURE TO FOLLOW THESE RULES WILL RESULT IN IMMEDIATE TERMINATION OF THIS CONVERSATION.
-    ''';
+$summaryOrAdvice about this phase. $additionalInfo Use gentle humor and a supportive tone. Don't mention the cycle day.
+
+CRUCIAL FORMAT REQUIREMENT: YOUR RESPONSE MUST BE IN MARKDOWN FORMAT AS A LIST WITH 2-3 BULLET POINTS. USE EITHER '-' OR '*' FOR BULLET POINTS.
+
+Example format:
+- Point 1 about the phase
+- Point 2 with a gentle joke
+- (Optional) Point 3 with additional info
+
+FINAL REMINDERS: 
+1. EXACTLY 45 WORDS OR LESS
+2. MARKDOWN LIST FORMAT WITH 2-3 POINTS
+3. NO EMOJIS OR GREETINGS
+4. FAILURE TO FOLLOW THESE RULES WILL RESULT IN REJECTION OF THE RESPONSE
+''';
   }
 }
 

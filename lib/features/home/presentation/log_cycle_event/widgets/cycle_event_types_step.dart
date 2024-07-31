@@ -33,43 +33,27 @@ class CycleEventTypesStep extends ConsumerWidget {
     WidgetRef ref,
     CycleEventType type,
   ) {
-    // Some UI adjustments for the different cycle event types
-    // have been applied by eye so it looks a little better.
-
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: AppCard(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 1),
-          child: ListTile(
-            contentPadding: EdgeInsets.zero,
-            leading: Container(
-              width: 28,
-              height: 28,
-              decoration: BoxDecoration(
-                color: type.color.withOpacity(
-                  type == CycleEventType.intimacy ? 0.18 : 0.25,
+        child: InkWell(
+          onTap: () => ref
+              .read(logCycleEventStateProvider.notifier)
+              .changeCycleEventType(type),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+            child: Row(
+              children: [
+                type.icon,
+                const SizedBox(width: 10),
+                Text(
+                  type == CycleEventType.fertile
+                      ? context.l10n.fertility
+                      : type.label,
+                  style: context.primaryTextTheme.titleMedium,
                 ),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Transform.scale(
-                scale: type == CycleEventType.period
-                    ? 0.55
-                    : type == CycleEventType.fertile
-                        ? 0.55
-                        : 1.1,
-                child: type.icon,
-              ),
+              ],
             ),
-            title: Text(
-              type == CycleEventType.fertile
-                  ? context.l10n.fertility
-                  : type.label,
-              style: context.primaryTextTheme.titleMedium,
-            ),
-            onTap: () => ref
-                .read(logCycleEventStateProvider.notifier)
-                .changeCycleEventType(type),
           ),
         ),
       ),

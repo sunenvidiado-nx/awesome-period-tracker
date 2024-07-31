@@ -1,6 +1,7 @@
 import 'package:awesome_period_tracker/core/extensions/build_context_extensions.dart';
 import 'package:awesome_period_tracker/features/app/application/router_provider.dart';
-import 'package:awesome_period_tracker/features/app/application/theme_provider.dart';
+import 'package:awesome_period_tracker/features/app/application/theme_mode_provider.dart';
+import 'package:awesome_period_tracker/features/app/application/themes_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';

@@ -1,9 +1,7 @@
-import 'package:awesome_period_tracker/core/app_assets.dart';
 import 'package:awesome_period_tracker/core/app_colors.dart';
 import 'package:awesome_period_tracker/core/extensions/string_extensions.dart';
 import 'package:dart_mappable/dart_mappable.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 part 'cycle_event_type.mapper.dart';
 
@@ -18,32 +16,34 @@ enum CycleEventType {
 
   Color get color {
     return switch (this) {
-      CycleEventType.period => AppColors.pink,
-      CycleEventType.intimacy => AppColors.red,
-      CycleEventType.fertile => AppColors.green,
+      CycleEventType.period => AppColors.red,
+      CycleEventType.intimacy => AppColors.pink,
+      CycleEventType.fertile => AppColors.purple,
       CycleEventType.symptoms => AppColors.orange,
     };
   }
 
   Widget get icon {
     return switch (this) {
-      CycleEventType.period => SvgPicture.asset(
-          AppAssets.mainIconNoBackground,
-          height: 14,
+      CycleEventType.period => Icon(
+          Icons.radio_button_checked,
+          color: color,
+          size: 24,
         ),
       CycleEventType.intimacy => Icon(
           Icons.favorite,
           color: color,
-          size: 18,
+          size: 24,
         ),
-      CycleEventType.fertile => CircleAvatar(
-          backgroundColor: color,
-          radius: 6,
+      CycleEventType.fertile => Icon(
+          Icons.adjust,
+          color: color,
+          size: 24,
         ),
       CycleEventType.symptoms => Icon(
           Icons.emergency_rounded,
           color: color,
-          size: 18,
+          size: 24,
         ),
     };
   }

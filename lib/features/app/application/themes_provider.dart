@@ -1,40 +1,13 @@
 import 'package:awesome_period_tracker/core/app_colors.dart';
-import 'package:awesome_period_tracker/core/providers/shared_preferences_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-
-class ThemeModeNotifier extends Notifier<ThemeMode> {
-  // Generate random strings here: http://bit.ly/random-strings-generator
-  static const _prefsKey = 'yNLV1XGjsDaV';
-
-  @override
-  ThemeMode build() {
-    final isDark =
-        ref.read(sharedPreferencesProvider).getBool(_prefsKey) ?? false;
-
-    return isDark ? ThemeMode.dark : ThemeMode.light;
-  }
-
-  void toggleTheme() {
-    if (state == ThemeMode.dark) {
-      ref.read(sharedPreferencesProvider).setBool(_prefsKey, false);
-    } else {
-      ref.read(sharedPreferencesProvider).setBool(_prefsKey, true);
-    }
-
-    state = state == ThemeMode.dark ? ThemeMode.light : ThemeMode.dark;
-  }
-}
-
-final themeModeProvider =
-    NotifierProvider<ThemeModeNotifier, ThemeMode>(ThemeModeNotifier.new);
 
 final themesProvider = Provider((ref) => (_lightTheme, _darkTheme));
 
 final _darkTheme = ThemeData(
   brightness: Brightness.dark,
-  scaffoldBackgroundColor: _darkColorScheme.surfaceContainer,
+  scaffoldBackgroundColor: _darkColorScheme.surface,
   colorScheme: _darkColorScheme,
   textTheme: _textTheme(_darkColorScheme),
   primaryTextTheme: _primaryTextTheme(_textTheme(_darkColorScheme)),
@@ -72,26 +45,39 @@ final _lightTheme = ThemeData(
       _inputDecorationTheme(_lightColorScheme, _textTheme(_darkColorScheme)),
 );
 
-const _darkColorScheme = ColorScheme.dark(
-  primary: AppColors.pink,
-  secondary: AppColors.blue,
-  secondaryContainer: AppColors.green,
-  tertiary: AppColors.orange,
-  error: AppColors.red,
-  surface: AppColors.black,
-  surfaceContainer: Colors.black,
-  shadow: AppColors.white,
+const _lightColorScheme = ColorScheme.light(
+  primary: AppColors.red,
+  primaryContainer: AppColors.bgPalePink,
+  secondary: AppColors.pink,
+  secondaryContainer: AppColors.bgPaleBlue,
+  secondaryFixed: AppColors.orange,
+  tertiary: AppColors.purple,
+  tertiaryContainer: AppColors.bgLightGray,
+  surface: AppColors.bgWhite,
+  surfaceContainer: AppColors.bgPalePink,
+  error: Color(0xFFF66279), // Softer red for error states
+  onPrimary: AppColors.bgWhite,
+  onSecondary: AppColors.outline,
+  onTertiary: AppColors.bgWhite,
+  onSurface: AppColors.outline,
+  onError: Color.fromARGB(255, 43, 23, 23),
 );
 
-const _lightColorScheme = ColorScheme.light(
-  primary: AppColors.pink,
-  secondary: AppColors.blue,
-  secondaryContainer: AppColors.green,
-  tertiary: AppColors.orange,
-  error: AppColors.red,
-  surface: Colors.white,
-  surfaceContainer: AppColors.white,
-  shadow: AppColors.black,
+final _darkColorScheme = ColorScheme.dark(
+  primary: AppColors.red.withOpacity(0.8),
+  primaryContainer: AppColors.red.withOpacity(0.2),
+  secondary: AppColors.pink.withOpacity(0.8),
+  secondaryContainer: AppColors.pink.withOpacity(0.2),
+  secondaryFixed: AppColors.orange.withOpacity(0.8),
+  tertiary: AppColors.purple.withOpacity(0.8),
+  tertiaryContainer: AppColors.purple.withOpacity(0.2),
+  surface: const Color(0xFF121212),
+  error: const Color(0xFFCF6679),
+  onPrimary: AppColors.bgWhite,
+  onSecondary: AppColors.outline,
+  onTertiary: AppColors.bgWhite,
+  onSurface: AppColors.bgWhite,
+  onError: AppColors.outline,
 );
 
 TextTheme _textTheme(ColorScheme colorScheme) =>
@@ -149,7 +135,7 @@ ElevatedButtonThemeData _elevatedButtonTheme(
       style: ButtonStyle(
         elevation: const WidgetStatePropertyAll(0),
         foregroundColor: WidgetStatePropertyAll(colorScheme.surface),
-        backgroundColor: WidgetStatePropertyAll(colorScheme.primary),
+        backgroundColor: WidgetStatePropertyAll(colorScheme.tertiary),
         minimumSize: const WidgetStatePropertyAll(Size(double.infinity, 48)),
         textStyle: WidgetStatePropertyAll(
           primaryTextTheme.titleMedium?.copyWith(fontSize: 16),
@@ -176,7 +162,7 @@ TextButtonThemeData _textButtonTheme(ColorScheme colorScheme) =>
     TextButtonThemeData(
       style: TextButton.styleFrom(
         foregroundColor: colorScheme.shadow.withAlpha(200),
-        backgroundColor: colorScheme.surface,
+        backgroundColor: colorScheme.tertiary,
         padding: const EdgeInsets.all(8),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),

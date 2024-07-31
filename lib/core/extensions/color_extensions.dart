@@ -6,18 +6,26 @@ extension ColorExtensions on Color {
       return this;
     }
 
-    if (amount < 0) {
-      throw ArgumentError('Amount must be a positive number');
-    }
-
-    if (amount > 1) {
-      throw ArgumentError('Amount must be less than or equal to 1');
-    }
+    assert(amount >= 0 && amount <= 1, 'Amount must be between 0 and 1');
 
     final hsl = HSLColor.fromColor(this);
     final hslDarkened =
         hsl.withLightness((hsl.lightness - amount).clamp(0.0, 1.0));
 
     return hslDarkened.toColor();
+  }
+
+  Color lighten([double? amount]) {
+    if (amount == null) {
+      return this;
+    }
+
+    assert(amount >= 0 && amount <= 1, 'Amount must be between 0 and 1');
+
+    final hsl = HSLColor.fromColor(this);
+    final hslLightened =
+        hsl.withLightness((hsl.lightness + amount).clamp(0.0, 1.0));
+
+    return hslLightened.toColor();
   }
 }

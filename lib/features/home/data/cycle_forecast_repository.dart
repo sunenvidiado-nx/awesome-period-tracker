@@ -43,7 +43,12 @@ class CycleForecastRepository {
     final phase = _determineMenstruationPhase(
       dayOfCycle,
       averageCycleLength,
-      events.firstWhereOrNull((e) => isSameDay(e.date, DateTime.now())),
+      events.firstWhereOrNull(
+        (e) =>
+            isSameDay(e.date, DateTime.now()) &&
+            (e.type == CycleEventType.period ||
+                e.type == CycleEventType.fertile),
+      ),
     );
 
     return CycleForecast(

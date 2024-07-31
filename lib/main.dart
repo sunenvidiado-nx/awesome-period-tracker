@@ -28,9 +28,19 @@ void main() {
 
     FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
 
-    // Preload main icon
-    const loader = SvgAssetLoader(AppAssets.mainIconNoBackground);
-    svg.cache.putIfAbsent(loader.cacheKey(null), () => loader.loadBytes(null));
+    // Preload SVGs
+    const mainIconLoader = SvgAssetLoader(AppAssets.mainIcon);
+    const mainIconLongLoader = SvgAssetLoader(AppAssets.mainIconLong);
+
+    svg.cache
+      ..putIfAbsent(
+        mainIconLoader.cacheKey(null),
+        () => mainIconLoader.loadBytes(null),
+      )
+      ..putIfAbsent(
+        mainIconLongLoader.cacheKey(null),
+        () => mainIconLongLoader.loadBytes(null),
+      );
 
     final shredPreferences = await SharedPreferences.getInstance();
 

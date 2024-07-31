@@ -12,6 +12,18 @@ class InsightsProviderParams {
   final DateTime date;
   final bool isPast;
   final bool useCache;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is InsightsProviderParams &&
+          runtimeType == other.runtimeType &&
+          date == other.date &&
+          isPast == other.isPast &&
+          useCache == other.useCache;
+
+  @override
+  int get hashCode => date.hashCode ^ isPast.hashCode ^ useCache.hashCode;
 }
 
 final insightsProvider = FutureProvider.family

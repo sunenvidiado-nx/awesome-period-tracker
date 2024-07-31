@@ -30,4 +30,12 @@ extension StringExtensions on String {
   String removeEmojis() {
     return EmojiParser().unemojify(this);
   }
+
+  String toTitleCase() {
+    return split(' ').map((word) => word.capitalize()).join(' ').splitMapJoin(
+          ' i ',
+          onMatch: (m) => ' I ',
+          onNonMatch: (m) => m,
+        );
+  }
 }

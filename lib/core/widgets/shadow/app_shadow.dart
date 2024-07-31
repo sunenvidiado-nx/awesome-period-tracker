@@ -1,16 +1,15 @@
 import 'package:awesome_period_tracker/core/extensions/build_context_extensions.dart';
+import 'package:awesome_period_tracker/core/extensions/color_extensions.dart';
 import 'package:flutter/material.dart';
 
 class AppShadow extends StatelessWidget {
   const AppShadow({
     required this.child,
-    this.elevation = 1,
     this.shadowColor,
     super.key,
-  }) : assert(elevation <= 1.5);
+  });
 
   final Widget child;
-  final double elevation;
   final Color? shadowColor;
 
   @override
@@ -21,9 +20,9 @@ class AppShadow extends StatelessWidget {
         boxShadow: [
           BoxShadow(
             color: shadowColor ??
-                context.colorScheme.shadow.withOpacity(0.12 * elevation),
-            blurRadius: 12 * elevation,
-            offset: Offset(0, 4 * elevation),
+                context.colorScheme.primary.darken(0.6).withOpacity(0.15),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
