@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.0] - 2024-08-01
+
+### Added
+
+- Feature to show details for a selected date within the calendar
+
+### Changed
+
+- Updated app icon and colors
+
 ## [1.0.11] - 2024-07-30
 
 ### Fixed
@@ -10,7 +20,7 @@ All notable changes to this project will be documented in this file.
 
 ## [1.0.10] - 2024-07-30
 
-## Fixed
+### Fixed
 
 - Fixed issue with calendar date being highlighted incorrectly when date is outside the current month.
 - Fixed issue with forecast when logging symptoms/intimacy.

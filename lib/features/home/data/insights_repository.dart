@@ -116,8 +116,9 @@ class InsightsRepository {
     }
 
     final timeContext = isPast ? 'previous' : 'current';
-    final summaryOrAdvice =
-        isPast ? 'Summarize likely experiences' : 'Provide friendly advice and useful insights';
+    final summaryOrAdvice = isPast
+        ? 'Summarize likely experiences'
+        : 'Provide friendly advice and useful insights';
 
     return '''
 CRITICAL INSTRUCTIONS: YOUR RESPONSE MUST BE EXACTLY 45 WORDS OR LESS. NO EMOJIS OR GREETINGS ALLOWED.
