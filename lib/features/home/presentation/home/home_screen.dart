@@ -7,6 +7,7 @@ import 'package:awesome_period_tracker/features/home/application/cycle_forecast_
 import 'package:awesome_period_tracker/features/home/presentation/home/widgets/calendar.dart';
 import 'package:awesome_period_tracker/features/home/presentation/home/widgets/cycle_insights.dart';
 import 'package:awesome_period_tracker/features/home/presentation/home/widgets/info_cards.dart';
+import 'package:awesome_period_tracker/features/home/presentation/home/widgets/symptoms_section.dart';
 import 'package:awesome_period_tracker/features/home/presentation/log_cycle_event/log_cycle_event_bottom_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -30,6 +31,7 @@ class _HomeScreenState extends State<HomeScreen> {
           _buildAppBar(),
           _buildCalendarSection(),
           _buildCardsSection(),
+          _buildSymptoms(),
           _buildCycleInsightsSection(),
           const SliverToBoxAdapter(child: SizedBox(height: 120)),
         ],
@@ -78,13 +80,14 @@ class _HomeScreenState extends State<HomeScreen> {
         child: AppCard(
           child: Consumer(
             builder: (context, ref, child) {
-              final state = ref.watch(cycleForecastProvider);
+              final state = ref
+                  .watch(cycleForecastProvider(DateTime.now().withoutTime()));
 
               return Calendar(
                 onDaySelected: (date, _) => _onDaySelected(date),
                 selectedDate: _selectedDate,
                 cycleEvents: state.maybeWhen(
-                  data: (predictions) => predictions.events,
+                  data: (forecast) => forecast.events,
                   orElse: () => [],
                 ),
               );
@@ -100,10 +103,19 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildCardsSection() {
-    return const SliverToBoxAdapter(
+    return SliverToBoxAdapter(
       child: Padding(
-        padding: EdgeInsets.fromLTRB(8, 8, 8, 0),
-        child: InfoCards(),
+        padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
+        child: InfoCards(_selectedDate),
+      ),
+    );
+  }
+
+  Widget _buildSymptoms() {
+    return SliverToBoxAdapter(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
+        child: SymptomsSection(_selectedDate),
       ),
     );
   }

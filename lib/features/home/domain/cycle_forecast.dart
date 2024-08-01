@@ -1,4 +1,5 @@
 import 'package:awesome_period_tracker/features/home/domain/cycle_event.dart';
+import 'package:awesome_period_tracker/features/home/domain/cycle_event_type.dart';
 import 'package:awesome_period_tracker/features/home/domain/menstruation_phase.dart';
 
 class CycleForecast {
@@ -19,4 +20,12 @@ class CycleForecast {
   final int averagePeriodLength;
   final MenstruationPhase phase;
   final List<CycleEvent> events;
+
+  DateTime get nextFertileWindowStartDate => events
+      .where((e) => e.date.isAfter(date))
+      .firstWhere((e) => e.type == CycleEventType.fertile)
+      .date;
+
+  int get daysUntilNextFertileWindow =>
+      nextFertileWindowStartDate.difference(date).inDays;
 }

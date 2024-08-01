@@ -1,3 +1,4 @@
+import 'package:awesome_period_tracker/core/app_assets.dart';
 import 'package:awesome_period_tracker/core/extensions/build_context_extensions.dart';
 import 'package:awesome_period_tracker/core/widgets/app_loader/app_shimmer.dart';
 import 'package:awesome_period_tracker/core/widgets/cards/app_card.dart';
@@ -5,6 +6,9 @@ import 'package:awesome_period_tracker/features/home/application/insights_provid
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:skeletonizer/skeletonizer.dart';
+import 'package:table_calendar/table_calendar.dart';
 
 class CycleInsights extends ConsumerWidget {
   const CycleInsights({
@@ -14,25 +18,46 @@ class CycleInsights extends ConsumerWidget {
 
   final DateTime date;
 
+  get _stateParams => InsightsProviderParams(
+        date: date,
+        isPast: isSameDay(date, DateTime.now()),
+      );
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final stateParams = InsightsProviderParams(date: date);
-    final state = ref.watch(insightsProvider(stateParams));
+    final state = ref.watch(insightsProvider(_stateParams));
 
     return AppCard(
       child: AppShimmer(
         isLoading: state.isLoading,
-        child: SizedBox(
+        child: AnimatedContainer(
+          padding: const EdgeInsets.only(bottom: 10),
+          key: ValueKey(state),
+          duration: const Duration(milliseconds: 200),
           width: double.infinity,
-          height: 250,
           child: Padding(
-            padding: const EdgeInsets.all(18),
+            padding: const EdgeInsets.all(14),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  context.l10n.cycleInsights,
-                  style: context.primaryTextTheme.titleMedium,
+                Skeleton.unite(
+                  child: Row(
+                    children: [
+                      SvgPicture.asset(
+                        AppAssets.googleGeminiIcon,
+                        height: 20,
+                        colorFilter: ColorFilter.mode(
+                          context.colorScheme.tertiary,
+                          BlendMode.srcIn,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        context.l10n.cycleInsights,
+                        style: context.primaryTextTheme.titleMedium,
+                      ),
+                    ],
+                  ),
                 ),
                 const SizedBox(height: 12),
                 Markdown(

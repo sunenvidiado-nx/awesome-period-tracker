@@ -1,17 +1,29 @@
 import 'package:awesome_period_tracker/core/extensions/build_context_extensions.dart';
+import 'package:awesome_period_tracker/core/extensions/date_time_extensions.dart';
 import 'package:awesome_period_tracker/core/extensions/string_extensions.dart';
 import 'package:awesome_period_tracker/core/widgets/app_loader/app_shimmer.dart';
 import 'package:awesome_period_tracker/core/widgets/cards/app_card.dart';
+import 'package:awesome_period_tracker/features/home/application/cycle_events_for_date_provider.dart';
 import 'package:awesome_period_tracker/features/home/application/cycle_forecast_provider.dart';
+import 'package:awesome_period_tracker/features/home/domain/cycle_event_type.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
 class InfoCards extends ConsumerWidget {
-  const InfoCards({super.key});
+  const InfoCards(this.date, {super.key});
+
+  final DateTime date;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.watch(cycleForecastProvider);
+    final cycleForecastState =
+        ref.watch(cycleForecastProvider(date.withoutTime()));
+    final cycleEventsState =
+        ref.watch(cycleEventsForDateProvider(date.withoutTime()));
+    final isLoading =
+        cycleForecastState.isLoading || cycleEventsState.isLoading;
 
     return Column(
       children: [
@@ -20,13 +32,13 @@ class InfoCards extends ConsumerWidget {
             Flexible(
               child: _buildCard(
                 context,
-                isLoading: state.isLoading,
+                isLoading: isLoading,
                 iconText: context.l10n.phase,
-                title: state.maybeWhen(
+                title: cycleForecastState.maybeWhen(
                   orElse: () => context.l10n.veryShortGenericError,
                   data: (forecast) => forecast.phase.name.toTitleCase(),
                 ),
-                subtitle: state.maybeWhen(
+                subtitle: cycleForecastState.maybeWhen(
                   orElse: () => context.l10n.veryShortGenericError,
                   data: (forecast) => context.l10n.preparingForPhase(
                     forecast.phase.nextPhase.name,
@@ -35,7 +47,7 @@ class InfoCards extends ConsumerWidget {
                 icon: Icon(
                   Icons.dark_mode_rounded,
                   color: context.colorScheme.secondaryFixed,
-                  size: 25,
+                  size: 26,
                 ),
               ),
             ),
@@ -43,14 +55,24 @@ class InfoCards extends ConsumerWidget {
             Flexible(
               child: _buildCard(
                 context,
-                isLoading: state.isLoading,
+                isLoading: isLoading,
                 iconText: context.l10n.cycleDay,
-                title: context.l10n.dayN(5),
-                subtitle: context.l10n.nDaysUntilNextPeriod(26),
+                title: context.l10n.dayN(
+                  cycleForecastState.maybeWhen(
+                    orElse: () => 69,
+                    data: (data) => data.dayOfCycle,
+                  ),
+                ),
+                subtitle: context.l10n.nDaysUntilNextPeriod(
+                  cycleForecastState.maybeWhen(
+                    orElse: () => 69,
+                    data: (data) => data.daysUntilNextPeriod,
+                  ),
+                ),
                 icon: Icon(
-                  Icons.calendar_today_rounded,
-                  color: context.colorScheme.primary,
-                  size: 22,
+                  Icons.radio_button_checked,
+                  color: context.colorScheme.error,
+                  size: 26,
                 ),
               ),
             ),
@@ -62,13 +84,28 @@ class InfoCards extends ConsumerWidget {
             Flexible(
               child: _buildCard(
                 context,
-                isLoading: state.isLoading,
-                iconText: context.l10n.fertileWindow,
-                title: context.l10n.inNDays(5),
-                subtitle: context.l10n.ovulationStartsOnDate('Aug 2'),
+                isLoading: isLoading,
+                iconText: context.l10n.intimacy,
+                title: cycleEventsState.maybeWhen(
+                  orElse: () => context.l10n.veryShortGenericError,
+                  data: (data) =>
+                      data.any((event) => event.type == CycleEventType.intimacy)
+                          ? context.l10n.gotFreaky
+                          : context.l10n.noFreaky,
+                ),
+                subtitle: cycleEventsState.maybeWhen(
+                  orElse: () => context.l10n.noIntimacyLogged,
+                  data: (data) =>
+                      data
+                          .firstWhereOrNull(
+                            (event) => event.type == CycleEventType.intimacy,
+                          )
+                          ?.additionalData ??
+                      context.l10n.noIntimacyLogged,
+                ),
                 icon: Icon(
-                  Icons.adjust,
-                  color: context.colorScheme.tertiary,
+                  Icons.favorite,
+                  color: context.colorScheme.secondary,
                   size: 26,
                 ),
               ),
@@ -77,14 +114,26 @@ class InfoCards extends ConsumerWidget {
             Flexible(
               child: _buildCard(
                 context,
-                isLoading: state.isLoading,
-                iconText: context.l10n.intimacy,
-                title: 'Got freaky',
-                subtitle: context.l10n.usedProtectionYesOrNo('Yes'),
+                isLoading: isLoading,
+                iconText: context.l10n.fertileWindow,
+                title: cycleForecastState.maybeWhen(
+                  orElse: () => context.l10n.veryShortGenericError,
+                  data: (data) => data.daysUntilNextFertileWindow == 0
+                      ? context.l10n.today
+                      : context.l10n.inNDays(data.daysUntilNextFertileWindow),
+                ),
+                subtitle: cycleForecastState.maybeWhen(
+                  orElse: () => context.l10n.veryShortGenericError,
+                  data: (data) => data.daysUntilNextFertileWindow == 0
+                      ? context.l10n.currentlyFertile
+                      : context.l10n.ovulationStartsOnDate(
+                          data.nextFertileWindowStartDate.toMonthAndDay(),
+                        ),
+                ),
                 icon: Icon(
-                  Icons.favorite,
-                  color: context.colorScheme.primary,
-                  size: 24,
+                  Icons.adjust,
+                  color: context.colorScheme.tertiary,
+                  size: 26,
                 ),
               ),
             ),
@@ -114,15 +163,17 @@ class InfoCards extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    isLoading ? const Icon(Icons.circle, size: 24) : icon,
-                    const SizedBox(width: 8),
-                    Text(
-                      iconText,
-                      style: context.primaryTextTheme.titleMedium,
-                    ),
-                  ],
+                Skeleton.keep(
+                  child: Row(
+                    children: [
+                      icon,
+                      const SizedBox(width: 8),
+                      Text(
+                        iconText,
+                        style: context.primaryTextTheme.titleMedium,
+                      ),
+                    ],
+                  ),
                 ),
                 const Spacer(),
                 Text(

@@ -31,6 +31,7 @@ void main() {
     // Preload SVGs
     const mainIconLoader = SvgAssetLoader(AppAssets.mainIcon);
     const mainIconLongLoader = SvgAssetLoader(AppAssets.mainIconLong);
+    const googleGeminiIconLoader = SvgAssetLoader(AppAssets.googleGeminiIcon);
 
     svg.cache
       ..putIfAbsent(
@@ -40,6 +41,10 @@ void main() {
       ..putIfAbsent(
         mainIconLongLoader.cacheKey(null),
         () => mainIconLongLoader.loadBytes(null),
+      )
+      ..putIfAbsent(
+        googleGeminiIconLoader.cacheKey(null),
+        () => googleGeminiIconLoader.loadBytes(null),
       );
 
     final shredPreferences = await SharedPreferences.getInstance();

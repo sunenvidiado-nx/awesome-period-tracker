@@ -24,7 +24,7 @@ class Calendar extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.fromLTRB(4, 4, 4, 8),
       child: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 270),
+        duration: const Duration(milliseconds: 200),
         child: TableCalendar<CycleEvent>(
           key: ValueKey(cycleEvents),
           firstDay: DateTime(DateTime.now().year - 10),

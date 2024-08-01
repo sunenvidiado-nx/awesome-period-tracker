@@ -29,7 +29,7 @@ class _LogCycleEventBottomSheetState
       duration: const Duration(milliseconds: 200),
       height: height,
       decoration: BoxDecoration(
-        color: context.colorScheme.surface,
+        color: context.colorScheme.surfaceContainer,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: Column(

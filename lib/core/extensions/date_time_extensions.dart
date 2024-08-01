@@ -14,4 +14,6 @@ extension DateTimeExtensions on DateTime {
 
   bool isSameMonth(DateTime other) =>
       year == other.year && month == other.month;
+
+  String toMonthAndDay() => DateFormat('MMM d').format(this);
 }
