@@ -28,6 +28,7 @@ class SymptomsSection extends ConsumerWidget {
         onTap: () => LogCycleEventBottomSheet.showCycleEventTypeBottomSheet(
           context,
           eventType: CycleEventType.symptoms,
+          date: date,
         ),
         child: AppShimmer(
           isLoading: state.isLoading || state.isRefreshing || state.isReloading,

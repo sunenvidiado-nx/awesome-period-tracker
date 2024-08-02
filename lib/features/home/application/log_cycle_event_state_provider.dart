@@ -28,7 +28,7 @@ class LogCycleEventState with LogCycleEventStateMappable {
 
 class LogCycleEventStateNotifier
     extends FamilyNotifier<LogCycleEventState, CycleEventType> {
-  late final _now = DateTime.now();
+  late DateTime _date;
 
   @override
   LogCycleEventState build(CycleEventType arg) {
@@ -40,6 +40,10 @@ class LogCycleEventStateNotifier
         _ => 0.47,
       },
     );
+  }
+
+  void setDate(DateTime date) {
+    _date = date;
   }
 
   Future<void> logPeriod(PeriodFlow flow) async {
@@ -73,10 +77,10 @@ class LogCycleEventStateNotifier
 
     cycleEvent = await ref.read(cycleEventsRepositoryProvider).get({
       'createdBy': ref.read(authRepositoryProvider).getCurrentUser()!.uid,
-      'date': Timestamp.fromDate(_now.withoutTime()),
+      'date': Timestamp.fromDate(_date.withoutTime()),
       'type': type.name,
     }).then(
-      (value) => value.firstWhereOrNull((e) => isSameDay(e.date, _now)),
+      (value) => value.firstWhereOrNull((e) => isSameDay(e.date, _date)),
     );
 
     if (cycleEvent != null) {
@@ -86,9 +90,9 @@ class LogCycleEventStateNotifier
     }
 
     cycleEvent = CycleEvent(
-      date: _now,
-      additionalData: additionalData,
+      date: _date,
       type: type,
+      additionalData: additionalData,
       createdBy: ref.read(authRepositoryProvider).getCurrentUser()!.uid,
     );
 

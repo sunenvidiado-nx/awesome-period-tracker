@@ -15,7 +15,7 @@ abstract class AppSnackbar {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
           color: type == AppSnackbarType.success
-              ? context.colorScheme.secondaryContainer
+              ? context.colorScheme.tertiary
               : context.colorScheme.error,
           borderRadius: BorderRadius.circular(8),
         ),

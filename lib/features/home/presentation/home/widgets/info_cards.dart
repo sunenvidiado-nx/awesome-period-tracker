@@ -95,6 +95,7 @@ class InfoCards extends ConsumerWidget {
                   LogCycleEventBottomSheet.showCycleEventTypeBottomSheet(
                 context,
                 eventType: CycleEventType.period,
+                date: date,
               ),
             ),
           ],
@@ -160,6 +161,7 @@ class InfoCards extends ConsumerWidget {
                   LogCycleEventBottomSheet.showCycleEventTypeBottomSheet(
                 context,
                 eventType: CycleEventType.intimacy,
+                date: date,
               ),
             ),
           ],

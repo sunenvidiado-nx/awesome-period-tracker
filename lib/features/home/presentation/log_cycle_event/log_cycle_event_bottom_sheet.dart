@@ -8,13 +8,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class LogCycleEventBottomSheet extends ConsumerStatefulWidget {
-  const LogCycleEventBottomSheet({required this.eventType, super.key});
+  const LogCycleEventBottomSheet({
+    required this.eventType,
+    required this.date,
+    super.key,
+  });
 
   final CycleEventType eventType;
+  final DateTime date;
 
   static Future<void> showCycleEventTypeBottomSheet(
     BuildContext context, {
     required CycleEventType eventType,
+    required DateTime date,
   }) async {
     await showModalBottomSheet(
       context: context,
@@ -23,7 +29,10 @@ class LogCycleEventBottomSheet extends ConsumerStatefulWidget {
       barrierColor: context.colorScheme.shadow.withOpacity(0.3),
       builder: (context) => Padding(
         padding: MediaQuery.of(context).viewInsets,
-        child: LogCycleEventBottomSheet(eventType: eventType),
+        child: LogCycleEventBottomSheet(
+          eventType: eventType,
+          date: date,
+        ),
       ),
     );
   }
@@ -35,6 +44,17 @@ class LogCycleEventBottomSheet extends ConsumerStatefulWidget {
 
 class _LogCycleEventBottomSheetState
     extends ConsumerState<LogCycleEventBottomSheet> {
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref
+          .read(logCycleEventStateProvider(widget.eventType).notifier)
+          .setDate(widget.date);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(logCycleEventStateProvider(widget.eventType));
