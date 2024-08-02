@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.2] - 2024-08-02
+
+### Fixed
+
+- Fixed issue where logging cycle events would be logged to the current date instead of the selected date.
+
 ## [1.1.1] - 2024-08-02
 
 ### Added
