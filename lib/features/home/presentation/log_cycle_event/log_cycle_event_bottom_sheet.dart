@@ -1,8 +1,6 @@
-import 'package:animations/animations.dart';
 import 'package:awesome_period_tracker/core/extensions/build_context_extensions.dart';
 import 'package:awesome_period_tracker/features/home/application/log_cycle_event_state_provider.dart';
 import 'package:awesome_period_tracker/features/home/domain/cycle_event_type.dart';
-import 'package:awesome_period_tracker/features/home/presentation/log_cycle_event/widgets/cycle_event_types_step.dart';
 import 'package:awesome_period_tracker/features/home/presentation/log_cycle_event/widgets/intimacy_step.dart';
 import 'package:awesome_period_tracker/features/home/presentation/log_cycle_event/widgets/period_flow_step.dart';
 import 'package:awesome_period_tracker/features/home/presentation/log_cycle_event/widgets/symptoms_step.dart';
@@ -10,7 +8,25 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class LogCycleEventBottomSheet extends ConsumerStatefulWidget {
-  const LogCycleEventBottomSheet({super.key});
+  const LogCycleEventBottomSheet({required this.eventType, super.key});
+
+  final CycleEventType eventType;
+
+  static Future<void> showCycleEventTypeBottomSheet(
+    BuildContext context, {
+    required CycleEventType eventType,
+  }) async {
+    await showModalBottomSheet(
+      context: context,
+      scrollControlDisabledMaxHeightRatio: 0.9,
+      isScrollControlled: true,
+      barrierColor: context.colorScheme.shadow.withOpacity(0.3),
+      builder: (context) => Padding(
+        padding: MediaQuery.of(context).viewInsets,
+        child: LogCycleEventBottomSheet(eventType: eventType),
+      ),
+    );
+  }
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() =>
@@ -21,7 +37,7 @@ class _LogCycleEventBottomSheetState
     extends ConsumerState<LogCycleEventBottomSheet> {
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(logCycleEventStateProvider);
+    final state = ref.watch(logCycleEventStateProvider(widget.eventType));
     final height =
         MediaQuery.of(context).size.height * state.bottomSheetHeightFactor;
 
@@ -37,24 +53,12 @@ class _LogCycleEventBottomSheetState
         children: [
           _buildPill(context),
           Expanded(
-            child: PageTransitionSwitcher(
-              reverse: state.selectedCycleEventType == null,
-              transitionBuilder: (child, animation, secondaryAnimation) {
-                return SharedAxisTransition(
-                  fillColor: Colors.transparent,
-                  animation: animation,
-                  secondaryAnimation: secondaryAnimation,
-                  transitionType: SharedAxisTransitionType.horizontal,
-                  child: child,
-                );
-              },
-              child: switch (state.selectedCycleEventType) {
-                CycleEventType.period => const PeriodFlowStep(),
-                CycleEventType.symptoms => const SymptomsStep(),
-                CycleEventType.intimacy => const IntimacyStep(),
-                _ => const CycleEventTypesStep(),
-              },
-            ),
+            child: switch (state.selectedCycleEventType) {
+              CycleEventType.period => const PeriodFlowStep(),
+              CycleEventType.symptoms => const SymptomsStep(),
+              CycleEventType.intimacy => const IntimacyStep(),
+              _ => const SizedBox.shrink(),
+            },
           ),
         ],
       ),

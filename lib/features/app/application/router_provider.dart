@@ -18,7 +18,7 @@ final routerProvider = Provider((ref) {
   return GoRouter(
     initialLocation: ref.watch(initialRouteProvider),
     observers: [
-      // TODO: Add observers
+      // TODO Add observers
     ],
     redirect: (context, state) {
       final isLoggedIn = ref.watch(authRepositoryProvider).isLoggedIn();

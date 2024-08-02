@@ -7,6 +7,7 @@ import 'package:awesome_period_tracker/features/home/application/cycle_events_fo
 import 'package:awesome_period_tracker/features/home/domain/cycle_event.dart';
 import 'package:awesome_period_tracker/features/home/domain/cycle_event_type.dart';
 import 'package:awesome_period_tracker/features/home/domain/symptoms.dart';
+import 'package:awesome_period_tracker/features/home/presentation/log_cycle_event/log_cycle_event_bottom_sheet.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -22,43 +23,53 @@ class SymptomsSection extends ConsumerWidget {
     final state = ref.watch(cycleEventsForDateProvider(date.withoutTime()));
 
     return AppCard(
-      child: AppShimmer(
-        isLoading: state.isLoading || state.isRefreshing || state.isReloading,
-        child: SizedBox(
-          width: double.infinity,
-          child: Padding(
-            padding: const EdgeInsets.all(14),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Skeleton.ignore(
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.emergency,
-                        size: 24,
-                        color: context.colorScheme.secondaryFixed,
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        context.l10n.symptoms,
-                        style: context.primaryTextTheme.titleMedium,
-                      ),
-                    ],
+      isAnimated: true,
+      child: InkWell(
+        onTap: () => LogCycleEventBottomSheet.showCycleEventTypeBottomSheet(
+          context,
+          eventType: CycleEventType.symptoms,
+        ),
+        child: AppShimmer(
+          isLoading: state.isLoading || state.isRefreshing || state.isReloading,
+          child: SizedBox(
+            width: double.infinity,
+            child: Padding(
+              padding: const EdgeInsets.all(14),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Skeleton.keep(
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.emergency,
+                          size: 20,
+                          color: context.colorScheme.shadow.withOpacity(0.4),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          context.l10n.symptoms,
+                          style: context.primaryTextTheme.titleMedium,
+                        ),
+                        const Spacer(),
+                        const Icon(
+                          Icons.add_rounded,
+                          size: 20,
+                          color: Colors.black26,
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                const SizedBox(height: 4),
-                AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  child: state.maybeWhen(
+                  const SizedBox(height: 4),
+                  state.maybeWhen(
                     loading: () =>
                         _buildChips(context, const ['one', 'one two', 'three']),
                     data: (cycleEvents) =>
                         _buildSymptomsList(context, cycleEvents),
                     orElse: () => _buildNoSymptomsPlaceholder(context),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
@@ -84,30 +95,33 @@ class SymptomsSection extends ConsumerWidget {
   }
 
   Widget _buildChips(BuildContext context, List<String> labels) {
-    return Wrap(
-      spacing: 8,
-      runSpacing: 4,
-      children: [
-        for (final label in labels)
-          Skeleton.leaf(
-            child: Chip(
-              label: Text(label),
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-              side: BorderSide(
-                color: context.colorScheme.onSurface.withOpacity(0.2),
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14),
+    return Padding(
+      padding: const EdgeInsets.only(top: 8, bottom: 4),
+      child: Wrap(
+        spacing: 8,
+        runSpacing: 4,
+        children: [
+          for (final label in labels)
+            Skeleton.leaf(
+              child: Chip(
+                label: Text(label),
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                side: BorderSide(
+                  color: context.colorScheme.onSurface.withOpacity(0.2),
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
               ),
             ),
-          ),
-      ],
+        ],
+      ),
     );
   }
 
   Widget _buildNoSymptomsPlaceholder(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(20.0),
+      padding: const EdgeInsets.all(30.0),
       child: Center(
         child: Text(
           context.l10n.noSymptomsLogged,

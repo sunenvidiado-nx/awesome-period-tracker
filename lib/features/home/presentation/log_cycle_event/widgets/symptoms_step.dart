@@ -5,6 +5,7 @@ import 'package:awesome_period_tracker/core/widgets/shadow/app_shadow.dart';
 import 'package:awesome_period_tracker/core/widgets/snackbars/app_snackbar.dart';
 import 'package:awesome_period_tracker/features/home/application/cycle_forecast_provider.dart';
 import 'package:awesome_period_tracker/features/home/application/log_cycle_event_state_provider.dart';
+import 'package:awesome_period_tracker/features/home/domain/cycle_event_type.dart';
 import 'package:awesome_period_tracker/features/home/domain/symptoms.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -36,7 +37,10 @@ class _SymptomsStepState extends State<SymptomsStep> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildHeader(),
+            Text(
+              context.l10n.logSymptomsExperiencedToday,
+              style: context.primaryTextTheme.titleLarge,
+            ),
             const SizedBox(height: 16),
             ListView.builder(
               shrinkWrap: true,
@@ -51,28 +55,6 @@ class _SymptomsStepState extends State<SymptomsStep> {
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildHeader() {
-    return Row(
-      children: [
-        Consumer(
-          builder: (context, ref, child) => InkWell(
-            child: const Icon(Icons.arrow_back_rounded, size: 22),
-            onTap: () {
-              ref
-                  .read(logCycleEventStateProvider.notifier)
-                  .changeCycleEventType(null);
-            },
-          ),
-        ),
-        const SizedBox(width: 16),
-        Text(
-          context.l10n.logSymptomsExperiencedToday,
-          style: context.primaryTextTheme.titleMedium,
-        ),
-      ],
     );
   }
 
@@ -168,7 +150,7 @@ class _SymptomsStepState extends State<SymptomsStep> {
 
     try {
       await ref
-          .read(logCycleEventStateProvider.notifier)
+          .read(logCycleEventStateProvider(CycleEventType.symptoms).notifier)
           .logSymptoms(
             _selectedSymptoms,
             _selectedSymptoms.contains(Symptoms.other)

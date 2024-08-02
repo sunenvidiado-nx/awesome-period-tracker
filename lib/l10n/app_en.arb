@@ -10,7 +10,14 @@
       }
     }
   },
-  "flowLevel": "Flow Level",
+  "flowLevel": "Flow level:\n{level}",
+  "@flowLevel": {
+    "placeholders": {
+      "level": {
+        "type": "String"
+      }
+    }
+  },
   "logCycleEvent": "Log cycle event",
   "today": "Today",
   "whatWouldYouLikeToLog": "What would you like to log?",
@@ -30,18 +37,11 @@
   "describeOtherSymptomsOptional": "Describe other symptoms (optional)",
   "usedProtection": "Used protection",
   "didNotUseProtection": "Did not use protection",
-  "genericError": "An error occurred while processing your request.",
-  "shortGenericError": "An error occurred.",
+  "longGenericError": "An error occurred while processing your request.",
+  "genericError": "An error occurred.",
+  "shortGenericError": "Error occurred.",
   "veryShortGenericError": "Error.",
-  "youreOnYourCyclePhase": "You're on your {cycle} phase",
-  "@youreOnYourCyclePhase": {
-    "placeholders": {
-      "cycle": {
-        "type": "String"
-      }
-    }
-  },
-  "cycleDay": "Cycle Day",
+  "cycleDay": "Cycle day",
   "dayN": "Day {n}",
   "@dayN": {
     "placeholders": {
@@ -50,18 +50,9 @@
       }
     }
   },
-  "nDaysUntilNextPeriod": "{n} days until next period",
-  "@nDaysUntilNextPeriod": {
-    "placeholders": {
-      "n": {
-        "type": "int"
-      }
-    }
-  },
-  "oneDayUntilNextPeriod": "1 day until next period",
   "phase": "Phase",
-  "preparingForPhase": "Preparing for {phase}",
-  "@preparingForPhase": {
+  "currentlyInThePhasePhase": "Currently in the {phase} phase",
+  "@currentlyInThePhasePhase": {
     "placeholders": {
       "phase": {
         "type": "String"
@@ -78,15 +69,16 @@
     }
   },
   "inOneDay": "In 1 day",
-  "ovulationStartsOnDate": "Ovulation starts on {date}",
-  "@ovulationStartsOnDate": {
+  "chancesOfGettingPregnant": "{chance} chances of getting pregnant",
+  "@chancesOfGettingPregnant": {
     "placeholders": {
-      "date": {
+      "chance": {
         "type": "String"
       }
     }
   },
-  "currentlyFertile": "Currently fertile",
+  "low": "Low",
+  "high": "High",
   "intimacy": "Intimacy",
   "usedProtectionYesOrNo": "Used protection: {yesOrNo}",
   "@usedProtectionYesOrNo": {
@@ -96,13 +88,18 @@
       }
     }
   },
-  "cycleInsights": "Cycle Insights",
+  "cycleInsights": "Cycle insights",
+  "cycleMetrics": "Cycle metrics",
   "symptoms": "Symptoms",
   "noSymptomsLogged": "No symptoms logged",
-  "noPeriodToday": "No period today",
-  "periodExpectedToday": "Period expected today",
-  "periodLoggedToday": "Period logged today",
+  "noPeriodLoggedForThisDay": "No period logged for this day",
+  "expectedToday": "Expected today",
+  "periodLogged": "Period logged",
+  "noLogs": "No logs",
   "gotFreaky": "Got freaky",
   "noFreaky": "No freaky",
-  "noIntimacyLogged": "No intimacy logged"
+  "noIntimateActivitiesToday": "No intimate activities today",
+  "period": "Period",
+  "notSpecified": "Not specified",
+  "selectPeriodFlowLevel": "Select period flow level"
 }

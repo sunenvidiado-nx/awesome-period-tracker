@@ -1,14 +1,11 @@
 import 'package:awesome_period_tracker/core/app_assets.dart';
-import 'package:awesome_period_tracker/core/extensions/build_context_extensions.dart';
 import 'package:awesome_period_tracker/core/extensions/date_time_extensions.dart';
 import 'package:awesome_period_tracker/core/widgets/cards/app_card.dart';
-import 'package:awesome_period_tracker/core/widgets/shadow/app_shadow.dart';
 import 'package:awesome_period_tracker/features/home/application/cycle_forecast_provider.dart';
 import 'package:awesome_period_tracker/features/home/presentation/home/widgets/calendar.dart';
 import 'package:awesome_period_tracker/features/home/presentation/home/widgets/cycle_insights.dart';
 import 'package:awesome_period_tracker/features/home/presentation/home/widgets/info_cards.dart';
 import 'package:awesome_period_tracker/features/home/presentation/home/widgets/symptoms_section.dart';
-import 'package:awesome_period_tracker/features/home/presentation/log_cycle_event/log_cycle_event_bottom_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -33,10 +30,9 @@ class _HomeScreenState extends State<HomeScreen> {
           _buildCardsSection(),
           _buildSymptoms(),
           _buildCycleInsightsSection(),
-          const SliverToBoxAdapter(child: SizedBox(height: 120)),
+          const SliverToBoxAdapter(child: SafeArea(child: SizedBox.shrink())),
         ],
       ),
-      floatingActionButton: _buildFab(),
     );
   }
 
@@ -66,9 +62,12 @@ class _HomeScreenState extends State<HomeScreen> {
       //     );
       //   },
       // ),
-      title: Padding(
-        padding: const EdgeInsets.only(top: 8),
-        child: SvgPicture.asset(AppAssets.mainIconLong, height: 28),
+      title: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 450),
+        child: Padding(
+          padding: const EdgeInsets.only(top: 8),
+          child: SvgPicture.asset(AppAssets.mainIconLong, height: 28),
+        ),
       ),
     );
   }
@@ -105,7 +104,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildCardsSection() {
     return SliverToBoxAdapter(
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
+        padding: const EdgeInsets.fromLTRB(8, 16, 8, 0),
         child: InfoCards(_selectedDate),
       ),
     );
@@ -114,7 +113,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildSymptoms() {
     return SliverToBoxAdapter(
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
+        padding: const EdgeInsets.fromLTRB(8, 14, 8, 0),
         child: SymptomsSection(_selectedDate),
       ),
     );
@@ -123,37 +122,8 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildCycleInsightsSection() {
     return SliverToBoxAdapter(
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
+        padding: const EdgeInsets.fromLTRB(8, 18, 8, 0),
         child: CycleInsights(date: _selectedDate),
-      ),
-    );
-  }
-
-  Widget _buildFab() {
-    return AppShadow(
-      child: FloatingActionButton.extended(
-        elevation: 0,
-        onPressed: _showCycleEventTypeBottomSheet,
-        backgroundColor: context.colorScheme.tertiary,
-        label: Text(
-          context.l10n.logCycleEvent,
-          style: context.primaryTextTheme.titleMedium
-              ?.copyWith(color: context.colorScheme.surface),
-        ),
-        icon: const Icon(Icons.add_rounded),
-      ),
-    );
-  }
-
-  Future<void> _showCycleEventTypeBottomSheet() async {
-    await showModalBottomSheet(
-      context: context,
-      scrollControlDisabledMaxHeightRatio: 0.9,
-      isScrollControlled: true,
-      barrierColor: context.colorScheme.shadow.withOpacity(0.3),
-      builder: (context) => Padding(
-        padding: MediaQuery.of(context).viewInsets,
-        child: const LogCycleEventBottomSheet(),
       ),
     );
   }

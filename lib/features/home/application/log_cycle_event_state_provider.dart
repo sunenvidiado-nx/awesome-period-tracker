@@ -15,34 +15,30 @@ part 'log_cycle_event_state_provider.mapper.dart';
 
 @MappableClass()
 class LogCycleEventState with LogCycleEventStateMappable {
-  final CycleEventType? selectedCycleEventType;
+  final CycleEventType selectedCycleEventType;
   final Exception? error;
   final double bottomSheetHeightFactor;
 
   const LogCycleEventState({
-    this.selectedCycleEventType,
+    required this.selectedCycleEventType,
     this.error,
     this.bottomSheetHeightFactor = 0.45,
   });
 }
 
 class LogCycleEventStateNotifier
-    extends AutoDisposeNotifier<LogCycleEventState> {
+    extends FamilyNotifier<LogCycleEventState, CycleEventType> {
   late final _now = DateTime.now();
 
   @override
-  LogCycleEventState build() => const LogCycleEventState();
-
-  void changeCycleEventType(CycleEventType? cycleEventType) {
-    final heightFactor = switch (cycleEventType) {
-      CycleEventType.period => 0.5,
-      CycleEventType.symptoms => 0.7,
-      _ => 0.47,
-    };
-
-    state = state.copyWith(
-      selectedCycleEventType: cycleEventType,
-      bottomSheetHeightFactor: heightFactor,
+  LogCycleEventState build(CycleEventType arg) {
+    return LogCycleEventState(
+      selectedCycleEventType: arg,
+      bottomSheetHeightFactor: switch (arg) {
+        CycleEventType.period => 0.5,
+        CycleEventType.symptoms => 0.7,
+        _ => 0.47,
+      },
     );
   }
 
@@ -100,7 +96,7 @@ class LogCycleEventStateNotifier
   }
 }
 
-final logCycleEventStateProvider = NotifierProvider.autoDispose<
-    LogCycleEventStateNotifier, LogCycleEventState>(
+final logCycleEventStateProvider = NotifierProviderFamily<
+    LogCycleEventStateNotifier, LogCycleEventState, CycleEventType>(
   LogCycleEventStateNotifier.new,
 );

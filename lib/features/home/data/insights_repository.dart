@@ -96,13 +96,13 @@ class InsightsRepository {
       case MenstruationPhase.ovulation:
         phaseInfo = 'ovulation phase';
         additionalInfo =
-            'Discuss fertility peaks. Include a playful remark about feeling "frisky" or extra energetic.';
+            'Discuss fertility peaks. Include a playful remark about feeling "frisky/freaky" or extra energetic.';
         break;
       case MenstruationPhase.luteal:
         phaseInfo = 'luteal phase';
         if (dayOfCycle > averageCycleLength) {
           additionalInfo =
-              'Mention common premenstrual symptoms. Note the period is late but it\'s normal. Add a light joke about being fashionably late.';
+              'Mention common premenstrual symptoms. Note the period is late but it\'s normal. You may add a light joke about being fashionably late.';
         } else {
           additionalInfo =
               'Discuss common premenstrual symptoms. Share an interesting fact about this phase with a gentle joke.';
@@ -121,21 +121,21 @@ class InsightsRepository {
         : 'Provide friendly advice and useful insights';
 
     return '''
-CRITICAL INSTRUCTIONS: YOUR RESPONSE MUST BE EXACTLY 45 WORDS OR LESS. NO EMOJIS OR GREETINGS ALLOWED.
+CRITICAL INSTRUCTIONS: YOUR RESPONSE MUST BE EXACTLY 50 WORDS OR LESS. NO EMOJIS OR GREETINGS ALLOWED.
 
 You are a supportive medical expert discussing a $timeContext menstrual cycle. The person ${isPast ? 'was' : 'is'} on day $dayOfCycle of a $averageCycleLength-day cycle, in the $phaseInfo.
 
 $summaryOrAdvice about this phase. $additionalInfo Use gentle humor and a supportive tone. Don't mention the cycle day.
 
-CRUCIAL FORMAT REQUIREMENT: YOUR RESPONSE MUST BE IN MARKDOWN FORMAT AS A LIST WITH 2-3 BULLET POINTS. USE EITHER '-' OR '*' FOR BULLET POINTS.
+CRUCIAL FORMAT REQUIREMENT: YOUR RESPONSE MUST BE IN MARKDOWN FORMAT AS A LIST WITH 2-3 BULLET POINTS. USE '-' FOR BULLET POINTS.
 
 Example format:
 - Point 1 about the phase
-- Point 2 with a gentle joke
-- (Optional) Point 3 with additional info
+- Point 2 with additional info (like symptoms, what to expect for coming days, etc.)
+- (Optional) Point 3 with more additional info and a gentle joke
 
 FINAL REMINDERS: 
-1. EXACTLY 45 WORDS OR LESS
+1. EXACTLY 50 WORDS OR LESS
 2. MARKDOWN LIST FORMAT WITH 2-3 POINTS
 3. NO EMOJIS OR GREETINGS
 4. FAILURE TO FOLLOW THESE RULES WILL RESULT IN REJECTION OF THE RESPONSE

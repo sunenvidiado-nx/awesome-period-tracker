@@ -6,6 +6,7 @@ import 'package:awesome_period_tracker/core/widgets/snackbars/app_snackbar.dart'
 import 'package:awesome_period_tracker/features/home/application/cycle_forecast_provider.dart';
 import 'package:awesome_period_tracker/features/home/application/log_cycle_event_state_provider.dart';
 import 'package:awesome_period_tracker/features/home/data/insights_repository.dart';
+import 'package:awesome_period_tracker/features/home/domain/cycle_event_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -28,7 +29,10 @@ class _IntimacyStepState extends State<IntimacyStep> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildHeader(),
+            Text(
+              context.l10n.logIntimateActivityForToday,
+              style: context.primaryTextTheme.titleLarge,
+            ),
             const SizedBox(height: 16),
             for (final value in [true, false]) _buildSelectionTile(value),
             const Spacer(),
@@ -36,30 +40,6 @@ class _IntimacyStepState extends State<IntimacyStep> {
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildHeader() {
-    return Row(
-      children: [
-        Consumer(
-          builder: (context, ref, child) {
-            return InkWell(
-              child: const Icon(Icons.arrow_back_rounded, size: 22),
-              onTap: () {
-                ref
-                    .read(logCycleEventStateProvider.notifier)
-                    .changeCycleEventType(null);
-              },
-            );
-          },
-        ),
-        const SizedBox(width: 16),
-        Text(
-          context.l10n.logIntimateActivityForToday,
-          style: context.primaryTextTheme.titleMedium,
-        ),
-      ],
     );
   }
 
@@ -117,7 +97,7 @@ class _IntimacyStepState extends State<IntimacyStep> {
 
     try {
       await ref
-          .read(logCycleEventStateProvider.notifier)
+          .read(logCycleEventStateProvider(CycleEventType.intimacy).notifier)
           .logIntimacy(_didUseProtection)
           .then(
         (_) {

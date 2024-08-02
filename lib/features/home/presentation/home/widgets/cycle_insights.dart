@@ -40,7 +40,7 @@ class CycleInsights extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Skeleton.unite(
+                Skeleton.keep(
                   child: Row(
                     children: [
                       SvgPicture.asset(

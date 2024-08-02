@@ -7,6 +7,7 @@ import 'package:awesome_period_tracker/features/home/application/cycle_forecast_
 import 'package:awesome_period_tracker/features/home/application/insights_provider.dart';
 import 'package:awesome_period_tracker/features/home/application/log_cycle_event_state_provider.dart';
 import 'package:awesome_period_tracker/features/home/data/insights_repository.dart';
+import 'package:awesome_period_tracker/features/home/domain/cycle_event_type.dart';
 import 'package:awesome_period_tracker/features/home/domain/period_flow.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -30,7 +31,10 @@ class _PeriodFlowStepState extends State<PeriodFlowStep> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildHeader(),
+            Text(
+              context.l10n.selectPeriodFlowLevel,
+              style: context.primaryTextTheme.titleLarge,
+            ),
             const SizedBox(height: 16),
             for (final flow in PeriodFlow.values) _buildPeriodFlowTile(flow),
             const Spacer(),
@@ -38,30 +42,6 @@ class _PeriodFlowStepState extends State<PeriodFlowStep> {
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildHeader() {
-    return Row(
-      children: [
-        Consumer(
-          builder: (context, ref, child) {
-            return InkWell(
-              child: const Icon(Icons.arrow_back_rounded, size: 22),
-              onTap: () {
-                ref
-                    .read(logCycleEventStateProvider.notifier)
-                    .changeCycleEventType(null);
-              },
-            );
-          },
-        ),
-        const SizedBox(width: 16),
-        Text(
-          context.l10n.logPeriodForToday,
-          style: context.primaryTextTheme.titleMedium,
-        ),
-      ],
     );
   }
 
@@ -120,7 +100,7 @@ class _PeriodFlowStepState extends State<PeriodFlowStep> {
 
     try {
       await ref
-          .read(logCycleEventStateProvider.notifier)
+          .read(logCycleEventStateProvider(CycleEventType.period).notifier)
           .logPeriod(_selectedFlow)
           .then(
         (_) {
