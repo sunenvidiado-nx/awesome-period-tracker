@@ -145,4 +145,4 @@ jobs:
           body: |
             ${{ steps.changelog.outputs.content }}
 
-            Note: The IPA file is unsigned and intended solely for testing purposes. It is not eligible for App Store submission. Installation and execution on a device require a developer account and Xcode.
+            > Note: The IPA file is unsigned and intended solely for testing purposes. It is not eligible for App Store submission. Installation and execution on a device require a developer account and Xcode.
