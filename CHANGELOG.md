@@ -2,15 +2,26 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.1] - 2024-08-02
+
+### Added
+
+- Feature to clear cached data when installing a new version.
+
+### Changed
+
+- Updated app icon and splash screen.
+- Redesigned the "cycle metrics" section.
+
 ## [1.1.0] - 2024-08-01
 
 ### Added
 
-- Feature to show details for a selected date within the calendar
+- Feature to show details for a selected date within the calendar.
 
 ### Changed
 
-- Updated app icon and colors
+- Updated app icon and colors.
 
 ## [1.0.11] - 2024-07-30
 
