@@ -55,6 +55,9 @@ class CycleForecastRepository {
       periodOrOvulationToday,
     );
 
+    final eventsForDate =
+        mergedEvents.where((e) => isSameDay(e.date, date)).toList();
+
     return CycleForecast(
       date: date,
       dayOfCycle: dayOfCycle,
@@ -63,6 +66,7 @@ class CycleForecastRepository {
       daysUntilNextPeriod: daysUntilNextPeriod,
       phase: phase,
       events: mergedEvents,
+      eventsForDate: eventsForDate,
     );
   }
 

@@ -3,7 +3,6 @@ import 'package:awesome_period_tracker/core/extensions/color_extensions.dart';
 import 'package:awesome_period_tracker/core/extensions/date_time_extensions.dart';
 import 'package:awesome_period_tracker/core/widgets/app_loader/app_shimmer.dart';
 import 'package:awesome_period_tracker/core/widgets/cards/app_card.dart';
-import 'package:awesome_period_tracker/features/home/application/cycle_events_for_date_provider.dart';
 import 'package:awesome_period_tracker/features/home/application/cycle_forecast_provider.dart';
 import 'package:awesome_period_tracker/features/home/domain/cycle_event_type.dart';
 import 'package:awesome_period_tracker/features/home/domain/menstruation_phase.dart';
@@ -20,12 +19,9 @@ class InfoCards extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final cycleForecastState =
-        ref.watch(cycleForecastProvider(date.withoutTime()));
-    final cycleEventsState =
-        ref.watch(cycleEventsForDateProvider(date.withoutTime()));
+    final state = ref.watch(cycleForecastProvider(date.withoutTime()));
     final isLoading =
-        cycleForecastState.isLoading || cycleEventsState.isLoading;
+        state.isLoading || state.isRefreshing || state.isReloading;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -45,11 +41,11 @@ class InfoCards extends ConsumerWidget {
               isLoading: isLoading,
               backgroundColor: context.colorScheme.secondaryFixed.lighten(0.26),
               iconText: context.l10n.cycleDay,
-              title: cycleForecastState.maybeWhen(
+              title: state.maybeWhen(
                 orElse: () => context.l10n.veryShortGenericError,
                 data: (forecast) => context.l10n.dayN(forecast.dayOfCycle),
               ),
-              subtitle: cycleForecastState.maybeWhen(
+              subtitle: state.maybeWhen(
                 orElse: () => context.l10n.longGenericError,
                 data: (forecast) =>
                     context.l10n.currentlyInThePhasePhase(forecast.phase.name),
@@ -66,18 +62,21 @@ class InfoCards extends ConsumerWidget {
               isLoading: isLoading,
               backgroundColor: context.colorScheme.primary.lighten(0.25),
               iconText: context.l10n.period,
-              title: cycleForecastState.maybeWhen(
+              title: state.maybeWhen(
                 orElse: () => context.l10n.veryShortGenericError,
                 data: (forecast) => forecast.daysUntilNextPeriod == 1
                     ? context.l10n.inOneDay
                     : context.l10n.inNDays(forecast.daysUntilNextPeriod),
               ),
-              subtitle: cycleEventsState.maybeWhen(
+              subtitle: state.maybeWhen(
                 orElse: () => context.l10n.longGenericError,
-                data: (data) =>
-                    data.any((event) => event.type == CycleEventType.period)
+                data: (forecast) => forecast.phase ==
+                        MenstruationPhase.menstruation
+                    ? context.l10n.today
+                    : forecast.eventsForDate
+                            .any((event) => event.type == CycleEventType.period)
                         ? context.l10n.flowLevel(
-                            data
+                            forecast.eventsForDate
                                     .firstWhere(
                                       (e) => e.type == CycleEventType.period,
                                     )
@@ -107,16 +106,16 @@ class InfoCards extends ConsumerWidget {
               isLoading: isLoading,
               backgroundColor: context.colorScheme.tertiary.lighten(0.28),
               iconText: context.l10n.fertileWindow,
-              title: cycleForecastState.maybeWhen(
+              title: state.maybeWhen(
                 orElse: () => context.l10n.veryShortGenericError,
                 data: (data) => data.phase == MenstruationPhase.ovulation
                     ? context.l10n.today
                     : context.l10n.inNDays(data.daysUntilNextFertileWindow),
               ),
               subtitle: context.l10n.chancesOfGettingPregnant(
-                cycleEventsState.maybeWhen(
+                state.maybeWhen(
                   orElse: () => context.l10n.low,
-                  data: (events) => events.any(
+                  data: (forecast) => forecast.eventsForDate.any(
                     (event) => event.type == CycleEventType.fertile,
                   )
                       ? context.l10n.high
@@ -135,22 +134,22 @@ class InfoCards extends ConsumerWidget {
               isLoading: isLoading,
               backgroundColor: context.colorScheme.secondary.lighten(0.15),
               iconText: context.l10n.intimacy,
-              title: cycleEventsState.maybeWhen(
+              title: state.maybeWhen(
                 orElse: () => context.l10n.veryShortGenericError,
-                data: (data) =>
-                    data.any((event) => event.type == CycleEventType.intimacy)
-                        ? context.l10n.gotFreaky
-                        : context.l10n.noFreaky,
+                data: (forecast) => forecast.eventsForDate
+                        .any((event) => event.type == CycleEventType.intimacy)
+                    ? context.l10n.gotFreaky
+                    : context.l10n.noFreaky,
               ),
-              subtitle: cycleEventsState.maybeWhen(
-                orElse: () => context.l10n.noIntimateActivitiesToday,
-                data: (data) =>
-                    data
+              subtitle: state.maybeWhen(
+                orElse: () => context.l10n.noIntimateActivitiesLoggedForToday,
+                data: (forecast) =>
+                    forecast.eventsForDate
                         .firstWhereOrNull(
                           (event) => event.type == CycleEventType.intimacy,
                         )
                         ?.additionalData ??
-                    context.l10n.noIntimateActivitiesToday,
+                    context.l10n.noIntimateActivitiesLoggedForToday,
               ),
               icon: Icon(
                 Icons.favorite,

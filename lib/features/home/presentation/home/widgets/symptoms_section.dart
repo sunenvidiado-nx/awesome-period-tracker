@@ -3,7 +3,7 @@ import 'package:awesome_period_tracker/core/extensions/date_time_extensions.dart
 import 'package:awesome_period_tracker/core/extensions/string_extensions.dart';
 import 'package:awesome_period_tracker/core/widgets/app_loader/app_shimmer.dart';
 import 'package:awesome_period_tracker/core/widgets/cards/app_card.dart';
-import 'package:awesome_period_tracker/features/home/application/cycle_events_for_date_provider.dart';
+import 'package:awesome_period_tracker/features/home/application/cycle_forecast_provider.dart';
 import 'package:awesome_period_tracker/features/home/domain/cycle_event.dart';
 import 'package:awesome_period_tracker/features/home/domain/cycle_event_type.dart';
 import 'package:awesome_period_tracker/features/home/domain/symptoms.dart';
@@ -20,7 +20,7 @@ class SymptomsSection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.watch(cycleEventsForDateProvider(date.withoutTime()));
+    final state = ref.watch(cycleForecastProvider(date.withoutTime()));
 
     return AppCard(
       isAnimated: true,
@@ -65,8 +65,8 @@ class SymptomsSection extends ConsumerWidget {
                   state.maybeWhen(
                     loading: () =>
                         _buildChips(context, const ['one', 'one two', 'three']),
-                    data: (cycleEvents) =>
-                        _buildSymptomsList(context, cycleEvents),
+                    data: (forecast) =>
+                        _buildSymptomsList(context, forecast.eventsForDate),
                     orElse: () => _buildNoSymptomsPlaceholder(context),
                   ),
                 ],

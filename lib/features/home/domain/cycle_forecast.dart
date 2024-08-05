@@ -11,6 +11,7 @@ class CycleForecast {
     required this.averagePeriodLength,
     required this.phase,
     required this.events,
+    required this.eventsForDate,
   });
 
   final DateTime date;
@@ -20,6 +21,7 @@ class CycleForecast {
   final int averagePeriodLength;
   final MenstruationPhase phase;
   final List<CycleEvent> events;
+  final List<CycleEvent> eventsForDate;
 
   DateTime get nextFertileWindowStartDate => events
       .where((e) => e.date.isAfter(date))

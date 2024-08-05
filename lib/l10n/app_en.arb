@@ -98,7 +98,7 @@
   "noLogs": "No logs",
   "gotFreaky": "Got freaky",
   "noFreaky": "No freaky",
-  "noIntimateActivitiesToday": "No intimate activities today",
+  "noIntimateActivitiesLoggedForToday": "No intimate activities logged for today",
   "period": "Period",
   "notSpecified": "Not specified",
   "selectPeriodFlowLevel": "Select period flow level"
