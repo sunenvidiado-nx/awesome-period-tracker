@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.3] - 2024-08-05
+
+### Changed
+
+- Changed some labels for the info cards.
+- Remove unnecessary `cycleEventsProvider`.
+
 ## [1.1.2] - 2024-08-02
 
 ### Fixed
