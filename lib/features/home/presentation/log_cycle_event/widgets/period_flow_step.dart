@@ -7,13 +7,19 @@ import 'package:awesome_period_tracker/features/home/application/cycle_forecast_
 import 'package:awesome_period_tracker/features/home/application/insights_provider.dart';
 import 'package:awesome_period_tracker/features/home/application/log_cycle_event_state_provider.dart';
 import 'package:awesome_period_tracker/features/home/data/insights_repository.dart';
+import 'package:awesome_period_tracker/features/home/domain/cycle_event.dart';
 import 'package:awesome_period_tracker/features/home/domain/cycle_event_type.dart';
 import 'package:awesome_period_tracker/features/home/domain/period_flow.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class PeriodFlowStep extends StatefulWidget {
-  const PeriodFlowStep({super.key});
+  const PeriodFlowStep({
+    this.periodEvent,
+    super.key,
+  });
+
+  final CycleEvent? periodEvent;
 
   @override
   State<PeriodFlowStep> createState() => _PeriodFlowStepState();
@@ -22,6 +28,12 @@ class PeriodFlowStep extends StatefulWidget {
 class _PeriodFlowStepState extends State<PeriodFlowStep> {
   var _selectedFlow = PeriodFlow.light;
   var _isSubmitting = false;
+
+  static const _selectionList = [
+    PeriodFlow.light,
+    PeriodFlow.medium,
+    PeriodFlow.heavy,
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -36,9 +48,13 @@ class _PeriodFlowStepState extends State<PeriodFlowStep> {
               style: context.primaryTextTheme.titleLarge,
             ),
             const SizedBox(height: 16),
-            for (final flow in PeriodFlow.values) _buildPeriodFlowTile(flow),
+            for (final flow in _selectionList) _buildPeriodFlowTile(flow),
             const Spacer(),
             _buildSubmitButton(),
+            if (widget.periodEvent != null) ...[
+              const SizedBox(height: 4),
+              _buildRemoveLogButton(),
+            ],
           ],
         ),
       ),
@@ -73,6 +89,38 @@ class _PeriodFlowStepState extends State<PeriodFlowStep> {
             onTap: () => setState(() => _selectedFlow = flow),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildRemoveLogButton() {
+    return Consumer(
+      builder: (context, ref, child) => ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          minimumSize: const Size(double.infinity, 48),
+          backgroundColor: Colors.transparent,
+          foregroundColor: context.colorScheme.error,
+        ),
+        onPressed: _isSubmitting
+            ? null
+            : () {
+                setState(() => _selectedFlow = PeriodFlow.noFlow);
+                _onSubmit(context, ref);
+              },
+        child: _isSubmitting
+            ? AppLoader(color: context.colorScheme.surface, size: 30)
+            : Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.delete_rounded,
+                    color: context.colorScheme.error,
+                    size: 20,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(context.l10n.removeLog),
+                ],
+              ),
       ),
     );
   }

@@ -29,6 +29,10 @@ class SymptomsSection extends ConsumerWidget {
           context,
           eventType: CycleEventType.symptoms,
           date: date,
+          cycleEventsForDate: state.maybeWhen(
+            data: (forecast) => forecast.eventsForDate,
+            orElse: () => [],
+          ),
         ),
         child: AppShimmer(
           isLoading: state.isLoading || state.isRefreshing || state.isReloading,

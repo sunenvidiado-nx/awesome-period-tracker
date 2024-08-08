@@ -5,23 +5,55 @@ import 'package:awesome_period_tracker/core/widgets/shadow/app_shadow.dart';
 import 'package:awesome_period_tracker/core/widgets/snackbars/app_snackbar.dart';
 import 'package:awesome_period_tracker/features/home/application/cycle_forecast_provider.dart';
 import 'package:awesome_period_tracker/features/home/application/log_cycle_event_state_provider.dart';
+import 'package:awesome_period_tracker/features/home/domain/cycle_event.dart';
 import 'package:awesome_period_tracker/features/home/domain/cycle_event_type.dart';
 import 'package:awesome_period_tracker/features/home/domain/symptoms.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class SymptomsStep extends StatefulWidget {
-  const SymptomsStep({super.key});
+  const SymptomsStep({
+    this.symptomEvent,
+    super.key,
+  });
+
+  final CycleEvent? symptomEvent;
 
   @override
   State<SymptomsStep> createState() => _SymptomsStepState();
 }
 
 class _SymptomsStepState extends State<SymptomsStep> {
-  final _selectedSymptoms = <Symptoms>[Symptoms.pain];
   final _additionalInfoController = TextEditingController();
 
   var _isSubmitting = false;
+  var _selectedSymptoms = <Symptoms>[Symptoms.pain];
+
+  @override
+  void initState() {
+    super.initState();
+
+    if (widget.symptomEvent != null) {
+      final defaultSymptoms = widget.symptomEvent!.additionalData!
+          .split(Symptoms.separator)
+          .map((e) => e.trim())
+          .map(Symptoms.fromString)
+          .toList();
+
+      final otherSymptoms = widget.symptomEvent?.additionalData
+          ?.split(Symptoms.separator)
+          .where((e) => !Symptoms.values.map((e) => e.title).contains(e))
+          .firstOrNull;
+
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        setState(() => _selectedSymptoms = defaultSymptoms);
+
+        if (otherSymptoms != null) {
+          _additionalInfoController.text = otherSymptoms;
+        }
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -52,6 +84,10 @@ class _SymptomsStepState extends State<SymptomsStep> {
             _buildAddtionalInfoTextField(),
             const Spacer(),
             _buildSubmitButton(),
+            if (widget.symptomEvent != null) ...[
+              const SizedBox(height: 4),
+              _buildRemoveLogButton(),
+            ],
           ],
         ),
       ),
@@ -145,7 +181,42 @@ class _SymptomsStepState extends State<SymptomsStep> {
     );
   }
 
-  Future<void> _onSubmit(BuildContext context, WidgetRef ref) async {
+  Widget _buildRemoveLogButton() {
+    return Consumer(
+      builder: (context, ref, child) => ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          minimumSize: const Size(double.infinity, 48),
+          backgroundColor: Colors.transparent,
+          foregroundColor: context.colorScheme.error,
+        ),
+        onPressed: _isSubmitting
+            ? null
+            : () {
+                // setState(() => _selectedFlow = PeriodFlow.noFlow);
+                // _onSubmit(context, ref);
+              },
+        child: _isSubmitting
+            ? AppLoader(color: context.colorScheme.surface, size: 30)
+            : Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.delete_rounded,
+                    color: context.colorScheme.error,
+                    size: 20,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(context.l10n.removeLog),
+                ],
+              ),
+      ),
+    );
+  }
+
+  Future<void> _onSubmit(
+    BuildContext context,
+    WidgetRef ref,
+  ) async {
     setState(() => _isSubmitting = true);
 
     try {
@@ -164,6 +235,29 @@ class _SymptomsStepState extends State<SymptomsStep> {
           Navigator.of(context).pop();
         },
       );
+    } catch (e) {
+      // ignore: use_build_context_synchronously
+      context.showErrorSnackbar();
+    } finally {
+      setState(() => _isSubmitting = false);
+    }
+  }
+
+  Future<void> onDelete(
+    BuildContext context,
+    WidgetRef ref,
+  ) async {
+    setState(() => _isSubmitting = true);
+
+    try {
+      await ref
+          .read(logCycleEventStateProvider(CycleEventType.symptoms).notifier)
+          .removeSymptomsEvent(widget.symptomEvent!)
+          .then((_) {
+        ref.invalidate(cycleForecastProvider);
+        context.showSnackbar(context.l10n.cycleEventsHaveBeenUpdated);
+        Navigator.of(context).pop();
+      });
     } catch (e) {
       // ignore: use_build_context_synchronously
       context.showErrorSnackbar();

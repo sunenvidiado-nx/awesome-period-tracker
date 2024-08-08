@@ -6,12 +6,18 @@ import 'package:awesome_period_tracker/core/widgets/snackbars/app_snackbar.dart'
 import 'package:awesome_period_tracker/features/home/application/cycle_forecast_provider.dart';
 import 'package:awesome_period_tracker/features/home/application/log_cycle_event_state_provider.dart';
 import 'package:awesome_period_tracker/features/home/data/insights_repository.dart';
+import 'package:awesome_period_tracker/features/home/domain/cycle_event.dart';
 import 'package:awesome_period_tracker/features/home/domain/cycle_event_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class IntimacyStep extends StatefulWidget {
-  const IntimacyStep({super.key});
+  const IntimacyStep({
+    required this.intimacyEvent,
+    super.key,
+  });
+
+  final CycleEvent? intimacyEvent;
 
   @override
   State<IntimacyStep> createState() => _IntimacyStepState();
@@ -37,6 +43,10 @@ class _IntimacyStepState extends State<IntimacyStep> {
             for (final value in [true, false]) _buildSelectionTile(value),
             const Spacer(),
             _buildSubmitButton(),
+            if (widget.intimacyEvent != null) ...[
+              const SizedBox(height: 4),
+              _buildRemoveLogButton(),
+            ],
           ],
         ),
       ),
@@ -88,6 +98,37 @@ class _IntimacyStepState extends State<IntimacyStep> {
                 : Text(context.l10n.logIntimacy),
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildRemoveLogButton() {
+    return Consumer(
+      builder: (context, ref, child) => ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          minimumSize: const Size(double.infinity, 48),
+          backgroundColor: Colors.transparent,
+          foregroundColor: context.colorScheme.error,
+        ),
+        onPressed: _isSubmitting
+            ? null
+            : () {
+                // TODO
+              },
+        child: _isSubmitting
+            ? AppLoader(color: context.colorScheme.surface, size: 30)
+            : Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.delete_rounded,
+                    color: context.colorScheme.error,
+                    size: 20,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(context.l10n.removeLog),
+                ],
+              ),
       ),
     );
   }

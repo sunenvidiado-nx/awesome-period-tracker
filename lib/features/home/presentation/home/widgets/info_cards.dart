@@ -1,6 +1,7 @@
 import 'package:awesome_period_tracker/core/extensions/build_context_extensions.dart';
 import 'package:awesome_period_tracker/core/extensions/color_extensions.dart';
 import 'package:awesome_period_tracker/core/extensions/date_time_extensions.dart';
+import 'package:awesome_period_tracker/core/extensions/string_extensions.dart';
 import 'package:awesome_period_tracker/core/widgets/app_loader/app_shimmer.dart';
 import 'package:awesome_period_tracker/core/widgets/cards/app_card.dart';
 import 'package:awesome_period_tracker/features/home/application/cycle_forecast_provider.dart';
@@ -70,20 +71,18 @@ class InfoCards extends ConsumerWidget {
               ),
               subtitle: state.maybeWhen(
                 orElse: () => context.l10n.longGenericError,
-                data: (forecast) => forecast.phase ==
-                        MenstruationPhase.menstruation
-                    ? context.l10n.today
-                    : forecast.eventsForDate
-                            .any((event) => event.type == CycleEventType.period)
-                        ? context.l10n.flowLevel(
-                            forecast.eventsForDate
-                                    .firstWhere(
-                                      (e) => e.type == CycleEventType.period,
-                                    )
-                                    .additionalData ??
-                                context.l10n.notSpecified.toLowerCase(),
-                          )
-                        : context.l10n.noPeriodLoggedForThisDay,
+                data: (forecast) => forecast.eventsForDate
+                        .any((event) => event.type == CycleEventType.period)
+                    ? context.l10n.flowLevel(
+                        forecast.eventsForDate
+                                .firstWhere(
+                                  (e) => e.type == CycleEventType.period,
+                                )
+                                .additionalData
+                                ?.toTitleCase() ??
+                            context.l10n.notSpecified.toTitleCase(),
+                      )
+                    : context.l10n.noPeriodLoggedForThisDay,
               ),
               icon: Icon(
                 Icons.radio_button_checked,
@@ -94,6 +93,10 @@ class InfoCards extends ConsumerWidget {
                   LogCycleEventBottomSheet.showCycleEventTypeBottomSheet(
                 context,
                 eventType: CycleEventType.period,
+                cycleEventsForDate: state.maybeWhen(
+                  data: (forecast) => forecast.eventsForDate,
+                  orElse: () => [],
+                ),
                 date: date,
               ),
             ),
@@ -161,6 +164,10 @@ class InfoCards extends ConsumerWidget {
                 context,
                 eventType: CycleEventType.intimacy,
                 date: date,
+                cycleEventsForDate: state.maybeWhen(
+                  data: (forecast) => forecast.eventsForDate,
+                  orElse: () => [],
+                ),
               ),
             ),
           ],

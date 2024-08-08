@@ -1,26 +1,31 @@
 import 'package:awesome_period_tracker/core/extensions/build_context_extensions.dart';
 import 'package:awesome_period_tracker/features/home/application/log_cycle_event_state_provider.dart';
+import 'package:awesome_period_tracker/features/home/domain/cycle_event.dart';
 import 'package:awesome_period_tracker/features/home/domain/cycle_event_type.dart';
 import 'package:awesome_period_tracker/features/home/presentation/log_cycle_event/widgets/intimacy_step.dart';
 import 'package:awesome_period_tracker/features/home/presentation/log_cycle_event/widgets/period_flow_step.dart';
 import 'package:awesome_period_tracker/features/home/presentation/log_cycle_event/widgets/symptoms_step.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class LogCycleEventBottomSheet extends ConsumerStatefulWidget {
   const LogCycleEventBottomSheet({
-    required this.eventType,
     required this.date,
+    required this.eventType,
+    required this.cycleEventsForDate,
     super.key,
   });
 
-  final CycleEventType eventType;
   final DateTime date;
+  final CycleEventType eventType;
+  final List<CycleEvent> cycleEventsForDate;
 
   static Future<void> showCycleEventTypeBottomSheet(
     BuildContext context, {
     required CycleEventType eventType,
     required DateTime date,
+    required List<CycleEvent> cycleEventsForDate,
   }) async {
     await showModalBottomSheet(
       context: context,
@@ -30,8 +35,9 @@ class LogCycleEventBottomSheet extends ConsumerStatefulWidget {
       builder: (context) => Padding(
         padding: MediaQuery.of(context).viewInsets,
         child: LogCycleEventBottomSheet(
-          eventType: eventType,
           date: date,
+          eventType: eventType,
+          cycleEventsForDate: cycleEventsForDate,
         ),
       ),
     );
@@ -74,9 +80,21 @@ class _LogCycleEventBottomSheetState
           _buildPill(context),
           Expanded(
             child: switch (state.selectedCycleEventType) {
-              CycleEventType.period => const PeriodFlowStep(),
-              CycleEventType.symptoms => const SymptomsStep(),
-              CycleEventType.intimacy => const IntimacyStep(),
+              CycleEventType.period => PeriodFlowStep(
+                  periodEvent: widget.cycleEventsForDate.firstWhereOrNull(
+                    (e) => e.type == CycleEventType.period && !e.isPrediction,
+                  ),
+                ),
+              CycleEventType.symptoms => SymptomsStep(
+                  symptomEvent: widget.cycleEventsForDate.firstWhereOrNull(
+                    (e) => e.type == CycleEventType.symptoms,
+                  ),
+                ),
+              CycleEventType.intimacy => IntimacyStep(
+                  intimacyEvent: widget.cycleEventsForDate.firstWhereOrNull(
+                    (e) => e.type == CycleEventType.intimacy && !e.isPrediction,
+                  ),
+                ),
               _ => const SizedBox.shrink(),
             },
           ),

@@ -1,6 +1,7 @@
 import 'package:awesome_period_tracker/core/extensions/string_extensions.dart';
 
 enum PeriodFlow {
+  noFlow,
   light,
   medium,
   heavy;

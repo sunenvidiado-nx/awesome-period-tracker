@@ -35,8 +35,8 @@ class LogCycleEventStateNotifier
     return LogCycleEventState(
       selectedCycleEventType: arg,
       bottomSheetHeightFactor: switch (arg) {
-        CycleEventType.period => 0.5,
-        CycleEventType.symptoms => 0.7,
+        CycleEventType.period => 0.55,
+        CycleEventType.symptoms => 0.8,
         _ => 0.47,
       },
     );
@@ -60,6 +60,10 @@ class LogCycleEventStateNotifier
     ].join(Symptoms.separator);
 
     await _createOrUpdateEventByType(CycleEventType.symptoms, updatedSymptoms);
+  }
+
+  Future<void> removeSymptomsEvent(CycleEvent event) async {
+    await ref.read(cycleEventsRepositoryProvider).delete(event);
   }
 
   Future<void> logIntimacy(bool didUseProtection) async {

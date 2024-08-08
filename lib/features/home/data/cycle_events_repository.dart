@@ -24,9 +24,9 @@ class CycleEventsRepository {
       firestoreQuery = _collection;
     }
 
-    return firestoreQuery.get().then(
-          (snapshot) => snapshot.docs.map(CycleEvent.fromFirestore).toList(),
-        );
+    return firestoreQuery
+        .get()
+        .then((s) => s.docs.map(CycleEvent.fromFirestore).toList());
   }
 
   Future<CycleEvent?> getByDate(DateTime date) async {
@@ -59,6 +59,10 @@ class CycleEventsRepository {
     await _collection
         .doc(cycleEvent.id)
         .update(updatedCycleEvent.toFirestore());
+  }
+
+  Future<void> delete(CycleEvent cycleEvent) async {
+    await _collection.doc(cycleEvent.id).delete();
   }
 }
 

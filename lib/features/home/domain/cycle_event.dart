@@ -1,4 +1,5 @@
 import 'package:awesome_period_tracker/features/home/domain/cycle_event_type.dart';
+import 'package:awesome_period_tracker/features/home/domain/symptoms.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dart_mappable/dart_mappable.dart';
 
@@ -6,6 +7,15 @@ part 'cycle_event.mapper.dart';
 
 @MappableClass(caseStyle: CaseStyle.snakeCase)
 class CycleEvent with CycleEventMappable {
+  const CycleEvent({
+    required this.date,
+    required this.type,
+    required this.createdBy,
+    this.isPrediction = false,
+    this.id,
+    this.additionalData,
+  });
+
   final String? id;
   final DateTime date;
   final CycleEventType type;
@@ -15,14 +25,14 @@ class CycleEvent with CycleEventMappable {
 
   DateTime get localDate => date.toLocal();
 
-  const CycleEvent({
-    required this.date,
-    required this.type,
-    required this.createdBy,
-    this.isPrediction = false,
-    this.id,
-    this.additionalData,
-  });
+  List<String> get symptoms {
+    if (type != CycleEventType.symptoms) return [];
+
+    return additionalData!
+        .split(Symptoms.separator)
+        .map((e) => e.trim())
+        .toList();
+  }
 
   factory CycleEvent.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;

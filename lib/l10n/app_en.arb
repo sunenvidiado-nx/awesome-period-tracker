@@ -101,5 +101,7 @@
   "noIntimateActivitiesLoggedForToday": "No intimate activities logged for today",
   "period": "Period",
   "notSpecified": "Not specified",
-  "selectPeriodFlowLevel": "Select period flow level"
+  "selectPeriodFlowLevel": "Select period flow level",
+  "removeLog": "Remove log",
+  "cycleEventsHaveBeenUpdated": "Cycle events have been updated."
 }
