@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.0] - 2024-08-08
+
+### Added
+
+- Feature to log remove a cycle event.
+
+### Changed
+
+- Upgraded to Flutter 3.24! 🎉
+
 ## [1.1.3] - 2024-08-05
 
 ### Changed
