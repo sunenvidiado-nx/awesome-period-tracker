@@ -29,24 +29,7 @@ void main() {
 
     FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
 
-    // Preload SVGs
-    const mainIconLoader = SvgAssetLoader(AppAssets.mainIcon);
-    const mainIconLongLoader = SvgAssetLoader(AppAssets.mainIconLong);
-    const googleGeminiIconLoader = SvgAssetLoader(AppAssets.googleGeminiIcon);
-
-    svg.cache
-      ..putIfAbsent(
-        mainIconLoader.cacheKey(null),
-        () => mainIconLoader.loadBytes(null),
-      )
-      ..putIfAbsent(
-        mainIconLongLoader.cacheKey(null),
-        () => mainIconLongLoader.loadBytes(null),
-      )
-      ..putIfAbsent(
-        googleGeminiIconLoader.cacheKey(null),
-        () => googleGeminiIconLoader.loadBytes(null),
-      );
+    _preloadSvgs();
 
     final shredPreferences = await SharedPreferences.getInstance();
 
@@ -72,4 +55,24 @@ Future<void> _clearCacheOnNewVersion(SharedPreferences prefs) async {
     await prefs.clear();
     await prefs.setString(key, pInfo.version);
   }
+}
+
+void _preloadSvgs() {
+  const mainIconLoader = SvgAssetLoader(AppAssets.mainIcon);
+  const mainIconLongLoader = SvgAssetLoader(AppAssets.mainIconLong);
+  const googleGeminiIconLoader = SvgAssetLoader(AppAssets.googleGeminiIcon);
+
+  svg.cache
+    ..putIfAbsent(
+      mainIconLoader.cacheKey(null),
+      () => mainIconLoader.loadBytes(null),
+    )
+    ..putIfAbsent(
+      mainIconLongLoader.cacheKey(null),
+      () => mainIconLongLoader.loadBytes(null),
+    )
+    ..putIfAbsent(
+      googleGeminiIconLoader.cacheKey(null),
+      () => googleGeminiIconLoader.loadBytes(null),
+    );
 }
