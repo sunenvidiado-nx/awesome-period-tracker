@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.1] - 2024-09-19
+
+### Changed
+
+- Upgraded to Flutter 3.24.3! 🎉
+- Reworked symptoms. Now you can create new symptoms!
+
 ## [1.3.0] - 2024-09-19
 
 ### Changed
