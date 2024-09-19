@@ -1,5 +1,5 @@
+import 'package:awesome_period_tracker/core/constants/strings.dart';
 import 'package:awesome_period_tracker/features/home/domain/cycle_event_type.dart';
-import 'package:awesome_period_tracker/features/home/domain/symptoms.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dart_mappable/dart_mappable.dart';
 
@@ -29,7 +29,7 @@ class CycleEvent with CycleEventMappable {
     if (type != CycleEventType.symptoms) return [];
 
     return additionalData!
-        .split(Symptoms.separator)
+        .split(Strings.symptomSeparator)
         .map((e) => e.trim())
         .toList();
   }

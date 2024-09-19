@@ -103,5 +103,9 @@
   "notSpecified": "Not specified",
   "selectPeriodFlowLevel": "Select period flow level",
   "removeLog": "Remove log",
-  "cycleEventsHaveBeenUpdated": "Cycle events have been updated."
+  "cycleEventsHaveBeenUpdated": "Cycle events have been updated.",
+  "addSymptom": "Add symptom",
+  "addNewSymptom": "Add new symptom",
+  "fieldCantBeEmpty": "Field can't be empty",
+  "symptom": "Symptom"
 }

@@ -1,3 +1,4 @@
+import 'package:awesome_period_tracker/core/constants/strings.dart';
 import 'package:awesome_period_tracker/core/extensions/build_context_extensions.dart';
 import 'package:awesome_period_tracker/core/extensions/date_time_extensions.dart';
 import 'package:awesome_period_tracker/core/extensions/string_extensions.dart';
@@ -6,8 +7,8 @@ import 'package:awesome_period_tracker/core/widgets/cards/app_card.dart';
 import 'package:awesome_period_tracker/features/home/application/cycle_forecast_provider.dart';
 import 'package:awesome_period_tracker/features/home/domain/cycle_event.dart';
 import 'package:awesome_period_tracker/features/home/domain/cycle_event_type.dart';
-import 'package:awesome_period_tracker/features/home/domain/symptoms.dart';
-import 'package:awesome_period_tracker/features/home/presentation/log_cycle_event/log_cycle_event_bottom_sheet.dart';
+import 'package:awesome_period_tracker/features/log_cycle_event/domain/log_event_step.dart';
+import 'package:awesome_period_tracker/features/log_cycle_event/presentation/log_cycle_event_bottom_sheet.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -27,7 +28,7 @@ class SymptomsSection extends ConsumerWidget {
       child: InkWell(
         onTap: () => LogCycleEventBottomSheet.showCycleEventTypeBottomSheet(
           context,
-          eventType: CycleEventType.symptoms,
+          step: LogEventStep.symptoms,
           date: date,
           cycleEventsForDate: state.maybeWhen(
             data: (forecast) => forecast.eventsForDate,
@@ -92,7 +93,7 @@ class SymptomsSection extends ConsumerWidget {
     if (symptomsEvent == null) return _buildNoSymptomsPlaceholder(context);
 
     final symptoms = symptomsEvent.additionalData!
-        .split(Symptoms.separator)
+        .split(Strings.symptomSeparator)
         .map((e) => e.toTitleCase())
         .toList();
 

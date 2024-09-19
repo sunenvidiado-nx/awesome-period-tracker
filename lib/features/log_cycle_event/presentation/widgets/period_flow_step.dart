@@ -4,28 +4,36 @@ import 'package:awesome_period_tracker/core/widgets/cards/app_card.dart';
 import 'package:awesome_period_tracker/core/widgets/shadow/app_shadow.dart';
 import 'package:awesome_period_tracker/core/widgets/snackbars/app_snackbar.dart';
 import 'package:awesome_period_tracker/features/home/application/cycle_forecast_provider.dart';
-import 'package:awesome_period_tracker/features/home/application/log_cycle_event_state_provider.dart';
+import 'package:awesome_period_tracker/features/home/application/insights_provider.dart';
+import 'package:awesome_period_tracker/features/log_cycle_event/application/log_cycle_event_state_provider.dart';
 import 'package:awesome_period_tracker/features/home/data/insights_repository.dart';
 import 'package:awesome_period_tracker/features/home/domain/cycle_event.dart';
-import 'package:awesome_period_tracker/features/home/domain/cycle_event_type.dart';
+import 'package:awesome_period_tracker/features/log_cycle_event/domain/log_event_step.dart';
+import 'package:awesome_period_tracker/features/home/domain/period_flow.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class IntimacyStep extends StatefulWidget {
-  const IntimacyStep({
-    required this.intimacyEvent,
+class PeriodFlowStep extends StatefulWidget {
+  const PeriodFlowStep({
+    this.periodEvent,
     super.key,
   });
 
-  final CycleEvent? intimacyEvent;
+  final CycleEvent? periodEvent;
 
   @override
-  State<IntimacyStep> createState() => _IntimacyStepState();
+  State<PeriodFlowStep> createState() => _PeriodFlowStepState();
 }
 
-class _IntimacyStepState extends State<IntimacyStep> {
-  var _didUseProtection = true;
+class _PeriodFlowStepState extends State<PeriodFlowStep> {
+  var _selectedFlow = PeriodFlow.light;
   var _isSubmitting = false;
+
+  static const _selectionList = [
+    PeriodFlow.light,
+    PeriodFlow.medium,
+    PeriodFlow.heavy,
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -36,14 +44,14 @@ class _IntimacyStepState extends State<IntimacyStep> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              context.l10n.logIntimateActivityForToday,
+              context.l10n.selectPeriodFlowLevel,
               style: context.primaryTextTheme.titleLarge,
             ),
             const SizedBox(height: 16),
-            for (final value in [true, false]) _buildSelectionTile(value),
+            for (final flow in _selectionList) _buildPeriodFlowTile(flow),
             const Spacer(),
             _buildSubmitButton(),
-            if (widget.intimacyEvent != null) ...[
+            if (widget.periodEvent != null) ...[
               const SizedBox(height: 4),
               _buildRemoveLogButton(),
             ],
@@ -53,7 +61,10 @@ class _IntimacyStepState extends State<IntimacyStep> {
     );
   }
 
-  Widget _buildSelectionTile(bool value) {
+  Widget _buildPeriodFlowTile(PeriodFlow flow) {
+    // Some UI adjustments for the different cycle event types
+    // have been applied by eye so it looks a little better.
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: AppCard(
@@ -62,14 +73,12 @@ class _IntimacyStepState extends State<IntimacyStep> {
           child: ListTile(
             contentPadding: EdgeInsets.zero,
             title: Text(
-              value
-                  ? context.l10n.usedProtection
-                  : context.l10n.didNotUseProtection,
+              flow.title,
               style: context.primaryTextTheme.titleSmall,
             ),
             trailing: AnimatedSwitcher(
               duration: const Duration(milliseconds: 200),
-              child: value == _didUseProtection
+              child: _selectedFlow == flow
                   ? Icon(
                       Icons.check_rounded,
                       color: context.colorScheme.primary,
@@ -77,27 +86,9 @@ class _IntimacyStepState extends State<IntimacyStep> {
                     )
                   : const SizedBox.shrink(),
             ),
-            onTap: () => setState(() => _didUseProtection = value),
+            onTap: () => setState(() => _selectedFlow = flow),
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildSubmitButton() {
-    return AppShadow(
-      child: Consumer(
-        builder: (context, ref, child) {
-          return ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              minimumSize: const Size(double.infinity, 48),
-            ),
-            onPressed: _isSubmitting ? null : () => _onSubmit(context, ref),
-            child: _isSubmitting
-                ? AppLoader(color: context.colorScheme.surface, size: 30)
-                : Text(context.l10n.logIntimacy),
-          );
-        },
       ),
     );
   }
@@ -113,7 +104,8 @@ class _IntimacyStepState extends State<IntimacyStep> {
         onPressed: _isSubmitting
             ? null
             : () {
-                // TODO
+                setState(() => _selectedFlow = PeriodFlow.noFlow);
+                _onSubmit(context, ref);
               },
         child: _isSubmitting
             ? AppLoader(color: context.colorScheme.surface, size: 30)
@@ -133,17 +125,36 @@ class _IntimacyStepState extends State<IntimacyStep> {
     );
   }
 
+  Widget _buildSubmitButton() {
+    return AppShadow(
+      child: Consumer(
+        builder: (context, ref, child) {
+          return ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              minimumSize: const Size(double.infinity, 48),
+            ),
+            onPressed: _isSubmitting ? null : () => _onSubmit(context, ref),
+            child: _isSubmitting
+                ? AppLoader(color: context.colorScheme.surface, size: 30)
+                : Text(context.l10n.logPeriod),
+          );
+        },
+      ),
+    );
+  }
+
   Future<void> _onSubmit(BuildContext context, WidgetRef ref) async {
     setState(() => _isSubmitting = true);
 
     try {
       await ref
-          .read(logCycleEventStateProvider(CycleEventType.intimacy).notifier)
-          .logIntimacy(_didUseProtection)
+          .read(logCycleEventStateProvider(LogEventStep.periodFlow).notifier)
+          .logPeriod(_selectedFlow)
           .then(
         (_) {
           ref.read(insightsRepositoryProvider).clearCache();
           ref.invalidate(cycleForecastProvider);
+          ref.invalidate(insightsProvider);
           context.showSnackbar(context.l10n.cycleEventLoggedSuccessfully);
           Navigator.of(context).pop();
         },

@@ -1,4 +1,4 @@
-import 'package:awesome_period_tracker/features/home/presentation/home/home_screen.dart';
+import 'package:awesome_period_tracker/features/home/presentation/home_screen.dart';
 import 'package:awesome_period_tracker/features/pin_login/domain/auth_repository.dart';
 import 'package:awesome_period_tracker/features/pin_login/presentation/pin_login_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
