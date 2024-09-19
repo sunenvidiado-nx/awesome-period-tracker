@@ -29,7 +29,7 @@ class LogCycleEventStateNotifier
   Future<void> logSymptoms(
     List<String> symptoms, [
     String? addtionalInfo,
-  ]) async {    
+  ]) async {
     symptoms = symptoms.where((s) => s.isNotEmpty).toList();
 
     if (symptoms.isEmpty) {
