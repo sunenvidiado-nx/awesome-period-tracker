@@ -45,13 +45,20 @@ jobs:
           flutter gen-l10n
 
       - name: Build Android
-        run: flutter build apk --release --build-number=${{ github.run_number }} --split-per-abi
+        run: flutter build apk --release --obfuscate --split-debug-info=build/app/outputs/symbols --build-number=${{ github.run_number }} --split-per-abi
 
       - name: Upload Android build artifacts
         uses: actions/upload-artifact@v3
         with:
           name: android-artifacts
           path: build/app/outputs/flutter-apk/*.apk
+
+      - name: Upload Android debug symbols
+        uses: actions/upload-artifact@v3
+        with:
+          name: android-debug-symbols
+          path: build/app/outputs/symbols
+          retention-days: 1
 
   build-ios:
     name: Build IPA
@@ -88,7 +95,7 @@ jobs:
           flutter gen-l10n
 
       - name: Build iOS
-        run: flutter build ios --release --no-codesign --build-number=${{ github.run_number }}
+        run: flutter build ios --release --no-codesign --obfuscate --split-debug-info=build/ios/outputs/symbols --build-number=${{ github.run_number }}
 
       - name: Create IPA
         run: |
@@ -102,6 +109,13 @@ jobs:
         with:
           name: ios-artifacts
           path: build/ios/iphoneos/app.ipa
+
+      - name: Upload iOS debug symbols
+        uses: actions/upload-artifact@v3
+        with:
+          name: ios-debug-symbols
+          path: build/ios/outputs/symbols
+          retention-days: 1
 
   create-release:
     name: Create Release
