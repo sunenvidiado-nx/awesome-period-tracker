@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.2] - 2024-10-09
+
+### Fixed
+
+- Fixed incorrect insight data being displayed.
+- Minor tweaks to the insight prompt.
+
 ## [1.3.1] - 2024-09-19
 
 ### Changed
