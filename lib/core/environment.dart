@@ -9,4 +9,10 @@ abstract class Environment {
 
   @EnviedField(varName: 'GEMINI_API_KEY', obfuscate: true)
   static String geminiApiKey = _Environment.geminiApiKey;
+
+  @EnviedField(varName: 'SYSTEM_ID', obfuscate: true)
+  static String systemId = _Environment.systemId;
+
+  @EnviedField(varName: 'CYCLE_EVENTS_PATH', obfuscate: true)
+  static String cycleEventsPath = _Environment.cycleEventsPath;
 }
