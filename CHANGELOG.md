@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.3] - 2024-10-10
+
+### Fixed
+
+- Fixed incorrect calculation of cycle day.
+
 ## [1.3.2] - 2024-10-09
 
 ### Fixed
