@@ -18,22 +18,15 @@ void main() {
   runZoned(() async {
     WidgetsFlutterBinding.ensureInitialized();
 
-    LicenseRegistry.addLicense(() async* {
-      final license = await rootBundle.loadString('google_fonts/OFL.txt');
-      yield LicenseEntryWithLineBreaks(['google_fonts'], license);
-    });
-
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
-
-    FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
-
-    _preloadSvgs();
-
     final shredPreferences = await SharedPreferences.getInstance();
 
-    await _clearCacheOnNewVersion(shredPreferences);
+    _setUpLicenses();
+
+    await Future.wait([
+      _setUpFirebase(),
+      _clearCacheOnNewVersion(shredPreferences),
+      _preloadSvgs(),
+    ]);
 
     runApp(
       ProviderScope(
@@ -44,6 +37,18 @@ void main() {
       ),
     );
   });
+}
+
+void _setUpLicenses() {
+  LicenseRegistry.addLicense(() async* {
+    final license = await rootBundle.loadString('google_fonts/OFL.txt');
+    yield LicenseEntryWithLineBreaks(['google_fonts'], license);
+  });
+}
+
+Future<void> _setUpFirebase() async {
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
 }
 
 Future<void> _clearCacheOnNewVersion(SharedPreferences prefs) async {
@@ -57,22 +62,23 @@ Future<void> _clearCacheOnNewVersion(SharedPreferences prefs) async {
   }
 }
 
-void _preloadSvgs() {
+Future<void> _preloadSvgs() async {
   const mainIconLoader = SvgAssetLoader(AppAssets.mainIcon);
   const mainIconLongLoader = SvgAssetLoader(AppAssets.mainIconLong);
   const googleGeminiIconLoader = SvgAssetLoader(AppAssets.googleGeminiIcon);
 
-  svg.cache
-    ..putIfAbsent(
+  await Future.wait([
+    svg.cache.putIfAbsent(
       mainIconLoader.cacheKey(null),
       () => mainIconLoader.loadBytes(null),
-    )
-    ..putIfAbsent(
+    ),
+    svg.cache.putIfAbsent(
       mainIconLongLoader.cacheKey(null),
       () => mainIconLongLoader.loadBytes(null),
-    )
-    ..putIfAbsent(
+    ),
+    svg.cache.putIfAbsent(
       googleGeminiIconLoader.cacheKey(null),
       () => googleGeminiIconLoader.loadBytes(null),
-    );
+    ),
+  ]);
 }

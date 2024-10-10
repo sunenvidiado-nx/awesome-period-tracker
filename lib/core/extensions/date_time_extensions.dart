@@ -1,5 +1,4 @@
 import 'package:intl/intl.dart';
-import 'package:table_calendar/table_calendar.dart';
 
 extension DateTimeExtensions on DateTime {
   String toReadableString() {
@@ -8,7 +7,10 @@ extension DateTimeExtensions on DateTime {
 
   DateTime withoutTime() => DateTime(year, month, day);
 
-  bool get isToday => isSameDay(DateTime.now(), this);
+  bool isSameDay(DateTime other) =>
+      year == other.year && month == other.month && day == other.day;
+
+  bool get isToday => isSameDay(DateTime.now());
 
   String toYmdString() => DateFormat('yyyy-MM-dd').format(this);
 
@@ -16,4 +18,6 @@ extension DateTimeExtensions on DateTime {
       year == other.year && month == other.month;
 
   String toMonthAndDay() => DateFormat('MMM d').format(this);
+
+  bool isSameDayOrBefore(DateTime other) => isSameDay(other) || isBefore(other);
 }

@@ -44,8 +44,18 @@ class CycleForecastRepository {
       (e) => e.date.isAfter(date) && e.type == CycleEventType.period,
     );
 
-    final daysUntilNextPeriod =
-        nextPeriod != null ? nextPeriod.date.difference(date).inDays : -1;
+    final isCurrentlyInPeriod = mergedEvents
+        .where((e) => e.type == CycleEventType.period && !e.isPrediction)
+        .any(
+          (e) =>
+              isSameDay(e.date, date) ||
+              e.date.isBefore(date) &&
+                  date.difference(e.date).inDays < averagePeriodLength,
+        );
+
+    final daysUntilNextPeriod = isCurrentlyInPeriod
+        ? 0
+        : (nextPeriod != null ? nextPeriod.date.difference(date).inDays : -1);
 
     final eventToday =
         mergedEvents.firstWhereOrNull((e) => isSameDay(e.date, date));
@@ -81,13 +91,32 @@ class CycleForecastRepository {
   int _getDayOfCurrentCycle(List<CycleEvent> events, DateTime now) {
     if (events.isEmpty) return 1;
 
-    final mostRecentPeriod = events
-        .where((e) => e.type == CycleEventType.period && !e.isPrediction)
-        .lastOrNull;
+    final recentPeriods = events
+        .where(
+          (e) =>
+              e.type == CycleEventType.period &&
+              !e.isPrediction &&
+              !e.date.isAfter(now),
+        )
+        .toList();
 
-    if (mostRecentPeriod == null) return 1;
+    if (recentPeriods.isEmpty) return 1;
 
-    return now.difference(mostRecentPeriod.date).inDays + 1;
+    late DateTime periodStart;
+
+    recentPeriods.sort((a, b) => b.date.compareTo(a.date));
+
+    for (final period in recentPeriods) {
+      final index = recentPeriods.indexOf(period);
+      final previousPeriod = recentPeriods[index + 1];
+
+      if (period.date.difference(previousPeriod.date).inDays > 1) {
+        periodStart = period.date;
+        break;
+      }
+    }
+
+    return now.difference(periodStart).inDays + 1;
   }
 
   int _calculateAverageCycleLength(List<CycleEvent> events) {

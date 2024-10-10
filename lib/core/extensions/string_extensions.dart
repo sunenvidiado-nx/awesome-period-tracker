@@ -28,7 +28,10 @@ extension StringExtensions on String {
   }
 
   String removeEmojis() {
-    return EmojiParser().unemojify(this);
+    final cleanString = EmojiParser().unemojify(this)
+      ..replaceAll(r':\w+:', '').replaceAll(r':\w+:', '');
+
+    return cleanString;
   }
 
   String toTitleCase() {

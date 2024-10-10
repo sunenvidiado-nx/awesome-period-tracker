@@ -68,7 +68,9 @@ class InfoCards extends ConsumerWidget {
                 orElse: () => context.l10n.veryShortGenericError,
                 data: (forecast) => forecast.daysUntilNextPeriod == 1
                     ? context.l10n.inOneDay
-                    : context.l10n.inNDays(forecast.daysUntilNextPeriod),
+                    : forecast.daysUntilNextPeriod == 0
+                        ? context.l10n.today
+                        : context.l10n.inNDays(forecast.daysUntilNextPeriod),
               ),
               subtitle: state.maybeWhen(
                 orElse: () => context.l10n.longGenericError,
