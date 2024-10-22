@@ -2,6 +2,10 @@ name: Run tests
 
 on:
   push:
+    branches-ignore:
+      - "v*"
+    tags-ignore:
+      - "v*"
   workflow_dispatch:
 
 jobs:
