@@ -195,10 +195,13 @@ class _SymptomsStepState extends State<SymptomsStep> {
           )
           .then(
         (_) {
-          ref.invalidate(cycleForecastProvider);
-          ref.invalidate(insightsProvider);
-          context.showSnackbar(context.l10n.cycleEventLoggedSuccessfully);
-          Navigator.of(context).pop();
+          ref
+            ..invalidate(cycleForecastProvider)
+            ..invalidate(insightsProvider);
+
+          context
+            ..showSnackbar(context.l10n.cycleEventLoggedSuccessfully)
+            ..popNavigator();
         },
       );
     } catch (e) {

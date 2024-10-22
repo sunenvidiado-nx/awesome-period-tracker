@@ -51,7 +51,7 @@ class LogCycleEventStateNotifier
     );
   }
 
-  Future<void> removeSymptomsEvent(CycleEvent event) async {
+  Future<void> removeEvent(CycleEvent event) async {
     await ref.read(cycleEventsRepositoryProvider).delete(event);
   }
 

@@ -15,7 +15,5 @@ abstract class AppLoaderDialog {
     );
   }
 
-  static hide(BuildContext context) {
-    Navigator.of(context).pop();
-  }
+  static hide(BuildContext context) => context.popNavigator();
 }

@@ -12,10 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class IntimacyStep extends StatefulWidget {
-  const IntimacyStep({
-    required this.intimacyEvent,
-    super.key,
-  });
+  const IntimacyStep({required this.intimacyEvent, super.key});
 
   final CycleEvent? intimacyEvent;
 
@@ -110,25 +107,21 @@ class _IntimacyStepState extends State<IntimacyStep> {
           backgroundColor: Colors.transparent,
           foregroundColor: context.colorScheme.error,
         ),
-        onPressed: _isSubmitting
-            ? null
-            : () {
-                // TODO
-              },
-        child: _isSubmitting
-            ? AppLoader(color: context.colorScheme.surface, size: 30)
-            : Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.delete_rounded,
-                    color: context.colorScheme.error,
-                    size: 20,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(context.l10n.removeLog),
-                ],
-              ),
+        onPressed: () {
+          if (!_isSubmitting) _removeIntimacy(ref);
+        },
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.delete_rounded,
+              color: context.colorScheme.error,
+              size: 20,
+            ),
+            const SizedBox(width: 8),
+            Text(context.l10n.removeLog),
+          ],
+        ),
       ),
     );
   }
@@ -142,10 +135,39 @@ class _IntimacyStepState extends State<IntimacyStep> {
           .logIntimacy(_didUseProtection)
           .then(
         (_) {
-          ref.read(insightsRepositoryProvider).clearCache();
-          ref.invalidate(cycleForecastProvider);
-          context.showSnackbar(context.l10n.cycleEventLoggedSuccessfully);
-          Navigator.of(context).pop();
+          ref
+            ..read(insightsRepositoryProvider).clearCache()
+            ..invalidate(cycleForecastProvider);
+
+          context
+            ..showSnackbar(context.l10n.cycleEventLoggedSuccessfully)
+            ..popNavigator();
+        },
+      );
+    } catch (e) {
+      // ignore: use_build_context_synchronously
+      context.showErrorSnackbar();
+    } finally {
+      setState(() => _isSubmitting = false);
+    }
+  }
+
+  Future<void> _removeIntimacy(WidgetRef ref) async {
+    setState(() => _isSubmitting = true);
+
+    try {
+      await ref
+          .read(logCycleEventStateProvider(LogEventStep.intimacy).notifier)
+          .removeEvent(widget.intimacyEvent!)
+          .then(
+        (_) {
+          ref
+            ..read(insightsRepositoryProvider).clearCache()
+            ..invalidate(cycleForecastProvider);
+
+          context
+            ..showSnackbar(context.l10n.cycleEventLoggedSuccessfully)
+            ..popNavigator();
         },
       );
     } catch (e) {
