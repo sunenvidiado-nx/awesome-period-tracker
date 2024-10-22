@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.4] - 2024-10-22
+
+### Fixed
+
+- Fixed issue with removing intimacy events.
+
 ## [1.3.3] - 2024-10-10
 
 ### Fixed
