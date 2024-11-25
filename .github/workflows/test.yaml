@@ -15,16 +15,12 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Set Flutter version
-        uses: kuhnroyal/flutter-fvm-config-action@v2
-        id: fvm_config
+        uses: actions/checkout@v4
 
       - name: Install Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: ${{ steps.fvm_config.outputs.FLUTTER_VERSION }}
+          flutter-version: 3.24.5 # Must be the same with the one in pubspec.yaml
 
       - name: Download dependencies
         run: flutter pub get
@@ -38,7 +34,7 @@ jobs:
           flutter gen-l10n
 
       - name: Configure Firebase
-        run: echo "${{ secrets.FIREBASE_OPTIONS }}" | base64 --decode > lib/core/firebase_options.dart
+        run: echo "${{ secrets.FIREBASE_OPTIONS }}" | base64 --decode > lib/firebase_options.dart
 
       - name: Analyze
         run: flutter analyze --no-pub

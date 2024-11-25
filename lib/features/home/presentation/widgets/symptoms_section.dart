@@ -26,8 +26,8 @@ class SymptomsSection extends StatelessWidget {
           isAnimated: true,
           child: InkWell(
             onTap: () async {
-              final shouldRefreshHome =
-                  await LogCycleEventBottomSheet.showCycleEventTypeBottomSheet<bool?>(
+              final shouldRefreshHome = await LogCycleEventBottomSheet
+                  .showCycleEventTypeBottomSheet<bool?>(
                 context,
                 step: LogEventStep.symptoms,
                 date: state.selectedDate,
