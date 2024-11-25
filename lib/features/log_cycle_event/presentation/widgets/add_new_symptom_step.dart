@@ -2,14 +2,17 @@ import 'package:awesome_period_tracker/core/extensions/build_context_extensions.
 import 'package:awesome_period_tracker/core/widgets/app_loader/app_loader.dart';
 import 'package:awesome_period_tracker/core/widgets/buttons/app_back_button.dart';
 import 'package:awesome_period_tracker/core/widgets/shadow/app_shadow.dart';
-import 'package:awesome_period_tracker/features/log_cycle_event/application/log_cycle_event_state_provider.dart';
-import 'package:awesome_period_tracker/features/log_cycle_event/data/symptoms_repository.dart';
+import 'package:awesome_period_tracker/features/log_cycle_event/application/log_cycle_event_state_manager.dart';
 import 'package:awesome_period_tracker/features/log_cycle_event/domain/log_event_step.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class AddNewSymptomStep extends StatefulWidget {
-  const AddNewSymptomStep({super.key});
+  const AddNewSymptomStep({
+    required this.stateManager,
+    super.key,
+  });
+
+  final LogCycleEventStateManager stateManager;
 
   @override
   State<AddNewSymptomStep> createState() => _AddNewSymptomStepState();
@@ -52,17 +55,9 @@ class _AddNewSymptomStepState extends State<AddNewSymptomStep> {
   }
 
   Widget _buildBackButton() {
-    return Consumer(
-      builder: (context, ref, child) => AppBackButton(
-        onPressed: () => _onBack(ref),
-      ),
+    return AppBackButton(
+      onPressed: () => widget.stateManager.setStep(LogEventStep.symptoms),
     );
-  }
-
-  void _onBack(WidgetRef ref) {
-    ref
-        .read(logCycleEventStateProvider(LogEventStep.symptoms).notifier)
-        .goToStep(LogEventStep.symptoms);
   }
 
   Widget _buildSymptomTextField() {
@@ -82,32 +77,24 @@ class _AddNewSymptomStepState extends State<AddNewSymptomStep> {
 
   Widget _buildSubmitButton() {
     return AppShadow(
-      child: Consumer(
-        builder: (context, ref, child) {
-          return ElevatedButton(
-            onPressed: _isSubmitting
-                ? null
-                : () async {
-                    setState(() => _isSubmitting = true);
-
-                    try {
-                      await ref
-                          .read(symptomsRepositoryProvider)
-                          .create(_symptomController.text);
-
-                      _onBack(ref);
-                    } catch (e) {
-                      // TODO Implement
-                    } finally {
-                      setState(() => _isSubmitting = false);
-                    }
-                  },
-            child: _isSubmitting
-                ? AppLoader(color: context.colorScheme.surface, size: 30)
-                : Text(context.l10n.addSymptom),
-          );
-        },
+      child: ElevatedButton(
+        onPressed: _isSubmitting ? null : _onSubmit,
+        child: _isSubmitting
+            ? AppLoader(color: context.colorScheme.surface, size: 30)
+            : Text(context.l10n.addSymptom),
       ),
     );
+  }
+
+  Future<void> _onSubmit() async {
+    try {
+      setState(() => _isSubmitting = true);
+      await widget.stateManager.createSymptom(_symptomController.text);
+      widget.stateManager.setStep(LogEventStep.symptoms);
+    } catch (e) {
+      // TODO Implement
+    } finally {
+      setState(() => _isSubmitting = false);
+    }
   }
 }

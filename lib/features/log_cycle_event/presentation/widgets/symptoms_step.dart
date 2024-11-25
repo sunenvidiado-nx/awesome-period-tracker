@@ -3,18 +3,19 @@ import 'package:awesome_period_tracker/core/extensions/string_extensions.dart';
 import 'package:awesome_period_tracker/core/widgets/app_loader/app_loader.dart';
 import 'package:awesome_period_tracker/core/widgets/shadow/app_shadow.dart';
 import 'package:awesome_period_tracker/core/widgets/snackbars/app_snackbar.dart';
-import 'package:awesome_period_tracker/features/home/application/cycle_forecast_provider.dart';
-import 'package:awesome_period_tracker/features/home/application/insights_provider.dart';
 import 'package:awesome_period_tracker/features/home/domain/cycle_event.dart';
-import 'package:awesome_period_tracker/features/log_cycle_event/application/log_cycle_event_state_provider.dart';
-import 'package:awesome_period_tracker/features/log_cycle_event/application/symptoms_state_provider.dart';
+import 'package:awesome_period_tracker/features/log_cycle_event/application/log_cycle_event_state_manager.dart';
 import 'package:awesome_period_tracker/features/log_cycle_event/domain/log_event_step.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class SymptomsStep extends StatefulWidget {
-  const SymptomsStep({this.symptomEvent, super.key});
+  const SymptomsStep({
+    required this.stateManager,
+    this.symptomEvent,
+    super.key,
+  });
 
+  final LogCycleEventStateManager stateManager;
   final CycleEvent? symptomEvent;
 
   @override
@@ -22,9 +23,17 @@ class SymptomsStep extends StatefulWidget {
 }
 
 class _SymptomsStepState extends State<SymptomsStep> {
-  late final _symptomStateArgs = widget.symptomEvent?.additionalData ?? '';
-
   var _isSubmitting = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      widget.stateManager
+          .loadSymptoms(widget.symptomEvent?.additionalData ?? '');
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,29 +58,24 @@ class _SymptomsStepState extends State<SymptomsStep> {
   }
 
   Widget _buildSymptoms() {
-    return Consumer(
-      builder: (context, ref, child) => AnimatedSwitcher(
-        duration: const Duration(milliseconds: 250),
-        child: ref.watch(symptomsStateProvider(_symptomStateArgs)).when(
-              loading: () => const Center(child: AppLoader()),
-              error: (_, __) => Center(child: Text(context.l10n.genericError)),
-              data: (e) => _buildChips(context, ref, e.symptoms, e.selected),
-            ),
-      ),
+    return ValueListenableBuilder(
+      valueListenable: widget.stateManager.notifier,
+      builder: (context, state, _) {
+        return AnimatedSwitcher(
+          duration: const Duration(milliseconds: 250),
+          child: state.isLoadingSymptoms
+              ? const Center(child: AppLoader())
+              : _buildChips(context, state.symptoms, state.selectedSymptoms),
+        );
+      },
     );
   }
 
   Widget _buildChips(
     BuildContext context,
-    WidgetRef ref,
     List<String> symptoms,
     List<String> selected,
   ) {
-    final symptomsNotifier =
-        ref.read(symptomsStateProvider(_symptomStateArgs).notifier);
-    final logSymptomNotifier =
-        ref.read(logCycleEventStateProvider(LogEventStep.symptoms).notifier);
-
     return Padding(
       padding: const EdgeInsets.only(top: 8, bottom: 4),
       child: Wrap(
@@ -82,11 +86,11 @@ class _SymptomsStepState extends State<SymptomsStep> {
             _buildChip(
               symptom,
               selected.contains(symptom),
-              () => symptomsNotifier.toggleSymptom(symptom),
+              () => widget.stateManager.toggleSymptom(symptom),
             ),
           InkWell(
             onTap: () =>
-                logSymptomNotifier.goToStep(LogEventStep.addNewSymptom),
+                widget.stateManager.setStep(LogEventStep.addNewSymptom),
             child: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
@@ -165,16 +169,13 @@ class _SymptomsStepState extends State<SymptomsStep> {
 
   Widget _buildSubmitButton() {
     return AppShadow(
-      child: Consumer(
-        builder: (context, ref, child) {
-          final state = ref.watch(symptomsStateProvider(_symptomStateArgs));
-          final noSymptomsSelected =
-              state.asData?.value.selected.isEmpty ?? true;
-
+      child: ValueListenableBuilder(
+        valueListenable: widget.stateManager.notifier,
+        builder: (context, state, _) {
           return ElevatedButton(
-            onPressed: _isSubmitting && noSymptomsSelected
+            onPressed: _isSubmitting && state.selectedSymptoms.isEmpty
                 ? null
-                : () => _onSubmit(context, ref),
+                : () async => _onSubmit(state.selectedSymptoms),
             child: _isSubmitting
                 ? AppLoader(color: context.colorScheme.surface, size: 30)
                 : Text(context.l10n.logSymptoms),
@@ -184,26 +185,14 @@ class _SymptomsStepState extends State<SymptomsStep> {
     );
   }
 
-  Future<void> _onSubmit(BuildContext context, WidgetRef ref) async {
-    setState(() => _isSubmitting = true);
-
+  Future<void> _onSubmit(List<String> selectedSymptoms) async {
     try {
-      await ref
-          .read(logCycleEventStateProvider(LogEventStep.symptoms).notifier)
-          .logSymptoms(
-            ref.watch(symptomsStateProvider(_symptomStateArgs)).value!.selected,
-          )
-          .then(
-        (_) {
-          ref
-            ..invalidate(cycleForecastProvider)
-            ..invalidate(insightsProvider);
-
-          context
-            ..showSnackbar(context.l10n.cycleEventLoggedSuccessfully)
-            ..popNavigator();
-        },
-      );
+      setState(() => _isSubmitting = true);
+      await widget.stateManager.logSymptoms(selectedSymptoms);
+      widget.stateManager.clearCachedInsights();
+      context
+        ..showSnackbar(context.l10n.cycleEventLoggedSuccessfully)
+        ..popNavigator(true);
     } catch (e) {
       // ignore: use_build_context_synchronously
       context.showErrorSnackbar();

@@ -31,11 +31,6 @@ target 'Runner' do
   use_frameworks!
   use_modular_headers!
 
-  # Uncomment this when Firebase issue is fixed
-  # flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
-
-  # Temporary fix until Firebase issue is fixed
-  pod 'FirebaseCoreExtension', '11.3'
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
 
   target 'RunnerTests' do

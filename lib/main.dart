@@ -1,15 +1,14 @@
 import 'dart:async';
 
 import 'package:awesome_period_tracker/core/app_assets.dart';
-import 'package:awesome_period_tracker/core/firebase_options.dart';
-import 'package:awesome_period_tracker/core/providers/shared_preferences_provider.dart';
+import 'package:awesome_period_tracker/core/infrastructure/dependency_injection.dart';
 import 'package:awesome_period_tracker/features/app/presentation/app.dart';
+import 'package:awesome_period_tracker/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -18,24 +17,17 @@ void main() {
   runZoned(() async {
     WidgetsFlutterBinding.ensureInitialized();
 
-    final shredPreferences = await SharedPreferences.getInstance();
-
     _setUpLicenses();
 
+    await _setUpFirebase(); // Must be called before any other initialization
+
     await Future.wait([
-      _setUpFirebase(),
-      _clearCacheOnNewVersion(shredPreferences),
+      _clearCacheOnNewVersion(),
       _preloadSvgs(),
+      configureDependencies(),
     ]);
 
-    runApp(
-      ProviderScope(
-        overrides: [
-          sharedPreferencesProvider.overrideWithValue(shredPreferences),
-        ],
-        child: const App(),
-      ),
-    );
+    runApp(const App());
   });
 }
 
@@ -51,9 +43,10 @@ Future<void> _setUpFirebase() async {
   FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
 }
 
-Future<void> _clearCacheOnNewVersion(SharedPreferences prefs) async {
+Future<void> _clearCacheOnNewVersion() async {
   // Generate random strings here: http://bit.ly/random-strings-generator
   const key = 'tnULfB0HpgDR';
+  final prefs = await SharedPreferences.getInstance();
   final pInfo = await PackageInfo.fromPlatform();
 
   if (pInfo.version != prefs.getString(key)) {

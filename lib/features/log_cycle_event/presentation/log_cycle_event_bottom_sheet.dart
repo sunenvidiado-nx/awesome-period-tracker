@@ -2,7 +2,7 @@ import 'package:animations/animations.dart';
 import 'package:awesome_period_tracker/core/extensions/build_context_extensions.dart';
 import 'package:awesome_period_tracker/features/home/domain/cycle_event.dart';
 import 'package:awesome_period_tracker/features/home/domain/cycle_event_type.dart';
-import 'package:awesome_period_tracker/features/log_cycle_event/application/log_cycle_event_state_provider.dart';
+import 'package:awesome_period_tracker/features/log_cycle_event/application/log_cycle_event_state_manager.dart';
 import 'package:awesome_period_tracker/features/log_cycle_event/domain/log_event_step.dart';
 import 'package:awesome_period_tracker/features/log_cycle_event/presentation/widgets/add_new_symptom_step.dart';
 import 'package:awesome_period_tracker/features/log_cycle_event/presentation/widgets/intimacy_step.dart';
@@ -10,9 +10,9 @@ import 'package:awesome_period_tracker/features/log_cycle_event/presentation/wid
 import 'package:awesome_period_tracker/features/log_cycle_event/presentation/widgets/symptoms_step.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:get_it/get_it.dart';
 
-class LogCycleEventBottomSheet extends ConsumerStatefulWidget {
+class LogCycleEventBottomSheet extends StatefulWidget {
   const LogCycleEventBottomSheet({
     required this.date,
     required this.step,
@@ -24,13 +24,13 @@ class LogCycleEventBottomSheet extends ConsumerStatefulWidget {
   final LogEventStep step;
   final List<CycleEvent> cycleEventsForDate;
 
-  static Future<void> showCycleEventTypeBottomSheet(
+  static Future<T?> showCycleEventTypeBottomSheet<T>(
     BuildContext context, {
     required LogEventStep step,
     required DateTime date,
     required List<CycleEvent> cycleEventsForDate,
   }) async {
-    await showModalBottomSheet(
+    return showModalBottomSheet<T?>(
       context: context,
       scrollControlDisabledMaxHeightRatio: 0.9,
       isScrollControlled: true,
@@ -47,46 +47,55 @@ class LogCycleEventBottomSheet extends ConsumerStatefulWidget {
   }
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() =>
-      _LogCycleEventBottomSheetState();
+  State<StatefulWidget> createState() => _LogCycleEventBottomSheetState();
 }
 
-class _LogCycleEventBottomSheetState
-    extends ConsumerState<LogCycleEventBottomSheet> {
+class _LogCycleEventBottomSheetState extends State<LogCycleEventBottomSheet> {
+  final _stateManager = GetIt.I<LogCycleEventStateManager>();
+
   @override
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref
-          .read(logCycleEventStateProvider(widget.step).notifier)
-          .setDate(widget.date);
-    });
+    _stateManager
+      ..setDate(widget.date)
+      ..setStep(widget.step);
+  }
+
+  @override
+  void dispose() {
+    _stateManager.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(logCycleEventStateProvider(widget.step));
-    final height = MediaQuery.of(context).size.height * state.heightFactor;
+    return ValueListenableBuilder(
+      valueListenable: _stateManager.notifier,
+      builder: (context, state, _) {
+        final height =
+            MediaQuery.of(context).size.height * state.step.heightFactor;
 
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 200),
-      height: height,
-      decoration: BoxDecoration(
-        color: context.colorScheme.surfaceContainer,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildPill(context),
-          _buildBody(context, state),
-        ],
-      ),
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          height: height,
+          decoration: BoxDecoration(
+            color: context.colorScheme.surfaceContainer,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildPill(),
+              _buildBody(state.step),
+            ],
+          ),
+        );
+      },
     );
   }
 
-  Widget _buildPill(BuildContext context) {
+  Widget _buildPill() {
     return Center(
       child: Container(
         width: 40,
@@ -100,7 +109,7 @@ class _LogCycleEventBottomSheetState
     );
   }
 
-  Widget _buildBody(BuildContext context, LogEventStep step) {
+  Widget _buildBody(LogEventStep step) {
     return Expanded(
       child: PageTransitionSwitcher(
         reverse: step != LogEventStep.addNewSymptom,
@@ -115,21 +124,25 @@ class _LogCycleEventBottomSheetState
         },
         child: switch (step) {
           LogEventStep.periodFlow => PeriodFlowStep(
+              stateManager: _stateManager,
               periodEvent: widget.cycleEventsForDate.firstWhereOrNull(
                 (e) => e.type == CycleEventType.period && !e.isPrediction,
               ),
             ),
           LogEventStep.symptoms => SymptomsStep(
+              stateManager: _stateManager,
               symptomEvent: widget.cycleEventsForDate.firstWhereOrNull(
                 (e) => e.type == CycleEventType.symptoms,
               ),
             ),
           LogEventStep.intimacy => IntimacyStep(
+              stateManager: _stateManager,
               intimacyEvent: widget.cycleEventsForDate.firstWhereOrNull(
                 (e) => e.type == CycleEventType.intimacy && !e.isPrediction,
               ),
             ),
-          LogEventStep.addNewSymptom => const AddNewSymptomStep(),
+          LogEventStep.addNewSymptom =>
+            AddNewSymptomStep(stateManager: _stateManager),
         },
       ),
     );

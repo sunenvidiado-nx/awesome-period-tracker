@@ -10,5 +10,6 @@ extension BuildContextExtension on BuildContext {
 
   ColorScheme get colorScheme => Theme.of(this).colorScheme;
 
-  void popNavigator() => Navigator.of(this).pop();
+  /// Useful for popping Flutter dialogs.
+  void popNavigator([Object? result]) => Navigator.of(this).pop(result);
 }

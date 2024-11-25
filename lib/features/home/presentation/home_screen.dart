@@ -1,14 +1,15 @@
 import 'package:awesome_period_tracker/core/app_assets.dart';
-import 'package:awesome_period_tracker/core/extensions/date_time_extensions.dart';
+import 'package:awesome_period_tracker/core/extensions/build_context_extensions.dart';
 import 'package:awesome_period_tracker/core/widgets/cards/app_card.dart';
-import 'package:awesome_period_tracker/features/home/application/cycle_forecast_provider.dart';
+import 'package:awesome_period_tracker/features/app/application/theme_mode_manager.dart';
+import 'package:awesome_period_tracker/features/home/application/home_state_manager.dart';
 import 'package:awesome_period_tracker/features/home/presentation/widgets/calendar.dart';
 import 'package:awesome_period_tracker/features/home/presentation/widgets/cycle_insights.dart';
 import 'package:awesome_period_tracker/features/home/presentation/widgets/info_cards.dart';
 import 'package:awesome_period_tracker/features/home/presentation/widgets/symptoms_section.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get_it/get_it.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -18,7 +19,22 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  late DateTime _selectedDate = DateTime.now().withoutTime();
+  late HomeStateManager _stateManager;
+
+  /// Set to `true` to show theme switcher in app bar.
+  final _showThemeSwitcher = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _stateManager = GetIt.I()..initialize();
+  }
+
+  @override
+  void dispose() {
+    _stateManager.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,28 +56,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return SliverAppBar(
       toolbarHeight: 40,
       automaticallyImplyLeading: false,
-      // TODO Uncomment this code to add a theme switcher to the app bar
-      // leading: Consumer(
-      //   builder: (context, ref, child) {
-      //     final themeMode = ref.watch(themeModeProvider);
-
-      //     return AnimatedSwitcher(
-      //       duration: const Duration(milliseconds: 450),
-      //       child: Padding(
-      //         padding: const EdgeInsets.only(top: 4),
-      //         child: IconButton(
-      //           icon: Icon(
-      //             themeMode == ThemeMode.dark
-      //                 ? Icons.brightness_7_rounded
-      //                 : Icons.brightness_4_rounded,
-      //             color: context.colorScheme.onSurface.withOpacity(0.6),
-      //           ),
-      //           onPressed: ref.read(themeModeProvider.notifier).toggleTheme,
-      //         ),
-      //       ),
-      //     );
-      //   },
-      // ),
+      leading: _showThemeSwitcher ? _buildThemeModeSwitcher() : null,
       title: AnimatedSwitcher(
         duration: const Duration(milliseconds: 450),
         child: Padding(
@@ -72,40 +67,51 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildCalendarSection() {
-    return SliverToBoxAdapter(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(8, 12, 8, 0),
-        child: AppCard(
-          child: Consumer(
-            builder: (context, ref, child) {
-              final state = ref
-                  .watch(cycleForecastProvider(DateTime.now().withoutTime()));
-
-              return Calendar(
-                onDaySelected: (date, _) => _onDaySelected(date),
-                selectedDate: _selectedDate,
-                cycleEvents: state.maybeWhen(
-                  data: (forecast) => forecast.events,
-                  orElse: () => [],
-                ),
-              );
-            },
+  Widget _buildThemeModeSwitcher() {
+    return ValueListenableBuilder<ThemeMode>(
+      valueListenable: GetIt.I<ThemeModeManager>().notifier,
+      builder: (context, state, _) => AnimatedSwitcher(
+        duration: const Duration(milliseconds: 450),
+        child: Padding(
+          padding: const EdgeInsets.only(top: 4),
+          child: IconButton(
+            icon: Icon(
+              state == ThemeMode.dark
+                  ? Icons.brightness_7_rounded
+                  : Icons.brightness_4_rounded,
+              color: context.colorScheme.onSurface.withOpacity(0.6),
+            ),
+            onPressed: GetIt.I<ThemeModeManager>().toggleTheme,
           ),
         ),
       ),
     );
   }
 
-  void _onDaySelected(DateTime selectedDay) {
-    setState(() => _selectedDate = selectedDay);
+  Widget _buildCalendarSection() {
+    return SliverToBoxAdapter(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(8, 12, 8, 0),
+        child: AppCard(
+          child: ValueListenableBuilder<HomeState>(
+            valueListenable: _stateManager.notifier,
+            builder: (context, state, _) => Calendar(
+              onDaySelected: (date, _) =>
+                  _stateManager.changeSelectedDateAndReinitialize(date: date),
+              selectedDate: state.selectedDate,
+              cycleEvents: state.forecast?.events ?? [],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   Widget _buildCardsSection() {
     return SliverToBoxAdapter(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(8, 16, 8, 0),
-        child: InfoCards(_selectedDate),
+        child: InfoCards(_stateManager),
       ),
     );
   }
@@ -114,7 +120,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return SliverToBoxAdapter(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(8, 14, 8, 0),
-        child: SymptomsSection(_selectedDate),
+        child: SymptomsSection(_stateManager),
       ),
     );
   }
@@ -123,7 +129,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return SliverToBoxAdapter(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(8, 18, 8, 0),
-        child: CycleInsights(date: _selectedDate),
+        child: CycleInsights(_stateManager),
       ),
     );
   }

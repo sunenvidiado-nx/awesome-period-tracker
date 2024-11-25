@@ -1,12 +1,13 @@
-import 'package:awesome_period_tracker/core/environment.dart';
-import 'package:awesome_period_tracker/core/providers/firebase_auth_provider.dart';
+import 'package:awesome_period_tracker/core/environment/env.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:injectable/injectable.dart';
 
+@singleton
 class AuthRepository {
-  const AuthRepository(this._firebaseAuth);
+  const AuthRepository(this._firebaseAuth, this._env);
 
   final FirebaseAuth _firebaseAuth;
+  final Env _env;
 
   bool isLoggedIn() => _firebaseAuth.currentUser != null;
 
@@ -14,9 +15,9 @@ class AuthRepository {
 
   Future<void> pinLogin(String pin) async {
     /// I know. This seems dumb. But it still works, it's pretty secure, and me and
-    /// my SO are the only users of this app. So, I'm not too worried about it. :)
+    /// my SO are the only users of this app. So, I'm not too worried about it. :D
     final res = await _firebaseAuth.signInWithEmailAndPassword(
-      email: Environment.loginEmail,
+      email: _env.loginEmail,
       password: pin,
     );
 
@@ -29,7 +30,3 @@ class AuthRepository {
     await _firebaseAuth.signOut();
   }
 }
-
-final authRepositoryProvider = Provider((ref) {
-  return AuthRepository(ref.watch(firebaseAuthProvider));
-});

@@ -1,85 +1,96 @@
 import 'package:awesome_period_tracker/core/constants/strings.dart';
 import 'package:awesome_period_tracker/core/extensions/build_context_extensions.dart';
-import 'package:awesome_period_tracker/core/extensions/date_time_extensions.dart';
 import 'package:awesome_period_tracker/core/extensions/string_extensions.dart';
 import 'package:awesome_period_tracker/core/widgets/app_loader/app_shimmer.dart';
 import 'package:awesome_period_tracker/core/widgets/cards/app_card.dart';
-import 'package:awesome_period_tracker/features/home/application/cycle_forecast_provider.dart';
+import 'package:awesome_period_tracker/features/home/application/home_state_manager.dart';
 import 'package:awesome_period_tracker/features/home/domain/cycle_event.dart';
 import 'package:awesome_period_tracker/features/home/domain/cycle_event_type.dart';
 import 'package:awesome_period_tracker/features/log_cycle_event/domain/log_event_step.dart';
 import 'package:awesome_period_tracker/features/log_cycle_event/presentation/log_cycle_event_bottom_sheet.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
-class SymptomsSection extends ConsumerWidget {
-  const SymptomsSection(this.date, {super.key});
+class SymptomsSection extends StatelessWidget {
+  const SymptomsSection(this._stateManager, {super.key});
 
-  final DateTime date;
+  final HomeStateManager _stateManager;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.watch(cycleForecastProvider(date.withoutTime()));
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder<HomeState>(
+      valueListenable: _stateManager.notifier,
+      builder: (context, state, _) {
+        return AppCard(
+          isAnimated: true,
+          child: InkWell(
+            onTap: () async {
+              final shouldRefreshHome =
+                  await LogCycleEventBottomSheet.showCycleEventTypeBottomSheet<bool?>(
+                context,
+                step: LogEventStep.symptoms,
+                date: state.selectedDate,
+                cycleEventsForDate: state.forecast?.eventsForDate ?? [],
+              );
 
-    return AppCard(
-      isAnimated: true,
-      child: InkWell(
-        onTap: () => LogCycleEventBottomSheet.showCycleEventTypeBottomSheet(
-          context,
-          step: LogEventStep.symptoms,
-          date: date,
-          cycleEventsForDate: state.maybeWhen(
-            data: (forecast) => forecast.eventsForDate,
-            orElse: () => [],
-          ),
-        ),
-        child: AppShimmer(
-          isLoading: state.isLoading || state.isRefreshing || state.isReloading,
-          child: SizedBox(
-            width: double.infinity,
-            child: Padding(
-              padding: const EdgeInsets.all(14),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Skeleton.keep(
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.emergency,
-                          size: 20,
-                          color: context.colorScheme.shadow.withOpacity(0.4),
+              if (shouldRefreshHome == true) {
+                _stateManager.initialize(date: state.selectedDate);
+              }
+            },
+            child: AppShimmer(
+              isLoading: state.isLoading,
+              child: SizedBox(
+                width: double.infinity,
+                child: Padding(
+                  padding: const EdgeInsets.all(14),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Skeleton.keep(
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.emergency,
+                              size: 20,
+                              color:
+                                  context.colorScheme.shadow.withOpacity(0.4),
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              context.l10n.symptoms,
+                              style: context.primaryTextTheme.titleMedium,
+                            ),
+                            const Spacer(),
+                            const Icon(
+                              Icons.add_rounded,
+                              size: 20,
+                              color: Colors.black26,
+                            ),
+                          ],
                         ),
-                        const SizedBox(width: 8),
-                        Text(
-                          context.l10n.symptoms,
-                          style: context.primaryTextTheme.titleMedium,
+                      ),
+                      const SizedBox(height: 4),
+                      if (state.isLoading)
+                        _buildChips(
+                          context,
+                          const ['one', 'one two', 'three'], // Placeholder list
+                        )
+                      else if (state.forecast?.eventsForDate.isEmpty ?? false)
+                        _buildNoSymptomsPlaceholder(context)
+                      else
+                        _buildSymptomsList(
+                          context,
+                          state.forecast?.eventsForDate ?? [],
                         ),
-                        const Spacer(),
-                        const Icon(
-                          Icons.add_rounded,
-                          size: 20,
-                          color: Colors.black26,
-                        ),
-                      ],
-                    ),
+                    ],
                   ),
-                  const SizedBox(height: 4),
-                  state.maybeWhen(
-                    loading: () =>
-                        _buildChips(context, const ['one', 'one two', 'three']),
-                    data: (forecast) =>
-                        _buildSymptomsList(context, forecast.eventsForDate),
-                    orElse: () => _buildNoSymptomsPlaceholder(context),
-                  ),
-                ],
+                ),
               ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 

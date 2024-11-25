@@ -2,22 +2,22 @@ import 'package:awesome_period_tracker/core/app_assets.dart';
 import 'package:awesome_period_tracker/core/extensions/build_context_extensions.dart';
 import 'package:awesome_period_tracker/core/extensions/exception_extensions.dart';
 import 'package:awesome_period_tracker/core/widgets/app_loader/app_loader_dialog.dart';
-import 'package:awesome_period_tracker/features/app/application/router_provider.dart';
+import 'package:awesome_period_tracker/features/app/application/router.dart';
 import 'package:awesome_period_tracker/features/pin_login/domain/auth_repository.dart';
 import 'package:awesome_period_tracker/features/pin_login/presentation/widgets/pin_input_field.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 
-class PinLoginScreen extends ConsumerStatefulWidget {
+class PinLoginScreen extends StatefulWidget {
   const PinLoginScreen({super.key});
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() => _PinLoginScreenState();
+  State<PinLoginScreen> createState() => _PinLoginScreenState();
 }
 
-class _PinLoginScreenState extends ConsumerState<PinLoginScreen> {
+class _PinLoginScreenState extends State<PinLoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _pinController = TextEditingController();
 
@@ -72,7 +72,7 @@ class _PinLoginScreenState extends ConsumerState<PinLoginScreen> {
       try {
         AppLoaderDialog.show(context);
 
-        await ref.read(authRepositoryProvider).pinLogin(pin);
+        await GetIt.I<AuthRepository>().pinLogin(pin);
 
         // ignore: use_build_context_synchronously
         context.go(Routes.home);
@@ -88,10 +88,7 @@ class _PinLoginScreenState extends ConsumerState<PinLoginScreen> {
   }
 
   String? _validator(String? value) {
-    if (_validationError != null) {
-      return _validationError;
-    }
-
+    if (_validationError != null) return _validationError;
     return null;
   }
 }

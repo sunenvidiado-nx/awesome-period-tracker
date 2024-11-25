@@ -1,9 +1,11 @@
 import 'package:awesome_period_tracker/core/app_colors.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-final themesProvider = Provider((ref) => (_lightTheme, _darkTheme));
+abstract class Themes {
+  static ThemeData get light => _lightTheme;
+  static ThemeData get dark => _darkTheme;
+}
 
 final _darkTheme = ThemeData(
   brightness: Brightness.dark,

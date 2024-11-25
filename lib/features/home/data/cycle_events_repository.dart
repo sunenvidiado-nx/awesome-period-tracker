@@ -1,17 +1,18 @@
-import 'package:awesome_period_tracker/core/environment.dart';
+import 'package:awesome_period_tracker/core/environment/env.dart';
 import 'package:awesome_period_tracker/core/extensions/date_time_extensions.dart';
-import 'package:awesome_period_tracker/core/providers/firebase_firestore_provider.dart';
 import 'package:awesome_period_tracker/features/home/domain/cycle_event.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:injectable/injectable.dart';
 
+@injectable
 class CycleEventsRepository {
-  const CycleEventsRepository(this._firestore);
+  const CycleEventsRepository(this._firestore, this._env);
 
   final FirebaseFirestore _firestore;
+  final Env _env;
 
   CollectionReference get _collection =>
-      _firestore.collection(Environment.cycleEventsPath);
+      _firestore.collection(_env.cycleEventsPath);
 
   Future<List<CycleEvent>> get([Map<String, dynamic>? query]) async {
     late Query<Object?> firestoreQuery;
@@ -65,7 +66,3 @@ class CycleEventsRepository {
     await _collection.doc(cycleEvent.id).delete();
   }
 }
-
-final cycleEventsRepositoryProvider = Provider.autoDispose((ref) {
-  return CycleEventsRepository(ref.watch(firebaseFirestoreProvider));
-});

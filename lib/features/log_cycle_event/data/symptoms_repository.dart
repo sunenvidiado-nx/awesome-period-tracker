@@ -1,7 +1,7 @@
-import 'package:awesome_period_tracker/core/providers/firebase_firestore_provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:injectable/injectable.dart';
 
+@injectable
 class SymptomsRepository {
   const SymptomsRepository(this._firestore);
 
@@ -31,7 +31,3 @@ class SymptomsRepository {
     await snapshot.reference.delete();
   }
 }
-
-final symptomsRepositoryProvider = Provider.autoDispose((ref) {
-  return SymptomsRepository(ref.watch(firebaseFirestoreProvider));
-});

@@ -1,19 +1,16 @@
 import 'package:awesome_period_tracker/core/extensions/date_time_extensions.dart';
 import 'package:awesome_period_tracker/core/extensions/string_extensions.dart';
-import 'package:awesome_period_tracker/core/providers/gemini_client_provider.dart';
-import 'package:awesome_period_tracker/core/providers/shared_preferences_provider.dart';
+import 'package:awesome_period_tracker/core/infrastructure/gemini_client.dart';
 import 'package:awesome_period_tracker/features/home/domain/cycle_forecast.dart';
 import 'package:awesome_period_tracker/features/home/domain/insight.dart';
 import 'package:awesome_period_tracker/features/home/domain/menstruation_phase.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:injectable/injectable.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:table_calendar/table_calendar.dart';
 
+@injectable
 class InsightsRepository {
-  const InsightsRepository(
-    this._sharedPreferences,
-    this._geminiClient,
-  );
+  const InsightsRepository(this._sharedPreferences, this._geminiClient);
 
   final SharedPreferences _sharedPreferences;
   final GeminiClient _geminiClient;
@@ -142,10 +139,3 @@ FAILURE TO FOLLOW THESE RULES WILL RESULT IN IMMEDIATE REJECTION.
 ''';
   }
 }
-
-final insightsRepositoryProvider = Provider.autoDispose((ref) {
-  return InsightsRepository(
-    ref.watch(sharedPreferencesProvider),
-    ref.watch(geminiClientProvider),
-  );
-});

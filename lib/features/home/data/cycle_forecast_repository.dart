@@ -1,15 +1,18 @@
-import 'package:awesome_period_tracker/core/environment.dart';
+import 'package:awesome_period_tracker/core/environment/env.dart';
 import 'package:awesome_period_tracker/core/extensions/date_time_extensions.dart';
 import 'package:awesome_period_tracker/features/home/domain/cycle_event.dart';
 import 'package:awesome_period_tracker/features/home/domain/cycle_event_type.dart';
 import 'package:awesome_period_tracker/features/home/domain/cycle_forecast.dart';
 import 'package:awesome_period_tracker/features/home/domain/menstruation_phase.dart';
 import 'package:collection/collection.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:injectable/injectable.dart';
 import 'package:table_calendar/table_calendar.dart';
 
+@injectable
 class CycleForecastRepository {
-  const CycleForecastRepository();
+  const CycleForecastRepository(this._env);
+
+  final Env _env;
 
   static const _defaultCycleLength = 28;
   static const _defaultPeriodLength = 6;
@@ -270,7 +273,7 @@ class CycleForecastRepository {
           CycleEvent(
             date: periodDay,
             type: CycleEventType.period,
-            createdBy: Environment.systemId,
+            createdBy: _env.systemId,
             isPrediction: true,
           ),
         );
@@ -287,7 +290,7 @@ class CycleForecastRepository {
           CycleEvent(
             date: fertileDay,
             type: CycleEventType.fertile,
-            createdBy: Environment.systemId,
+            createdBy: _env.systemId,
             isPrediction: true,
           ),
         );
@@ -317,7 +320,3 @@ class CycleForecastRepository {
     return mergedEvents..sort((a, b) => a.date.compareTo(b.date));
   }
 }
-
-final cycleForecastRepositoryProvider = Provider.autoDispose((ref) {
-  return const CycleForecastRepository();
-});
