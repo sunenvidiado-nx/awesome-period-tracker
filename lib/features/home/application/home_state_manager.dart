@@ -25,11 +25,13 @@ class HomeStateManager extends StateManager<HomeState> {
 
   Future<void> initialize({DateTime? date, bool useCache = true}) async {
     try {
-      notifier.value = notifier.value
-          .copyWith(isLoading: true, selectedDate: date?.withoutTime());
+      date ??= DateTime.now().withoutTime();
+
+      notifier.value =
+          notifier.value.copyWith(isLoading: true, selectedDate: date);
 
       final forecast = _cycleForecastRepository.createForecastForDateFromEvents(
-        date: date ?? DateTime.now(),
+        date: date,
         events: await _cycleEventsRepository.get(),
       );
       final insight = await _insightsRepository.getInsightForForecast(
