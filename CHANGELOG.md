@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.4.1] - 2024-11-25
+
+### Fixed
+
+- Fixed issue with selecting dates in the calendar.
+
 ## [1.4.0] - 2024-11-25
 
 ### Changed
