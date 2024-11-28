@@ -33,7 +33,6 @@ dependencies:
   intl: any
   modal_bottom_sheet: ^3.0.0
   package_info_plus: ^8.0.1
-  pinput: ^5.0.0
   shared_preferences: ^2.2.3
   skeletonizer: ^1.4.1+1f
   table_calendar: ^3.1.2
@@ -54,6 +53,7 @@ flutter:
   assets:
     - assets/google_fonts/
     - assets/svgs/
+    - assets/images/
   fonts:
     - family: DMSans
       fonts:
@@ -63,3 +63,10 @@ flutter:
           weight: 500
         - asset: assets/google_fonts/DMSans-Bold.ttf
           weight: 700
+
+flutter_native_splash:
+  color: "#f9fafb"
+  image: "assets/splash/app_icon.png"
+  android_12:
+    color: "#f9fafb"
+    image: "assets/splash/app_icon.png"

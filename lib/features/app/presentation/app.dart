@@ -33,7 +33,7 @@ class App extends StatelessWidget {
               statusBarIconBrightness: themeMode == ThemeMode.dark
                   ? Brightness.light
                   : Brightness.dark,
-              systemNavigationBarColor: context.colorScheme.surfaceContainer,
+              systemNavigationBarColor: context.colorScheme.surface,
               systemNavigationBarIconBrightness: themeMode == ThemeMode.dark
                   ? Brightness.light
                   : Brightness.dark,

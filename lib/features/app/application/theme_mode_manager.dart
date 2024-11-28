@@ -22,10 +22,4 @@ class ThemeModeManager extends StateManager<ThemeMode> {
     notifier.value =
         notifier.value == ThemeMode.dark ? ThemeMode.light : ThemeMode.dark;
   }
-
-  @disposeMethod // Annotated so `get_it` can dispose this properly
-  @override
-  void dispose() {
-    super.dispose();
-  }
 }

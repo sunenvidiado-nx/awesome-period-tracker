@@ -1,14 +1,14 @@
 import 'package:awesome_period_tracker/core/constants/strings.dart';
+import 'package:awesome_period_tracker/core/data/cycle_events_repository.dart';
+import 'package:awesome_period_tracker/core/domain/cycle_event.dart';
+import 'package:awesome_period_tracker/core/domain/cycle_event_type.dart';
 import 'package:awesome_period_tracker/core/extensions/date_time_extensions.dart';
 import 'package:awesome_period_tracker/core/infrastructure/state_manager.dart';
-import 'package:awesome_period_tracker/features/home/data/cycle_events_repository.dart';
 import 'package:awesome_period_tracker/features/home/data/insights_repository.dart';
-import 'package:awesome_period_tracker/features/home/domain/cycle_event.dart';
-import 'package:awesome_period_tracker/features/home/domain/cycle_event_type.dart';
 import 'package:awesome_period_tracker/features/home/domain/period_flow.dart';
 import 'package:awesome_period_tracker/features/log_cycle_event/data/symptoms_repository.dart';
 import 'package:awesome_period_tracker/features/log_cycle_event/domain/log_event_step.dart';
-import 'package:awesome_period_tracker/features/pin_login/domain/auth_repository.dart';
+import 'package:awesome_period_tracker/features/login/domain/auth_repository.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:collection/collection.dart';
 import 'package:dart_mappable/dart_mappable.dart';
@@ -164,7 +164,7 @@ class LogCycleEventStateManager extends StateManager<LogCycleEventState> {
     if (cycleEvent != null) {
       cycleEvent = cycleEvent.copyWith(additionalData: additionalData);
 
-      return await _cycleEventsRepository.update(cycleEvent);
+      await _cycleEventsRepository.update(cycleEvent);
     }
 
     cycleEvent = CycleEvent(
@@ -174,6 +174,6 @@ class LogCycleEventStateManager extends StateManager<LogCycleEventState> {
       createdBy: _authRepository.getCurrentUser()!.uid,
     );
 
-    return await _cycleEventsRepository.create(cycleEvent);
+    await _cycleEventsRepository.create(cycleEvent);
   }
 }

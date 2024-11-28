@@ -20,7 +20,7 @@ class AppCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final decoration = BoxDecoration(
-      color: backgroundColor ?? context.colorScheme.surface,
+      color: backgroundColor ?? Colors.white,
       borderRadius: BorderRadius.circular(22),
       border: border,
       boxShadow: boxShadow ??

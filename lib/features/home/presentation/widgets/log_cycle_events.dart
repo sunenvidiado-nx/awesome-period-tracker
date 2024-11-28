@@ -1,5 +1,5 @@
 import 'package:awesome_period_tracker/core/extensions/build_context_extensions.dart';
-import 'package:awesome_period_tracker/features/home/domain/cycle_event_type.dart';
+import 'package:awesome_period_tracker/core/domain/cycle_event_type.dart';
 import 'package:flutter/material.dart';
 
 class LogCycleEventTypes extends StatelessWidget {

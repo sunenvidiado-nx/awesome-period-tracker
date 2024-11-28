@@ -2,6 +2,12 @@
   "@@locale": "en",
   "pinVerification": "PIN Verification",
   "toGetStartedEnterTheDesignatedPin": "To get started, enter the designated PIN.",
+  "gladYoureHere": "Glad you're here!",
+  "loginToTrackYourCycleAndStayInSync": "Log in to track your cycle and stay in sync.",
+  "email": "Email",
+  "password": "Password",
+  "logIn": "Log in",
+  "forgotAccountPleaseContactTheDeveloper": "Forgot account? Please contact the developer.",
   "todayDate": "Today, {date}",
   "@todayDate": {
     "placeholders": {
@@ -106,6 +112,7 @@
   "cycleEventsHaveBeenUpdated": "Cycle events have been updated.",
   "addSymptom": "Add symptom",
   "addNewSymptom": "Add new symptom",
-  "fieldCantBeEmpty": "Field can't be empty",
+  "fieldCantBeEmpty": "Field can't be empty.",
+  "enterAValidEmail": "Enter a valid email.",
   "symptom": "Symptom"
 }

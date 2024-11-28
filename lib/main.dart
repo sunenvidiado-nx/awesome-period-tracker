@@ -20,7 +20,6 @@ void main() {
     _setUpLicenses();
 
     await _setUpFirebase(); // Must be called before any other initialization
-
     await Future.wait([
       _clearCacheOnNewVersion(),
       _preloadSvgs(),

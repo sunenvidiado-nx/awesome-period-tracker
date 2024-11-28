@@ -13,12 +13,13 @@ abstract class AppColors {
   static const sage = Color(0xFFA5D6A7); // Soft sage green
 
   // Background Colors
-  static const bgWhite = Color(0xFFFFFFFF); // White
-  static const bgLightGray = Color(0xFFF0F0F0); // Light Gray
+  static const bgWhite = Color(0xFFf9fafb); // White
+  static const bgLightGray = Color(0xFFf3f4f6); // Light Gray
   static const bgPalePink = Color(0xFFFFF0F5); // Pale Pink
   static const bgPaleBlue = Color(0xFFF0F8FF); // Pale Blue
   static const bgPaleSage = Color(0xFFE8F5E9); // Pale Sage
 
   // Additional Colors
-  static const outline = Color(0xFF000000); // Black (for outlines)
+  static const black = Color(0xFF171717); // Black (for outlines, primary text)
+  static const bodyFont = Color(0xFF525252); // Body Font (for secondary text)
 }

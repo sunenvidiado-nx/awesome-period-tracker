@@ -7,29 +7,27 @@ abstract class Themes {
   static ThemeData get dark => _darkTheme;
 }
 
-final _darkTheme = ThemeData(
-  brightness: Brightness.dark,
-  scaffoldBackgroundColor: _darkColorScheme.surface,
-  colorScheme: _darkColorScheme,
-  textTheme: _textTheme(_darkColorScheme),
-  primaryTextTheme: _primaryTextTheme(_textTheme(_darkColorScheme)),
-  appBarTheme: _appBarTheme(
-    _darkColorScheme,
-    _primaryTextTheme(_textTheme(_darkColorScheme)),
-  ),
-  elevatedButtonTheme: _elevatedButtonTheme(
-    _darkColorScheme,
-    _primaryTextTheme(_textTheme(_darkColorScheme)),
-  ),
-  iconButtonTheme: _iconButtonTheme(_darkColorScheme),
-  textButtonTheme: _textButtonTheme(_darkColorScheme),
-  inputDecorationTheme:
-      _inputDecorationTheme(_darkColorScheme, _textTheme(_darkColorScheme)),
+const _lightColorScheme = ColorScheme.light(
+  primary: AppColors.red,
+  primaryContainer: AppColors.bgPalePink,
+  secondary: AppColors.pink,
+  secondaryContainer: AppColors.bgPaleBlue,
+  secondaryFixed: AppColors.orange,
+  tertiary: AppColors.purple,
+  tertiaryContainer: AppColors.bgLightGray,
+  surface: AppColors.bgWhite,
+  surfaceContainer: AppColors.bgPalePink,
+  error: Color(0xFFF66279), // Softer red for error states
+  onPrimary: AppColors.bgWhite,
+  onSecondary: AppColors.black,
+  onTertiary: AppColors.bgWhite,
+  onSurface: AppColors.black,
+  onError: Color.fromARGB(255, 43, 23, 23),
 );
 
 final _lightTheme = ThemeData(
   brightness: Brightness.light,
-  scaffoldBackgroundColor: _lightColorScheme.surfaceContainer,
+  scaffoldBackgroundColor: _lightColorScheme.surface,
   colorScheme: _lightColorScheme,
   textTheme: _textTheme(_lightColorScheme),
   primaryTextTheme: _primaryTextTheme(_textTheme(_lightColorScheme)),
@@ -47,49 +45,18 @@ final _lightTheme = ThemeData(
       _inputDecorationTheme(_lightColorScheme, _textTheme(_darkColorScheme)),
 );
 
-const _lightColorScheme = ColorScheme.light(
-  primary: AppColors.red,
-  primaryContainer: AppColors.bgPalePink,
-  secondary: AppColors.pink,
-  secondaryContainer: AppColors.bgPaleBlue,
-  secondaryFixed: AppColors.orange,
-  tertiary: AppColors.purple,
-  tertiaryContainer: AppColors.bgLightGray,
-  surface: AppColors.bgWhite,
-  surfaceContainer: AppColors.bgPalePink,
-  error: Color(0xFFF66279), // Softer red for error states
-  onPrimary: AppColors.bgWhite,
-  onSecondary: AppColors.outline,
-  onTertiary: AppColors.bgWhite,
-  onSurface: AppColors.outline,
-  onError: Color.fromARGB(255, 43, 23, 23),
-);
-
-final _darkColorScheme = ColorScheme.dark(
-  primary: AppColors.red.withOpacity(0.8),
-  primaryContainer: AppColors.red.withOpacity(0.2),
-  secondary: AppColors.pink.withOpacity(0.8),
-  secondaryContainer: AppColors.pink.withOpacity(0.2),
-  secondaryFixed: AppColors.orange.withOpacity(0.8),
-  tertiary: AppColors.purple.withOpacity(0.8),
-  tertiaryContainer: AppColors.purple.withOpacity(0.2),
-  surface: const Color(0xFF121212),
-  error: const Color(0xFFCF6679),
-  onPrimary: AppColors.bgWhite,
-  onSecondary: AppColors.outline,
-  onTertiary: AppColors.bgWhite,
-  onSurface: AppColors.bgWhite,
-  onError: AppColors.outline,
-);
+const _darkColorScheme = ColorScheme.dark();
+final _darkTheme = ThemeData(); // TODO: Add dark theme
 
 TextTheme _textTheme(ColorScheme colorScheme) =>
     GoogleFonts.dmSansTextTheme().apply(
-      displayColor: colorScheme.shadow,
-      bodyColor: colorScheme.shadow,
+      displayColor: AppColors.bodyFont,
+      bodyColor: AppColors.bodyFont,
     );
 
-TextTheme _primaryTextTheme(TextTheme baseTextTheme) =>
-    GoogleFonts.dmSansTextTheme().copyWith(
+TextTheme _primaryTextTheme(TextTheme baseTextTheme) => GoogleFonts
+        .dmSansTextTheme()
+    .copyWith(
       displayLarge:
           baseTextTheme.displayLarge!.copyWith(fontWeight: FontWeight.bold),
       displayMedium:
@@ -118,11 +85,15 @@ TextTheme _primaryTextTheme(TextTheme baseTextTheme) =>
           baseTextTheme.labelMedium!.copyWith(fontWeight: FontWeight.bold),
       labelSmall:
           baseTextTheme.labelSmall!.copyWith(fontWeight: FontWeight.bold),
+    )
+    .apply(
+      displayColor: AppColors.black,
+      bodyColor: AppColors.black,
     );
 
 AppBarTheme _appBarTheme(ColorScheme colorScheme, TextTheme primaryTextTheme) =>
     AppBarTheme(
-      backgroundColor: colorScheme.surfaceContainer,
+      backgroundColor: colorScheme.surface,
       titleTextStyle: primaryTextTheme.titleLarge!.copyWith(fontSize: 16),
       elevation: 0,
       toolbarHeight: 32,
@@ -182,7 +153,7 @@ InputDecorationTheme _inputDecorationTheme(
 ) =>
     InputDecorationTheme(
       filled: true,
-      fillColor: colorScheme.surface,
+      fillColor: colorScheme.tertiaryContainer,
       contentPadding: const EdgeInsets.all(16),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),

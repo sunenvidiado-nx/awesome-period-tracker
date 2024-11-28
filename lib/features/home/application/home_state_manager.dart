@@ -1,6 +1,6 @@
 import 'package:awesome_period_tracker/core/extensions/date_time_extensions.dart';
 import 'package:awesome_period_tracker/core/infrastructure/state_manager.dart';
-import 'package:awesome_period_tracker/features/home/data/cycle_events_repository.dart';
+import 'package:awesome_period_tracker/core/data/cycle_events_repository.dart';
 import 'package:awesome_period_tracker/features/home/data/forecast_repository.dart';
 import 'package:awesome_period_tracker/features/home/data/insights_repository.dart';
 import 'package:awesome_period_tracker/features/home/domain/forecast.dart';

@@ -1,7 +1,7 @@
 import 'package:animations/animations.dart';
+import 'package:awesome_period_tracker/core/domain/cycle_event.dart';
+import 'package:awesome_period_tracker/core/domain/cycle_event_type.dart';
 import 'package:awesome_period_tracker/core/extensions/build_context_extensions.dart';
-import 'package:awesome_period_tracker/features/home/domain/cycle_event.dart';
-import 'package:awesome_period_tracker/features/home/domain/cycle_event_type.dart';
 import 'package:awesome_period_tracker/features/log_cycle_event/application/log_cycle_event_state_manager.dart';
 import 'package:awesome_period_tracker/features/log_cycle_event/domain/log_event_step.dart';
 import 'package:awesome_period_tracker/features/log_cycle_event/presentation/widgets/add_new_symptom_step.dart';
@@ -60,12 +60,6 @@ class _LogCycleEventBottomSheetState extends State<LogCycleEventBottomSheet> {
     _stateManager
       ..setDate(widget.date)
       ..setStep(widget.step);
-  }
-
-  @override
-  void dispose() {
-    _stateManager.dispose();
-    super.dispose();
   }
 
   @override

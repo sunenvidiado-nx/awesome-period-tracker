@@ -1,18 +1,17 @@
-import 'package:awesome_period_tracker/core/environment/env.dart';
+import 'package:awesome_period_tracker/core/domain/cycle_event.dart';
 import 'package:awesome_period_tracker/core/extensions/date_time_extensions.dart';
-import 'package:awesome_period_tracker/features/home/domain/cycle_event.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:injectable/injectable.dart';
 
 @injectable
 class CycleEventsRepository {
-  const CycleEventsRepository(this._firestore, this._env);
+  const CycleEventsRepository(this._firestore);
 
   final FirebaseFirestore _firestore;
-  final Env _env;
 
-  CollectionReference get _collection =>
-      _firestore.collection(_env.cycleEventsPath);
+  static const _collectionPath = 'cycle_events';
+
+  CollectionReference get _collection => _firestore.collection(_collectionPath);
 
   Future<List<CycleEvent>> get([Map<String, dynamic>? query]) async {
     late Query<Object?> firestoreQuery;
@@ -46,17 +45,16 @@ class CycleEventsRepository {
   /// Create a new [CycleEvent] in Firestore.
   ///
   /// The [CycleEvent.date] will have its time removed before being added to Firestore.
-  Future<void> create(CycleEvent cycleEvent) async {
+  Future<CycleEvent> create(CycleEvent cycleEvent) async {
     final updatedCycleEvent =
         cycleEvent.copyWith(date: cycleEvent.date.withoutTime());
-
-    await _collection.add(updatedCycleEvent.toFirestore());
+    final result = await _collection.add(updatedCycleEvent.toFirestore());
+    return updatedCycleEvent.copyWith(id: result.id);
   }
 
   Future<void> update(CycleEvent cycleEvent) async {
     final updatedCycleEvent =
         cycleEvent.copyWith(date: cycleEvent.date.withoutTime());
-
     await _collection
         .doc(cycleEvent.id)
         .update(updatedCycleEvent.toFirestore());
