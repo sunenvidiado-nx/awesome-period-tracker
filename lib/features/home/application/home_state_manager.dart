@@ -1,9 +1,9 @@
 import 'package:awesome_period_tracker/core/extensions/date_time_extensions.dart';
 import 'package:awesome_period_tracker/core/infrastructure/state_manager.dart';
 import 'package:awesome_period_tracker/features/home/data/cycle_events_repository.dart';
-import 'package:awesome_period_tracker/features/home/data/cycle_forecast_repository.dart';
+import 'package:awesome_period_tracker/features/home/data/forecast_repository.dart';
 import 'package:awesome_period_tracker/features/home/data/insights_repository.dart';
-import 'package:awesome_period_tracker/features/home/domain/cycle_forecast.dart';
+import 'package:awesome_period_tracker/features/home/domain/forecast.dart';
 import 'package:awesome_period_tracker/features/home/domain/insight.dart';
 import 'package:dart_mappable/dart_mappable.dart';
 import 'package:injectable/injectable.dart';
@@ -15,12 +15,12 @@ part 'home_state_manager.mapper.dart';
 class HomeStateManager extends StateManager<HomeState> {
   HomeStateManager(
     this._cycleEventsRepository,
-    this._cycleForecastRepository,
+    this._forecastRepository,
     this._insightsRepository,
   ) : super(HomeState.initial());
 
   final CycleEventsRepository _cycleEventsRepository;
-  final CycleForecastRepository _cycleForecastRepository;
+  final ForecastRepository _forecastRepository;
   final InsightsRepository _insightsRepository;
 
   Future<void> initialize({DateTime? date, bool useCache = true}) async {
@@ -30,7 +30,7 @@ class HomeStateManager extends StateManager<HomeState> {
       notifier.value =
           notifier.value.copyWith(isLoading: true, selectedDate: date);
 
-      final forecast = _cycleForecastRepository.createForecastForDateFromEvents(
+      final forecast = _forecastRepository.createForecastForDateFromEvents(
         date: date,
         events: await _cycleEventsRepository.get(),
       );

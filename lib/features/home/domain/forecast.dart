@@ -2,8 +2,8 @@ import 'package:awesome_period_tracker/features/home/domain/cycle_event.dart';
 import 'package:awesome_period_tracker/features/home/domain/cycle_event_type.dart';
 import 'package:awesome_period_tracker/features/home/domain/menstruation_phase.dart';
 
-class CycleForecast {
-  const CycleForecast({
+class Forecast {
+  const Forecast({
     required this.date,
     required this.dayOfCycle,
     required this.daysUntilNextPeriod,

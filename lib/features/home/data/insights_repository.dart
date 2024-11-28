@@ -1,7 +1,7 @@
 import 'package:awesome_period_tracker/core/extensions/date_time_extensions.dart';
 import 'package:awesome_period_tracker/core/extensions/string_extensions.dart';
 import 'package:awesome_period_tracker/core/infrastructure/gemini_client.dart';
-import 'package:awesome_period_tracker/features/home/domain/cycle_forecast.dart';
+import 'package:awesome_period_tracker/features/home/domain/forecast.dart';
 import 'package:awesome_period_tracker/features/home/domain/insight.dart';
 import 'package:awesome_period_tracker/features/home/domain/menstruation_phase.dart';
 import 'package:injectable/injectable.dart';
@@ -16,7 +16,7 @@ class InsightsRepository {
   final GeminiClient _geminiClient;
 
   Future<Insight> getInsightForForecast({
-    required CycleForecast forecast,
+    required Forecast forecast,
     bool useCache = true,
   }) async {
     final prefsKey = forecast.date.toYmdString();

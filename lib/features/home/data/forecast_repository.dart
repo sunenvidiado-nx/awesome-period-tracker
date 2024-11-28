@@ -2,22 +2,22 @@ import 'package:awesome_period_tracker/core/environment/env.dart';
 import 'package:awesome_period_tracker/core/extensions/date_time_extensions.dart';
 import 'package:awesome_period_tracker/features/home/domain/cycle_event.dart';
 import 'package:awesome_period_tracker/features/home/domain/cycle_event_type.dart';
-import 'package:awesome_period_tracker/features/home/domain/cycle_forecast.dart';
+import 'package:awesome_period_tracker/features/home/domain/forecast.dart';
 import 'package:awesome_period_tracker/features/home/domain/menstruation_phase.dart';
 import 'package:collection/collection.dart';
 import 'package:injectable/injectable.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 @injectable
-class CycleForecastRepository {
-  const CycleForecastRepository(this._env);
+class ForecastRepository {
+  const ForecastRepository(this._env);
 
   final Env _env;
 
   static const _defaultCycleLength = 28;
   static const _defaultPeriodLength = 6;
 
-  CycleForecast createForecastForDateFromEvents({
+  Forecast createForecastForDateFromEvents({
     required DateTime date,
     required List<CycleEvent> events,
     DateTime? start,
@@ -79,7 +79,7 @@ class CycleForecastRepository {
     final eventsForDate =
         mergedEvents.where((e) => isSameDay(e.date, date)).toList();
 
-    return CycleForecast(
+    return Forecast(
       date: date,
       dayOfCycle: dayOfCycle,
       averageCycleLength: averageCycleLength,

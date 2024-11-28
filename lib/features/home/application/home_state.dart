@@ -14,7 +14,7 @@ class HomeState with HomeStateMappable {
         selectedDate: DateTime.now().withoutTime(),
       );
 
-  final CycleForecast? forecast;
+  final Forecast? forecast;
   final Insight? insight;
   final DateTime selectedDate;
   final bool isLoading;
