@@ -2,11 +2,16 @@
   "@@locale": "en",
   "pinVerification": "PIN Verification",
   "toGetStartedEnterTheDesignatedPin": "To get started, enter the designated PIN.",
-  "gladYoureHere": "Glad you're here!",
-  "loginToTrackYourCycleAndStayInSync": "Log in to track your cycle and stay in sync.",
+  "loginScreenTitle": "Glad you're here!",
+  "loginScreenSubtitle": "Log in to track your cycle and stay in sync.",
   "email": "Email",
   "password": "Password",
   "logIn": "Log in",
+  "setUserNameScreenTitle": "What should we call you?",
+  "setUserNameScreenSubtitle": "Set your preferred username. You can change it later if you decide on something else.",
+  "setUserName": "Set username",
+  "username": "Username",
+  "createPartnership": "Create partnership",
   "forgotAccountPleaseContactTheDeveloper": "Forgot account? Please contact the developer.",
   "todayDate": "Today, {date}",
   "@todayDate": {
@@ -113,6 +118,7 @@
   "addSymptom": "Add symptom",
   "addNewSymptom": "Add new symptom",
   "fieldCantBeEmpty": "Field can't be empty.",
+  "userNameShouldBeOneWord": "User name should be one word.",
   "enterAValidEmail": "Enter a valid email.",
   "symptom": "Symptom"
 }

@@ -1,15 +1,13 @@
+import 'package:awesome_period_tracker/core/data/cycle_events_repository.dart';
 import 'package:awesome_period_tracker/core/extensions/date_time_extensions.dart';
 import 'package:awesome_period_tracker/core/infrastructure/state_manager.dart';
-import 'package:awesome_period_tracker/core/data/cycle_events_repository.dart';
 import 'package:awesome_period_tracker/features/home/data/forecast_repository.dart';
 import 'package:awesome_period_tracker/features/home/data/insights_repository.dart';
 import 'package:awesome_period_tracker/features/home/domain/forecast.dart';
 import 'package:awesome_period_tracker/features/home/domain/insight.dart';
-import 'package:dart_mappable/dart_mappable.dart';
 import 'package:injectable/injectable.dart';
 
 part 'home_state.dart';
-part 'home_state_manager.mapper.dart';
 
 @injectable
 class HomeStateManager extends StateManager<HomeState> {

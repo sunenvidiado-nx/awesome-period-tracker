@@ -11,6 +11,7 @@ abstract class AppColors {
   static const teal = Color(0xFF4DB6AC); // Soft teal
   static const lightBlue = Color(0xFF64B5F6); // Light blue
   static const sage = Color(0xFFA5D6A7); // Soft sage green
+  static const errorRed = Color(0xFFF44336); // Error Red
 
   // Background Colors
   static const bgWhite = Color(0xFFf9fafb); // White
@@ -21,5 +22,6 @@ abstract class AppColors {
 
   // Additional Colors
   static const black = Color(0xFF171717); // Black (for outlines, primary text)
-  static const bodyFont = Color(0xFF525252); // Body Font (for secondary text)
+  static const darkGrey = Color(0xFF262626); // For buttons, actions
+  static const grey = Color(0xFF525252); // Body Font (for secondary text)
 }

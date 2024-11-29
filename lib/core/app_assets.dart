@@ -7,7 +7,8 @@ abstract class AppAssets {
 
   // Images
   static const _imagePath = 'assets/images';
-  static const bgGradient1 = '$_imagePath/bg_gradient_1.png';
-  static const bgGradient2 = '$_imagePath/bg_gradient_2.png';
-  static const bgGradient3 = '$_imagePath/bg_gradient_3.png';
+  static const cowboyHatFace = '$_imagePath/cowboy_hat_face.png';
+  static const heartHands = '$_imagePath/heart_hands.png';
+  static const peopleHugging = '$_imagePath/people_hugging.png';
+  static const wavingHand = '$_imagePath/waving_hand.png';
 }

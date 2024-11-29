@@ -1,5 +1,6 @@
 import 'package:awesome_period_tracker/features/app/application/router.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
@@ -26,4 +27,7 @@ abstract class ModuleRegister {
 
   @lazySingleton
   GoRouter get goRouter => Router.instance;
+
+  @lazySingleton
+  FirebaseAnalytics get firebaseAnalytics => FirebaseAnalytics.instance;
 }

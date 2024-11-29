@@ -3,28 +3,26 @@ import 'package:awesome_period_tracker/core/extensions/build_context_extensions.
 import 'package:awesome_period_tracker/core/widgets/app_loader/app_loader.dart';
 import 'package:awesome_period_tracker/core/widgets/snackbars/app_snackbar.dart';
 import 'package:awesome_period_tracker/features/app/application/router.dart';
-import 'package:awesome_period_tracker/features/login/application/login_state_manager.dart';
+import 'package:awesome_period_tracker/features/set_user_name/application/set_user_name_state_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+class SetUserNameScreen extends StatefulWidget {
+  const SetUserNameScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<SetUserNameScreen> createState() => _SetUserNameScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
-  final _stateManager = GetIt.I<LoginStateManager>();
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
+class _SetUserNameScreenState extends State<SetUserNameScreen> {
+  final _stateManager = GetIt.I<SetUserNameStateManager>();
+  final _userName = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
   @override
   void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
+    _userName.dispose();
     super.dispose();
   }
 
@@ -54,21 +52,18 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                   Text(
-                    context.l10n.loginScreenTitle,
+                    context.l10n.setUserNameScreenTitle,
                     style: context.primaryTextTheme.headlineSmall,
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 14),
                   Text(
-                    context.l10n.loginScreenSubtitle,
-                    style: context.textTheme.bodyLarge,
+                    context.l10n.setUserNameScreenSubtitle,
+                    style: context.textTheme.bodyMedium,
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 32),
-                  _buildEmailField(),
-                  const SizedBox(height: 12),
-                  _buildPasswordField(),
-                  const SizedBox(height: 32),
+                  _buildUserNameField(),
                 ],
               ),
             ),
@@ -78,57 +73,38 @@ class _LoginScreenState extends State<LoginScreen> {
       bottomNavigationBar: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(30),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                context.l10n.forgotAccountPleaseContactTheDeveloper,
-                style: context.textTheme.bodySmall,
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 32),
-              _buildLoginButton(),
-            ],
-          ),
+          child: _buildSubmitButton(),
         ),
       ),
     );
   }
 
-  Widget _buildEmailField() {
-    return TextFormField(
-      controller: _emailController,
-      decoration: InputDecoration(hintText: context.l10n.email),
-      validator: (value) {
-        if (value == null || value.isEmpty) {
-          return context.l10n.fieldCantBeEmpty;
-        }
+  Widget _buildUserNameField() {
+    return ValueListenableBuilder(
+      valueListenable: _stateManager.notifier,
+      builder: (context, state, _) {
+        return TextFormField(
+          controller: _userName,
+          decoration: InputDecoration(
+            hintText: context.l10n.username,
+          ),
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return context.l10n.fieldCantBeEmpty;
+            }
 
-        if (!value.contains('@')) {
-          return context.l10n.enterAValidEmail;
-        }
+            if (value.split(' ').length > 1) {
+              return context.l10n.userNameShouldBeOneWord;
+            }
 
-        return null;
+            return null;
+          },
+        );
       },
     );
   }
 
-  Widget _buildPasswordField() {
-    return TextFormField(
-      controller: _passwordController,
-      decoration: InputDecoration(hintText: context.l10n.password),
-      obscureText: true,
-      validator: (value) {
-        if (value == null || value.isEmpty) {
-          return context.l10n.fieldCantBeEmpty;
-        }
-
-        return null;
-      },
-    );
-  }
-
-  Widget _buildLoginButton() {
+  Widget _buildSubmitButton() {
     return ValueListenableBuilder(
       valueListenable: _stateManager.notifier,
       builder: (context, state, _) {
@@ -136,7 +112,7 @@ class _LoginScreenState extends State<LoginScreen> {
           onPressed: state.isLoading ? null : _onSubmit,
           child: state.isLoading
               ? AppLoader(color: context.colorScheme.surface, size: 30)
-              : Text(context.l10n.logIn),
+              : Text(context.l10n.setUserName),
         );
       },
     );
@@ -145,10 +121,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _onSubmit() async {
     if (_formKey.currentState!.validate()) {
       try {
-        await _stateManager.login(
-          _emailController.text,
-          _passwordController.text,
-        );
+        await _stateManager.setUserName(_userName.text.trim());
         context.go(Routes.root);
       } catch (e) {
         context.showErrorSnackbar();

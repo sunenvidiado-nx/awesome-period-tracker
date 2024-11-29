@@ -17,11 +17,11 @@ const _lightColorScheme = ColorScheme.light(
   tertiaryContainer: AppColors.bgLightGray,
   surface: AppColors.bgWhite,
   surfaceContainer: AppColors.bgPalePink,
-  error: Color(0xFFF66279), // Softer red for error states
+  error: AppColors.errorRed, // Softer red for error states
   onPrimary: AppColors.bgWhite,
   onSecondary: AppColors.black,
   onTertiary: AppColors.bgWhite,
-  onSurface: AppColors.black,
+  onSurface: AppColors.darkGrey,
   onError: Color.fromARGB(255, 43, 23, 23),
 );
 
@@ -43,6 +43,7 @@ final _lightTheme = ThemeData(
   textButtonTheme: _textButtonTheme(_lightColorScheme),
   inputDecorationTheme:
       _inputDecorationTheme(_lightColorScheme, _textTheme(_darkColorScheme)),
+  textSelectionTheme: _textSelectionTheme(_lightColorScheme),
 );
 
 const _darkColorScheme = ColorScheme.dark();
@@ -50,8 +51,8 @@ final _darkTheme = ThemeData(); // TODO: Add dark theme
 
 TextTheme _textTheme(ColorScheme colorScheme) =>
     GoogleFonts.dmSansTextTheme().apply(
-      displayColor: AppColors.bodyFont,
-      bodyColor: AppColors.bodyFont,
+      displayColor: AppColors.grey,
+      bodyColor: AppColors.grey,
     );
 
 TextTheme _primaryTextTheme(TextTheme baseTextTheme) => GoogleFonts
@@ -107,8 +108,9 @@ ElevatedButtonThemeData _elevatedButtonTheme(
     ElevatedButtonThemeData(
       style: ButtonStyle(
         elevation: const WidgetStatePropertyAll(0),
+        overlayColor: WidgetStatePropertyAll(Colors.white.withOpacity(0.1)),
         foregroundColor: WidgetStatePropertyAll(colorScheme.surface),
-        backgroundColor: WidgetStatePropertyAll(colorScheme.tertiary),
+        backgroundColor: WidgetStatePropertyAll(colorScheme.primary),
         minimumSize: const WidgetStatePropertyAll(Size(double.infinity, 48)),
         textStyle: WidgetStatePropertyAll(
           primaryTextTheme.titleMedium?.copyWith(fontSize: 16),
@@ -159,38 +161,40 @@ InputDecorationTheme _inputDecorationTheme(
         borderRadius: BorderRadius.circular(16),
         borderSide: BorderSide(
           color: colorScheme.shadow.withAlpha(30),
-          width: 1,
         ),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
         borderSide: BorderSide(
           color: colorScheme.shadow.withAlpha(30),
-          width: 1,
         ),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
         borderSide: BorderSide(
           color: colorScheme.shadow.withAlpha(30),
-          width: 1,
         ),
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
         borderSide: BorderSide(
-          color: colorScheme.shadow.withAlpha(30),
-          width: 1,
+          color: colorScheme.error,
         ),
       ),
       focusedErrorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
         borderSide: BorderSide(
           color: colorScheme.shadow.withAlpha(30),
-          width: 1,
         ),
       ),
       hintStyle: textTheme.bodyMedium?.copyWith(
-        color: colorScheme.shadow.withAlpha(100),
+        color: colorScheme.shadow.withAlpha(110),
       ),
+    );
+
+TextSelectionThemeData _textSelectionTheme(ColorScheme colorScheme) =>
+    TextSelectionThemeData(
+      cursorColor: colorScheme.shadow.withAlpha(100),
+      selectionColor: colorScheme.tertiary,
+      selectionHandleColor: colorScheme.tertiary,
     );
