@@ -12,7 +12,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
-- Upgraded to Flutter 3.24.5! 🎉
+- Upgraded to Flutter 3.27.1! 🎉
 - Reworked state management and dependency injection. Not using Riverpod anymore!
 
 ## [1.3.4] - 2024-10-22

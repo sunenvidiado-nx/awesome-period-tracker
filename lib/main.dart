@@ -1,9 +1,9 @@
 import 'dart:async';
 
-import 'package:awesome_period_tracker/core/app_assets.dart';
-import 'package:awesome_period_tracker/core/infrastructure/dependency_injection.dart';
-import 'package:awesome_period_tracker/features/app/presentation/app.dart';
+import 'package:awesome_period_tracker/config/dependency_injection.dart';
 import 'package:awesome_period_tracker/firebase_options.dart';
+import 'package:awesome_period_tracker/ui/app.dart';
+import 'package:awesome_period_tracker/ui/app_assets.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
@@ -20,6 +20,7 @@ void main() {
     _setUpLicenses();
 
     await _setUpFirebase(); // Must be called before any other initialization
+
     await Future.wait([
       _clearCacheOnNewVersion(),
       _preloadSvgs(),
@@ -42,7 +43,6 @@ Future<void> _setUpFirebase() async {
 
   FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
 
-  // Pass all uncaught asynchronous errors that aren't handled by the Flutter framework to Crashlytics
   PlatformDispatcher.instance.onError = (error, stack) {
     FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
     return true;

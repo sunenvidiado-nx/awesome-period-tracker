@@ -1,0 +1,216 @@
+import 'package:awesome_period_tracker/domain/models/cycle_event.dart';
+import 'package:awesome_period_tracker/domain/models/cycle_event_type.dart';
+import 'package:awesome_period_tracker/utils/extensions/build_context_extensions.dart';
+import 'package:awesome_period_tracker/utils/extensions/color_extensions.dart';
+import 'package:awesome_period_tracker/utils/extensions/date_time_extensions.dart';
+import 'package:collection/collection.dart';
+import 'package:flutter/material.dart';
+import 'package:table_calendar/table_calendar.dart';
+
+class HomeCalendar extends StatelessWidget {
+  const HomeCalendar({
+    required this.cycleEvents,
+    required this.onDaySelected,
+    required this.focusedDate,
+    super.key,
+  });
+
+  final List<CycleEvent> cycleEvents;
+  final Function(DateTime selectedDay, DateTime focusedDay) onDaySelected;
+  final DateTime focusedDate;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(4, 4, 4, 8),
+      child: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 200),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              TableCalendar<CycleEvent>(
+                calendarFormat: CalendarFormat.week,
+                key: ValueKey(cycleEvents),
+                firstDay: DateTime(DateTime.now().year - 10),
+                lastDay: DateTime(DateTime.now().year + 10),
+                focusedDay: focusedDate,
+                eventLoader: _getEventsForDay,
+                headerStyle: _headerStyle(context),
+                onDaySelected: onDaySelected,
+                selectedDayPredicate: (day) => isSameDay(focusedDate, day),
+                calendarBuilders: CalendarBuilders(
+                  markerBuilder: _markerBuilder,
+                  todayBuilder: _todayBuilder,
+                  selectedBuilder: _selectedBuilder,
+                  defaultBuilder: _defaultBuilder,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  HeaderStyle _headerStyle(BuildContext context) {
+    return HeaderStyle(
+      formatButtonVisible: false,
+      titleTextStyle: context.primaryTextTheme.titleMedium!,
+      leftChevronVisible: false,
+      rightChevronVisible: false,
+    );
+  }
+
+  Widget _markerBuilder(
+    BuildContext context,
+    DateTime date,
+    List<CycleEvent> events,
+  ) {
+    if (events.any((event) => event.type == CycleEventType.intimacy)) {
+      final isBeforeOrAfterCurrentMonth = date.month < DateTime.now().month ||
+          date.month > DateTime.now().month ||
+          date.year != DateTime.now().year;
+
+      return Positioned.fill(
+        top: 24,
+        child: Icon(
+          Icons.favorite,
+          color: context.colorScheme.error
+              .withAlpha(isBeforeOrAfterCurrentMonth ? 128 : 255),
+          size: 10,
+        ),
+      );
+    }
+
+    return const SizedBox.shrink();
+  }
+
+  Widget _todayBuilder(
+    BuildContext context,
+    DateTime date,
+    DateTime focusedDay,
+  ) {
+    final isTodayFocused = isSameDay(date, focusedDay);
+    final events = _getEventsForDay(date).toList();
+    final event = events.firstWhereOrNull(
+      (event) =>
+          event.type == CycleEventType.period ||
+          event.type == CycleEventType.fertile,
+    );
+
+    return Container(
+      margin: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        border: Border.all(
+          color: isTodayFocused
+              ? event?.type.color.darken(0.1) ??
+                  context.colorScheme.shadow.withAlpha(89)
+              : Colors.transparent,
+          width: 2.3,
+        ),
+      ),
+      alignment: Alignment.center,
+      child: Container(
+        margin: const EdgeInsets.all(5),
+        decoration: BoxDecoration(
+          color: event?.type.color.withAlpha(event.isPrediction ? 51 : 255) ??
+              Colors.transparent,
+          shape: BoxShape.circle,
+        ),
+        alignment: Alignment.center,
+        child: Text(
+          date.day.toString(),
+          style: TextStyle(
+            color: event != null
+                ? event.isPrediction
+                    ? event.type.color.darken(0.4)
+                    : context.colorScheme.surface
+                : null,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _selectedBuilder(
+    BuildContext context,
+    DateTime date,
+    DateTime focusedDay,
+  ) {
+    final events = _getEventsForDay(date).toList();
+
+    // If the selected day is today, return a "today" widget
+    if ((isSameDay(focusedDate, focusedDay) && date.isToday) ||
+        events.isNotEmpty) {
+      return _todayBuilder(context, date, focusedDay);
+    }
+
+    return Container(
+      margin: const EdgeInsets.all(4),
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        border: Border.all(
+          color: context.colorScheme.shadow.withAlpha(89),
+          width: 2.3,
+        ),
+      ),
+      child: Container(
+        margin: const EdgeInsets.all(5),
+        alignment: Alignment.center,
+        child: Text(date.day.toString()),
+      ),
+    );
+  }
+
+  Widget? _defaultBuilder(
+    BuildContext context,
+    DateTime date,
+    DateTime focusedDay,
+  ) {
+    if (!date.isSameMonth(focusedDay)) return null;
+
+    final events = _getEventsForDay(date).toList();
+
+    if (events.isEmpty) return null;
+
+    final event = events.firstWhereOrNull(
+      (event) =>
+          event.type == CycleEventType.period ||
+          event.type == CycleEventType.fertile,
+    );
+
+    if (event == null) return null;
+
+    return Container(
+      margin: const EdgeInsets.all(11),
+      decoration: BoxDecoration(
+        color: event.type.color.withAlpha(event.isPrediction ? 51 : 255),
+        shape: BoxShape.circle,
+      ),
+      alignment: Alignment.center,
+      child: Text(
+        date.day.toString(),
+        style: TextStyle(
+          color: event.isPrediction
+              ? event.type.color.darken(0.4)
+              : context.colorScheme.surface,
+        ),
+      ),
+    );
+  }
+
+  List<CycleEvent> _getEventsForDay(DateTime day) {
+    return cycleEvents.where((event) {
+      final eventDate = DateTime.utc(
+        event.date.year,
+        event.date.month,
+        event.date.day,
+      );
+      return eventDate.isAtSameMomentAs(day);
+    }).toList();
+  }
+}

@@ -120,5 +120,14 @@
   "fieldCantBeEmpty": "Field can't be empty.",
   "userNameShouldBeOneWord": "User name should be one word.",
   "enterAValidEmail": "Enter a valid email.",
-  "symptom": "Symptom"
+  "symptom": "Symptom",
+  "helloUser": "Hello, {user}!",
+  "@helloUser": {
+    "placeholders": {
+      "user": {
+        "type": "String"
+      }
+    }
+  },
+  "loading": "Loading..."
 }

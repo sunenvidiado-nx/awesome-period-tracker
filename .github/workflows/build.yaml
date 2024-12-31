@@ -20,7 +20,7 @@ jobs:
 
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: 3.24.5 # Must be the same with the one in pubspec.yaml
+          flutter-version: 3.27.1 # Must be the same with the one in pubspec.yaml
 
       - name: Configure Firebase
         run: |
@@ -62,11 +62,11 @@ jobs:
       packages: write
       actions: write
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: 3.24.5 # Must be the same with the one in pubspec.yaml
+          flutter-version: 3.27.1 # Must be the same with the one in pubspec.yaml
 
       - name: Configure Firebase
         run: |
