@@ -4,7 +4,7 @@
 
 # Awesome Period Tracker
 
-A simple yet awesome period tracker app, because your cycle deserves a standing ovulation. Built with Flutter. 🩵
+An awesome period tracker app, because your cycle deserves a standing ovulation. Built with Flutter. 🩵
 
 ## Features
 
@@ -33,7 +33,6 @@ A simple yet awesome period tracker app, because your cycle deserves a standing 
     LOGIN_EMAIL=your@email.here
     GEMINI_API_KEY=y0ur_ap1_k3y_h3r3
     SYSTEM_ID=systemId
-    CYCLE_EVENTS_PATH=cycle_events_path_set_in_firebase
     ```
 
 6. Run `build_runner` to generate the necessary code:

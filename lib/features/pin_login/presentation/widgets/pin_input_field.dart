@@ -18,7 +18,7 @@ class PinInputField extends StatelessWidget {
         padding: const EdgeInsets.all(14),
         textStyle: context.primaryTextTheme.titleLarge,
         decoration: BoxDecoration(
-          color: context.colorScheme.primary.withOpacity(0.12),
+          color: context.colorScheme.primary.withAlpha(153),
           borderRadius: BorderRadius.circular(8),
         ),
       );

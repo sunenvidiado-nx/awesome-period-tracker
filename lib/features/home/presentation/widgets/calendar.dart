@@ -86,7 +86,7 @@ class Calendar extends StatelessWidget {
         child: Icon(
           Icons.favorite,
           color: context.colorScheme.error
-              .withOpacity(isBeforeOrAfterCurrentMonth ? 0.5 : 1),
+              .withAlpha(isBeforeOrAfterCurrentMonth ? 128 : 255),
           size: 10,
         ),
       );
@@ -115,7 +115,7 @@ class Calendar extends StatelessWidget {
         border: Border.all(
           color: isTodayFocused
               ? event?.type.color.darken(0.1) ??
-                  context.colorScheme.shadow.withOpacity(0.35)
+                  context.colorScheme.shadow.withAlpha(89)
               : Colors.transparent,
           width: 2.3,
         ),
@@ -124,7 +124,7 @@ class Calendar extends StatelessWidget {
       child: Container(
         margin: const EdgeInsets.all(5),
         decoration: BoxDecoration(
-          color: event?.type.color.withOpacity(event.isPrediction ? 0.2 : 1) ??
+          color: event?.type.color.withAlpha((event.isPrediction ? 89 : 255)) ??
               Colors.transparent,
           shape: BoxShape.circle,
         ),
@@ -162,7 +162,7 @@ class Calendar extends StatelessWidget {
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         border: Border.all(
-          color: context.colorScheme.shadow.withOpacity(0.5),
+          color: context.colorScheme.shadow.withAlpha(89),
           width: 2.3,
         ),
       ),
@@ -196,7 +196,7 @@ class Calendar extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.all(11),
       decoration: BoxDecoration(
-        color: event.type.color.withOpacity(event.isPrediction ? 0.2 : 1),
+        color: event.type.color.withAlpha(event.isPrediction ? 89 : 255),
         shape: BoxShape.circle,
       ),
       alignment: Alignment.center,

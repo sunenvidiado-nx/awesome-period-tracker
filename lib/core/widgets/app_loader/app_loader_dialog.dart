@@ -9,7 +9,7 @@ abstract class AppLoaderDialog {
   }) {
     showDialog(
       context: context,
-      barrierColor: context.colorScheme.surfaceContainer.withOpacity(0.7),
+      barrierColor: context.colorScheme.surfaceContainer.withAlpha(140),
       barrierDismissible: barrierDismissible,
       builder: (context) => const Center(child: AppLoader()),
     );

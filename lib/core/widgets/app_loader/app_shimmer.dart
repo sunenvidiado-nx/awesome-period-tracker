@@ -17,8 +17,8 @@ class AppShimmer extends StatelessWidget {
     return Skeletonizer(
       enabled: isLoading,
       effect: PulseEffect(
-        from: context.colorScheme.shadow.withOpacity(0.1),
-        to: context.colorScheme.shadow.withOpacity(0.04),
+        from: context.colorScheme.shadow.withAlpha(25),
+        to: context.colorScheme.shadow.withAlpha(10),
       ),
       textBoneBorderRadius: TextBoneBorderRadius(BorderRadius.circular(4)),
       enableSwitchAnimation: true,

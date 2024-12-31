@@ -14,7 +14,4 @@ abstract interface class Env {
 
   /// Unique system identifier.
   abstract final String systemId;
-
-  /// Firestore collection path for cycle events.
-  abstract final String cycleEventsPath;
 }

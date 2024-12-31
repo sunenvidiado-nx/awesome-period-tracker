@@ -53,8 +53,7 @@ class SymptomsSection extends StatelessWidget {
                             Icon(
                               Icons.emergency,
                               size: 20,
-                              color:
-                                  context.colorScheme.shadow.withOpacity(0.4),
+                              color: context.colorScheme.shadow.withAlpha(102),
                             ),
                             const SizedBox(width: 8),
                             Text(
@@ -124,7 +123,7 @@ class SymptomsSection extends StatelessWidget {
                 label: Text(label),
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
                 side: BorderSide(
-                  color: context.colorScheme.onSurface.withOpacity(0.2),
+                  color: context.colorScheme.onSurface.withAlpha(51),
                 ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14),
@@ -143,7 +142,7 @@ class SymptomsSection extends StatelessWidget {
         child: Text(
           context.l10n.noSymptomsLogged,
           style: context.textTheme.bodySmall?.copyWith(
-            color: context.colorScheme.onSurface.withOpacity(0.5),
+            color: context.colorScheme.onSurface.withAlpha(153),
           ),
         ),
       ),

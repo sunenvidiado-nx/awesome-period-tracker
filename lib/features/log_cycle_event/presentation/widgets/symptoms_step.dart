@@ -95,7 +95,7 @@ class _SymptomsStepState extends State<SymptomsStep> {
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
                 border: Border.all(
-                  color: context.colorScheme.onSurface.withOpacity(0.2),
+                  color: context.colorScheme.onSurface.withAlpha(51),
                 ),
                 borderRadius: BorderRadius.circular(14),
                 color: context.colorScheme.onTertiary,
@@ -136,7 +136,7 @@ class _SymptomsStepState extends State<SymptomsStep> {
           border: Border.all(
             color: isSelected
                 ? context.colorScheme.secondary
-                : context.colorScheme.onSurface.withOpacity(0.2),
+                : context.colorScheme.onSurface.withAlpha(153),
           ),
           borderRadius: BorderRadius.circular(14),
           color: isSelected

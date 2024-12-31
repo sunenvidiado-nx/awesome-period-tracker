@@ -18,8 +18,4 @@ class ProdEnv implements Env {
   @override
   @EnviedField(obfuscate: true)
   final String systemId = _ProdEnv.systemId;
-
-  @override
-  @EnviedField(obfuscate: true)
-  final String cycleEventsPath = _ProdEnv.cycleEventsPath;
 }

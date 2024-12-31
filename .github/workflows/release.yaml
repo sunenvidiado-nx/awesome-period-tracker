@@ -23,7 +23,7 @@ jobs:
 
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: 3.24.5 # Must be the same with the one in pubspec.yaml
+          flutter-version: 3.27.1 # Must be the same with the one in pubspec.yaml
 
       - name: Configure Firebase
         run: |
@@ -65,11 +65,11 @@ jobs:
       packages: write
       actions: write
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: 3.24.5 # Must be the same with the one in pubspec.yaml
+          flutter-version: 3.27.1 # Must be the same with the one in pubspec.yaml
 
       - name: Configure Firebase
         run: |
@@ -136,7 +136,15 @@ jobs:
             echo "No version found in CHANGELOG.md"
             exit 1
           fi
-          CHANGELOG_CONTENT=$(sed -n "/^## \[$LATEST_VERSION/,/^## \[/p" CHANGELOG.md | sed '1d;$d')
+
+          # Extract content between the current and the next version or until the end of the file
+          CHANGELOG_CONTENT=$(awk "/^## \[$LATEST_VERSION\]/ {flag=1; next} /^## \[/ {flag=0} flag {print}" CHANGELOG.md)
+
+          if [ -z "$CHANGELOG_CONTENT" ]; then
+            echo "No changelog content found for version $LATEST_VERSION"
+            exit 1
+          fi
+
           echo "version=$LATEST_VERSION" >> $GITHUB_OUTPUT
           echo 'content<<EOF' >> $GITHUB_OUTPUT
           echo "$CHANGELOG_CONTENT" >> $GITHUB_OUTPUT
@@ -153,4 +161,5 @@ jobs:
           body: |
             ${{ steps.changelog.outputs.content }}
 
-            > Note: The IPA file is unsigned and intended solely for testing purposes. It is not eligible for App Store submission. Installation and execution on a device require a developer account and Xcode.
+            > [!WARNING]
+            > The IPA file is unsigned and intended solely for testing purposes. It is not eligible for App Store submission. It requires a developer account and Xcode to install and run on a device.

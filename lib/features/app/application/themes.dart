@@ -66,13 +66,13 @@ const _lightColorScheme = ColorScheme.light(
 );
 
 final _darkColorScheme = ColorScheme.dark(
-  primary: AppColors.red.withOpacity(0.8),
-  primaryContainer: AppColors.red.withOpacity(0.2),
-  secondary: AppColors.pink.withOpacity(0.8),
-  secondaryContainer: AppColors.pink.withOpacity(0.2),
-  secondaryFixed: AppColors.orange.withOpacity(0.8),
-  tertiary: AppColors.purple.withOpacity(0.8),
-  tertiaryContainer: AppColors.purple.withOpacity(0.2),
+  primary: AppColors.red.withAlpha(204),
+  primaryContainer: AppColors.red.withAlpha(51),
+  secondary: AppColors.pink.withAlpha(204),
+  secondaryContainer: AppColors.pink.withAlpha(51),
+  secondaryFixed: AppColors.orange.withAlpha(204),
+  tertiary: AppColors.purple.withAlpha(204),
+  tertiaryContainer: AppColors.purple.withAlpha(51),
   surface: const Color(0xFF121212),
   error: const Color(0xFFCF6679),
   onPrimary: AppColors.bgWhite,

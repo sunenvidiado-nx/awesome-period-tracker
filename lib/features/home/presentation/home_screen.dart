@@ -79,7 +79,7 @@ class _HomeScreenState extends State<HomeScreen> {
               state == ThemeMode.dark
                   ? Icons.brightness_7_rounded
                   : Icons.brightness_4_rounded,
-              color: context.colorScheme.onSurface.withOpacity(0.6),
+              color: context.colorScheme.onSurface.withAlpha(153),
             ),
             onPressed: GetIt.I<ThemeModeManager>().toggleTheme,
           ),

@@ -34,7 +34,7 @@ class LogCycleEventBottomSheet extends StatefulWidget {
       context: context,
       scrollControlDisabledMaxHeightRatio: 0.9,
       isScrollControlled: true,
-      barrierColor: context.colorScheme.shadow.withOpacity(0.3),
+      barrierColor: context.colorScheme.shadow.withAlpha(140),
       builder: (context) => Padding(
         padding: MediaQuery.of(context).viewInsets,
         child: LogCycleEventBottomSheet(

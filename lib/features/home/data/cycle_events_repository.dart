@@ -1,4 +1,3 @@
-import 'package:awesome_period_tracker/core/environment/env.dart';
 import 'package:awesome_period_tracker/core/extensions/date_time_extensions.dart';
 import 'package:awesome_period_tracker/features/home/domain/cycle_event.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -6,13 +5,14 @@ import 'package:injectable/injectable.dart';
 
 @injectable
 class CycleEventsRepository {
-  const CycleEventsRepository(this._firestore, this._env);
+  const CycleEventsRepository(this._firestore);
 
   final FirebaseFirestore _firestore;
-  final Env _env;
+
+  static const _cycleEventsPath = 'cycle_events';
 
   CollectionReference get _collection =>
-      _firestore.collection(_env.cycleEventsPath);
+      _firestore.collection(_cycleEventsPath);
 
   Future<List<CycleEvent>> get([Map<String, dynamic>? query]) async {
     late Query<Object?> firestoreQuery;
