@@ -9,8 +9,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 @injectable
-class InsightsRepository {
-  const InsightsRepository(this._sharedPreferences, this._geminiClient);
+class AiInsightsService {
+  const AiInsightsService(
+    this._sharedPreferences,
+    this._geminiClient,
+  );
 
   final SharedPreferences _sharedPreferences;
   final GeminiClient _geminiClient;
@@ -54,10 +57,6 @@ class InsightsRepository {
     await _sharedPreferences.setString(prefsKey, insight.toJson());
 
     return insight;
-  }
-
-  Future<void> clearCache() async {
-    await _sharedPreferences.clear();
   }
 
   Future<String> _generateInsights(

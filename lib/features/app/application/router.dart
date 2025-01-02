@@ -3,6 +3,7 @@ import 'package:awesome_period_tracker/features/pin_login/domain/auth_repository
 import 'package:awesome_period_tracker/features/pin_login/presentation/pin_login_screen.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
+import 'package:injectable/injectable.dart';
 
 abstract class Routes {
   static const root = '/';
@@ -10,8 +11,10 @@ abstract class Routes {
   static const home = '/home';
 }
 
-abstract class Router {
-  static GoRouter get instance {
+@module
+abstract class RouterRegister {
+  @singleton
+  GoRouter get instance {
     return GoRouter(
       observers: [
         // TODO Add observers

@@ -49,7 +49,7 @@ class InfoCards extends StatelessWidget {
                   subtitle: forecast != null
                       ? context.l10n
                           .currentlyInThePhasePhase(forecast.phase.name)
-                      : context.l10n.veryShortGenericError,
+                      : context.l10n.shortGenericError,
                   icon: Icon(
                     Icons.expand_circle_down_outlined,
                     color: context.colorScheme.secondaryFixed,
@@ -83,7 +83,7 @@ class InfoCards extends StatelessWidget {
                                   context.l10n.notSpecified.toTitleCase(),
                             )
                           : context.l10n.noPeriodLoggedForThisDay)
-                      : context.l10n.veryShortGenericError,
+                      : context.l10n.shortGenericError,
                   icon: Icon(
                     Icons.radio_button_checked,
                     color: context.colorScheme.primary,
@@ -153,7 +153,7 @@ class InfoCards extends StatelessWidget {
                               )
                               ?.additionalData ??
                           context.l10n.noIntimateActivitiesLoggedForToday
-                      : context.l10n.veryShortGenericError,
+                      : context.l10n.shortGenericError,
                   icon: Icon(
                     Icons.favorite,
                     color: context.colorScheme.secondary,

@@ -76,17 +76,12 @@ class Calendar extends StatelessWidget {
     DateTime date,
     List<CycleEvent> events,
   ) {
-    if (events.any((event) => event.type == CycleEventType.intimacy)) {
-      final isBeforeOrAfterCurrentMonth = date.month < DateTime.now().month ||
-          date.month > DateTime.now().month ||
-          date.year != DateTime.now().year;
-
+    if (events.any((e) => e.type == CycleEventType.intimacy)) {
       return Positioned.fill(
         top: 24,
         child: Icon(
           Icons.favorite,
-          color: context.colorScheme.error
-              .withAlpha(isBeforeOrAfterCurrentMonth ? 128 : 255),
+          color: context.colorScheme.error,
           size: 10,
         ),
       );

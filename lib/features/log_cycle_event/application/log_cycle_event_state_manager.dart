@@ -2,7 +2,6 @@ import 'package:awesome_period_tracker/core/constants/strings.dart';
 import 'package:awesome_period_tracker/core/extensions/date_time_extensions.dart';
 import 'package:awesome_period_tracker/core/infrastructure/state_manager.dart';
 import 'package:awesome_period_tracker/features/home/data/cycle_events_repository.dart';
-import 'package:awesome_period_tracker/features/home/data/insights_repository.dart';
 import 'package:awesome_period_tracker/features/home/domain/cycle_event.dart';
 import 'package:awesome_period_tracker/features/home/domain/cycle_event_type.dart';
 import 'package:awesome_period_tracker/features/home/domain/period_flow.dart';
@@ -24,13 +23,11 @@ class LogCycleEventStateManager extends StateManager<LogCycleEventState> {
     this._cycleEventsRepository,
     this._authRepository,
     this._symptomsRepository,
-    this._insightsRepository,
   ) : super(LogCycleEventState.initial());
 
   final CycleEventsRepository _cycleEventsRepository;
   final AuthRepository _authRepository;
   final SymptomsRepository _symptomsRepository;
-  final InsightsRepository _insightsRepository;
 
   void setStep(LogEventStep step) {
     notifier.value = notifier.value.copyWith(step: step);
@@ -52,7 +49,7 @@ class LogCycleEventStateManager extends StateManager<LogCycleEventState> {
   }
 
   Future<void> clearCachedInsights() async {
-    await _insightsRepository.clearCache();
+    await _authRepository.clearUserCache();
   }
 
   /// Call this when the user wants to log symptoms.

@@ -18,4 +18,12 @@ class ProdEnv implements Env {
   @override
   @EnviedField(obfuscate: true)
   final String systemId = _ProdEnv.systemId;
+
+  @override
+  @EnviedField(obfuscate: true)
+  final String cyclePhaseApiKey = _ProdEnv.cyclePhaseApiKey;
+
+  @override
+  @EnviedField(obfuscate: true)
+  final String cyclePhaseApiUrl = _ProdEnv.cyclePhaseApiUrl;
 }
