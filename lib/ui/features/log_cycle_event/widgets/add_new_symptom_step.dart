@@ -25,6 +25,12 @@ class _AddNewSymptomStepState extends State<AddNewSymptomStep> {
   var _isSubmitting = false;
 
   @override
+  void dispose() {
+    _symptomController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Padding(
