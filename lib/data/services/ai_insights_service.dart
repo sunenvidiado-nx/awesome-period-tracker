@@ -1,4 +1,4 @@
-import 'package:awesome_period_tracker/data/clients/gemini_client.dart';
+import 'package:awesome_period_tracker/config/clients/gemini_client.dart';
 import 'package:awesome_period_tracker/domain/models/forecast.dart';
 import 'package:awesome_period_tracker/domain/models/insight.dart';
 import 'package:awesome_period_tracker/domain/models/menstruation_phase.dart';
