@@ -27,8 +27,23 @@ void main() {
       configureDependencies(),
     ]);
 
+    _setUpNavigationAndStatusBarColors();
+
     runApp(const App());
   });
+}
+
+void _setUpNavigationAndStatusBarColors() {
+  SystemChrome.setSystemUIOverlayStyle(
+    SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.dark,
+      systemNavigationBarColor: Colors.black.withValues(alpha: 255),
+      systemNavigationBarIconBrightness: Brightness.dark,
+    ),
+  );
+
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
 }
 
 void _setUpLicenses() {

@@ -1,8 +1,6 @@
-import 'package:awesome_period_tracker/core/extensions/build_context_extensions.dart';
 import 'package:awesome_period_tracker/features/app/application/theme_mode_manager.dart';
 import 'package:awesome_period_tracker/features/app/application/themes.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:get_it/get_it.dart';
@@ -24,24 +22,10 @@ class App extends StatelessWidget {
       themeMode: themeMode,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
-      builder: (context, child) {
-        return KeyboardDismissOnTap(
-          dismissOnCapturedTaps: true,
-          child: AnnotatedRegion(
-            value: SystemUiOverlayStyle(
-              statusBarColor: Colors.transparent,
-              statusBarIconBrightness: themeMode == ThemeMode.dark
-                  ? Brightness.light
-                  : Brightness.dark,
-              systemNavigationBarColor: context.colorScheme.surfaceContainer,
-              systemNavigationBarIconBrightness: themeMode == ThemeMode.dark
-                  ? Brightness.light
-                  : Brightness.dark,
-            ),
-            child: child!,
-          ),
-        );
-      },
+      builder: (context, child) => KeyboardDismissOnTap(
+        dismissOnCapturedTaps: true,
+        child: child!,
+      ),
     );
   }
 }
