@@ -2,8 +2,6 @@ import 'package:awesome_period_tracker/config/environment/env.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:injectable/injectable.dart';
 
-const _modelIdentifier = 'gemini-1.5-flash-latest';
-
 @injectable
 class GeminiClient {
   GeminiClient(Env env)
@@ -11,6 +9,8 @@ class GeminiClient {
             GenerativeModel(model: _modelIdentifier, apiKey: env.geminiApiKey);
 
   final GenerativeModel _model;
+
+  static const _modelIdentifier = 'gemini-1.5-flash-latest';
 
   /// Generates AI content from a text prompt.
   ///

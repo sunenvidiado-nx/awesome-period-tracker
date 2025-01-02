@@ -1,3 +1,4 @@
+import 'package:awesome_period_tracker/app/routing/routes.dart';
 import 'package:awesome_period_tracker/data/repositories/auth_repository.dart';
 import 'package:awesome_period_tracker/ui/features/home/home_screen.dart';
 import 'package:awesome_period_tracker/ui/features/pin_login/pin_login_screen.dart';
@@ -5,14 +6,8 @@ import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:injectable/injectable.dart';
 
-abstract class Routes {
-  static const root = '/';
-  static const pinLogin = '/pin-login';
-  static const home = '/home';
-}
-
 @module
-abstract class AppRouter {
+abstract class RouterConfig {
   @singleton
   GoRouter get instance {
     return GoRouter(

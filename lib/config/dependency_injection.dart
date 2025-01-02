@@ -10,7 +10,7 @@ import 'dependency_injection.config.dart';
 Future<void> configureDependencies() async => GetIt.I.init();
 
 @module
-abstract class ModuleRegister {
+abstract class ExternalServicesModule {
   @lazySingleton
   FlutterSecureStorage get secureStorage => const FlutterSecureStorage(
         aOptions: AndroidOptions(encryptedSharedPreferences: true),

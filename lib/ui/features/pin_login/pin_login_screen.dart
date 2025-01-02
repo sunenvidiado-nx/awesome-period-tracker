@@ -1,4 +1,4 @@
-import 'package:awesome_period_tracker/app/routing/app_router.dart';
+import 'package:awesome_period_tracker/app/routing/routes.dart';
 import 'package:awesome_period_tracker/app/theme/app_assets.dart';
 import 'package:awesome_period_tracker/data/repositories/auth_repository.dart';
 import 'package:awesome_period_tracker/ui/common_widgets/app_loader/app_loader_dialog.dart';
