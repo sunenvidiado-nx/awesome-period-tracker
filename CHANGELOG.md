@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.5.0] - 2025-12-02
+
+### Changed
+
+- Upgraded to Flutter 3.27.1! 🎉
+- Now using an external API for calculating cycle forecasts.
+
+### Fixed
+
+- Fixed cycle forecast errors due to unreliable on-device prediction logic.
+
 ## [1.4.1] - 2024-11-25
 
 ### Fixed
