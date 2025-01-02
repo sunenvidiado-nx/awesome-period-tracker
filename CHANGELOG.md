@@ -6,8 +6,9 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
-- Updated app architecture and directories structure.
-- Removed `shared_preferences` in favor of `flutter_secure_storage`.
+- Improved app architecture with cleaner code structure.
+- Improved data privacy by making local storage more secure.
+- Optimized API usage with smarter caching system.
 
 ## [1.5.0] - 2025-12-02
 
