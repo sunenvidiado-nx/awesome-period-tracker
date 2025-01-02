@@ -27,8 +27,7 @@ class HomeStateManager extends StateManager<HomeState> {
     try {
       date ??= DateTime.now().withoutTime();
 
-      notifier.value =
-          notifier.value.copyWith(isLoading: true, selectedDate: date);
+      state = state.copyWith(isLoading: true, selectedDate: date);
 
       final forecast = await _forecastService.createForecastForDateFromEvents(
         date: date,
@@ -40,12 +39,11 @@ class HomeStateManager extends StateManager<HomeState> {
         useCache: useCache,
       );
 
-      notifier.value =
-          notifier.value.copyWith(forecast: forecast, insight: insight);
+      state = state.copyWith(forecast: forecast, insight: insight);
     } catch (e) {
       // TODO Handle error
     } finally {
-      notifier.value = notifier.value.copyWith(isLoading: false);
+      state = state.copyWith(isLoading: false);
     }
   }
 
@@ -54,7 +52,7 @@ class HomeStateManager extends StateManager<HomeState> {
     required DateTime date,
     bool useCache = true,
   }) {
-    notifier.value = notifier.value.copyWith(selectedDate: date.withoutTime());
+    state = state.copyWith(selectedDate: date.withoutTime());
     initialize(date: date.withoutTime(), useCache: useCache);
   }
 }

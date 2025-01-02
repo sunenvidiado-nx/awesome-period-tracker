@@ -30,21 +30,21 @@ class LogCycleEventStateManager extends StateManager<LogCycleEventState> {
   final SymptomsRepository _symptomsRepository;
 
   void setStep(LogEventStep step) {
-    notifier.value = notifier.value.copyWith(step: step);
+    state = state.copyWith(step: step);
   }
 
   void setDate(DateTime date) {
-    notifier.value = notifier.value.copyWith(date: date);
+    state = state.copyWith(date: date);
   }
 
   Future<void> createSymptom(String symptom) async {
     try {
-      notifier.value = notifier.value.copyWith(isLoadingSymptoms: true);
+      state = state.copyWith(isLoadingSymptoms: true);
       await _symptomsRepository.create(symptom);
     } catch (e) {
       // TODO Handle error
     } finally {
-      notifier.value = notifier.value.copyWith(isLoadingSymptoms: false);
+      state = state.copyWith(isLoadingSymptoms: false);
     }
   }
 
@@ -55,28 +55,28 @@ class LogCycleEventStateManager extends StateManager<LogCycleEventState> {
   /// Call this when the user wants to log symptoms.
   Future<void> loadSymptoms(String joinedSelectedSymptoms) async {
     try {
-      notifier.value = notifier.value.copyWith(isLoadingSymptoms: true);
+      state = state.copyWith(isLoadingSymptoms: true);
 
       final selectedSymptoms =
           joinedSelectedSymptoms.split(Strings.symptomSeparator);
       final symptoms = await _symptomsRepository.get();
 
-      notifier.value = notifier.value.copyWith(
+      state = state.copyWith(
         selectedSymptoms: selectedSymptoms,
         symptoms: symptoms,
       );
     } catch (e) {
       // TODO Handle error
     } finally {
-      notifier.value = notifier.value.copyWith(isLoadingSymptoms: false);
+      state = state.copyWith(isLoadingSymptoms: false);
     }
   }
 
   void toggleSymptom(String symptom) {
-    notifier.value = notifier.value.copyWith(
-      selectedSymptoms: notifier.value.selectedSymptoms.contains(symptom)
-          ? notifier.value.selectedSymptoms.where((s) => s != symptom).toList()
-          : [...notifier.value.selectedSymptoms, symptom],
+    state = state.copyWith(
+      selectedSymptoms: state.selectedSymptoms.contains(symptom)
+          ? state.selectedSymptoms.where((s) => s != symptom).toList()
+          : [...state.selectedSymptoms, symptom],
     );
   }
 
@@ -89,13 +89,13 @@ class LogCycleEventStateManager extends StateManager<LogCycleEventState> {
     String? addtionalInfo,
   ]) async {
     try {
-      notifier.value = notifier.value.copyWith(isLoading: true);
+      state = state.copyWith(isLoading: true);
 
       symptoms = symptoms.where((s) => s.isNotEmpty).toList();
 
       if (symptoms.isEmpty) {
         final symptomsEvent = await _cycleEventsRepository.get({
-          'date': Timestamp.fromDate(notifier.value.date.withoutTime()),
+          'date': Timestamp.fromDate(state.date.withoutTime()),
           'type': CycleEventType.symptoms.name,
         }).then((value) => value.firstOrNull);
 
@@ -113,13 +113,13 @@ class LogCycleEventStateManager extends StateManager<LogCycleEventState> {
     } catch (e) {
       // TODO Handle error
     } finally {
-      notifier.value = notifier.value.copyWith(isLoading: false);
+      state = state.copyWith(isLoading: false);
     }
   }
 
   Future<void> logIntimacy(bool didUseProtection) async {
     try {
-      notifier.value = notifier.value.copyWith(isLoading: true);
+      state = state.copyWith(isLoading: true);
 
       await _createOrUpdateEventByType(
         CycleEventType.intimacy,
@@ -128,18 +128,18 @@ class LogCycleEventStateManager extends StateManager<LogCycleEventState> {
     } catch (e) {
       // TODO Handle error
     } finally {
-      notifier.value = notifier.value.copyWith(isLoading: false);
+      state = state.copyWith(isLoading: false);
     }
   }
 
   Future<void> removeEvent(CycleEvent event) async {
     try {
-      notifier.value = notifier.value.copyWith(isLoading: true);
+      state = state.copyWith(isLoading: true);
       await _cycleEventsRepository.delete(event);
     } catch (e) {
       // TODO Handle error
     } finally {
-      notifier.value = notifier.value.copyWith(isLoading: false);
+      state = state.copyWith(isLoading: false);
     }
   }
 
@@ -151,11 +151,10 @@ class LogCycleEventStateManager extends StateManager<LogCycleEventState> {
 
     cycleEvent = await _cycleEventsRepository.get({
       'createdBy': _authRepository.getCurrentUser()!.uid,
-      'date': Timestamp.fromDate(notifier.value.date.withoutTime()),
+      'date': Timestamp.fromDate(state.date.withoutTime()),
       'type': type.name,
     }).then(
-      (value) =>
-          value.firstWhereOrNull((e) => isSameDay(e.date, notifier.value.date)),
+      (value) => value.firstWhereOrNull((e) => isSameDay(e.date, state.date)),
     );
 
     if (cycleEvent != null) {
@@ -165,7 +164,7 @@ class LogCycleEventStateManager extends StateManager<LogCycleEventState> {
     }
 
     cycleEvent = CycleEvent(
-      date: notifier.value.date,
+      date: state.date,
       type: type,
       additionalData: additionalData,
       createdBy: _authRepository.getCurrentUser()!.uid,

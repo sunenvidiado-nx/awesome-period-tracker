@@ -8,6 +8,12 @@ abstract class StateManager<T> {
   /// Constructor that initializes the notifier with an initial state.
   StateManager(T initialState) : notifier = ValueNotifier(initialState);
 
+  /// Updates the state of the state manager.
+  set state(T newState) => notifier.value = newState;
+
+  /// Returns the current state of the state manager.
+  T get state => notifier.value;
+
   /// Releases allocated resources and cleans up the state manager.
   ///
   /// Must be called when the state manager is no longer needed to prevent memory leaks.
