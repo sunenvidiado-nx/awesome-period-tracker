@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.5.1] - 2025-12-02
+
+### Changed
+
+- Updated app architecture and directories structure.
+- Removed `shared_preferences` in favor of `flutter_secure_storage`.
+
 ## [1.5.0] - 2025-12-02
 
 ### Changed
