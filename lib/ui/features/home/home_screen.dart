@@ -1,6 +1,6 @@
 import 'package:awesome_period_tracker/app/core/extensions/build_context_extensions.dart';
 import 'package:awesome_period_tracker/app/theme/app_assets.dart';
-import 'package:awesome_period_tracker/app/theme_provider.dart';
+import 'package:awesome_period_tracker/app/theme_mode_manager.dart';
 import 'package:awesome_period_tracker/ui/common_widgets/cards/app_card.dart';
 import 'package:awesome_period_tracker/ui/features/home/home_state_manager.dart';
 import 'package:awesome_period_tracker/ui/features/home/widgets/calendar.dart';
