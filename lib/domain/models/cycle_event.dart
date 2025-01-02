@@ -1,4 +1,4 @@
-import 'package:awesome_period_tracker/app/core/constants/strings.dart';
+import 'package:awesome_period_tracker/config/constants/strings.dart';
 import 'package:awesome_period_tracker/domain/models/cycle_event_type.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dart_mappable/dart_mappable.dart';

@@ -1,8 +1,8 @@
-import 'package:awesome_period_tracker/app/core/extensions/build_context_extensions.dart';
 import 'package:awesome_period_tracker/app/theme/app_assets.dart';
 import 'package:awesome_period_tracker/ui/common_widgets/app_loader/app_shimmer.dart';
 import 'package:awesome_period_tracker/ui/common_widgets/cards/app_card.dart';
 import 'package:awesome_period_tracker/ui/features/home/home_state_manager.dart';
+import 'package:awesome_period_tracker/utils/extensions/build_context_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:flutter_svg/flutter_svg.dart';

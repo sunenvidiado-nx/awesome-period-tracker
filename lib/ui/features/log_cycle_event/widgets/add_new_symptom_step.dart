@@ -1,9 +1,9 @@
-import 'package:awesome_period_tracker/app/core/extensions/build_context_extensions.dart';
 import 'package:awesome_period_tracker/domain/models/log_event_step.dart';
 import 'package:awesome_period_tracker/ui/common_widgets/app_loader/app_loader.dart';
 import 'package:awesome_period_tracker/ui/common_widgets/buttons/app_back_button.dart';
 import 'package:awesome_period_tracker/ui/common_widgets/shadow/app_shadow.dart';
 import 'package:awesome_period_tracker/ui/features/log_cycle_event/log_cycle_event_state_manager.dart';
+import 'package:awesome_period_tracker/utils/extensions/build_context_extensions.dart';
 import 'package:flutter/material.dart';
 
 class AddNewSymptomStep extends StatefulWidget {

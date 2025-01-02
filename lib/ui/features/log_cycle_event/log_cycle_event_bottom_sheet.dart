@@ -1,5 +1,4 @@
 import 'package:animations/animations.dart';
-import 'package:awesome_period_tracker/app/core/extensions/build_context_extensions.dart';
 import 'package:awesome_period_tracker/domain/models/cycle_event.dart';
 import 'package:awesome_period_tracker/domain/models/cycle_event_type.dart';
 import 'package:awesome_period_tracker/domain/models/log_event_step.dart';
@@ -8,6 +7,7 @@ import 'package:awesome_period_tracker/ui/features/log_cycle_event/widgets/add_n
 import 'package:awesome_period_tracker/ui/features/log_cycle_event/widgets/intimacy_step.dart';
 import 'package:awesome_period_tracker/ui/features/log_cycle_event/widgets/period_flow_step.dart';
 import 'package:awesome_period_tracker/ui/features/log_cycle_event/widgets/symptoms_step.dart';
+import 'package:awesome_period_tracker/utils/extensions/build_context_extensions.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';

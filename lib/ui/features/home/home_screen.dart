@@ -1,4 +1,3 @@
-import 'package:awesome_period_tracker/app/core/extensions/build_context_extensions.dart';
 import 'package:awesome_period_tracker/app/theme/app_assets.dart';
 import 'package:awesome_period_tracker/app/theme_mode_manager.dart';
 import 'package:awesome_period_tracker/ui/common_widgets/cards/app_card.dart';
@@ -7,6 +6,7 @@ import 'package:awesome_period_tracker/ui/features/home/widgets/calendar.dart';
 import 'package:awesome_period_tracker/ui/features/home/widgets/cycle_insights.dart';
 import 'package:awesome_period_tracker/ui/features/home/widgets/info_cards.dart';
 import 'package:awesome_period_tracker/ui/features/home/widgets/symptoms_section.dart';
+import 'package:awesome_period_tracker/utils/extensions/build_context_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get_it/get_it.dart';

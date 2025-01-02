@@ -1,4 +1,3 @@
-import 'package:awesome_period_tracker/app/core/extensions/build_context_extensions.dart';
 import 'package:awesome_period_tracker/domain/models/cycle_event.dart';
 import 'package:awesome_period_tracker/domain/models/period_flow.dart';
 import 'package:awesome_period_tracker/ui/common_widgets/app_loader/app_loader.dart';
@@ -6,6 +5,7 @@ import 'package:awesome_period_tracker/ui/common_widgets/cards/app_card.dart';
 import 'package:awesome_period_tracker/ui/common_widgets/shadow/app_shadow.dart';
 import 'package:awesome_period_tracker/ui/common_widgets/snackbars/app_snackbar.dart';
 import 'package:awesome_period_tracker/ui/features/log_cycle_event/log_cycle_event_state_manager.dart';
+import 'package:awesome_period_tracker/utils/extensions/build_context_extensions.dart';
 import 'package:flutter/material.dart';
 
 class PeriodFlowStep extends StatefulWidget {

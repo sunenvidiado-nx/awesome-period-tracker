@@ -1,5 +1,5 @@
-import 'package:awesome_period_tracker/app/core/extensions/date_time_extensions.dart';
 import 'package:awesome_period_tracker/domain/models/cycle_event.dart';
+import 'package:awesome_period_tracker/utils/extensions/date_time_extensions.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:injectable/injectable.dart';
 

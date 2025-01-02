@@ -1,5 +1,5 @@
-import 'package:awesome_period_tracker/app/core/extensions/string_extensions.dart';
 import 'package:awesome_period_tracker/app/theme/app_colors.dart';
+import 'package:awesome_period_tracker/utils/extensions/string_extensions.dart';
 import 'package:dart_mappable/dart_mappable.dart';
 import 'package:flutter/material.dart';
 

@@ -1,8 +1,8 @@
-import 'package:awesome_period_tracker/app/core/extensions/build_context_extensions.dart';
-import 'package:awesome_period_tracker/app/core/extensions/color_extensions.dart';
-import 'package:awesome_period_tracker/app/core/extensions/date_time_extensions.dart';
 import 'package:awesome_period_tracker/domain/models/cycle_event.dart';
 import 'package:awesome_period_tracker/domain/models/cycle_event_type.dart';
+import 'package:awesome_period_tracker/utils/extensions/build_context_extensions.dart';
+import 'package:awesome_period_tracker/utils/extensions/color_extensions.dart';
+import 'package:awesome_period_tracker/utils/extensions/date_time_extensions.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';

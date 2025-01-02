@@ -1,4 +1,4 @@
-import 'package:awesome_period_tracker/app/core/extensions/string_extensions.dart';
+import 'package:awesome_period_tracker/utils/extensions/string_extensions.dart';
 
 enum PeriodFlow {
   noFlow,

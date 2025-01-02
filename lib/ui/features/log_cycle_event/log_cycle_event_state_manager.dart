@@ -1,6 +1,5 @@
-import 'package:awesome_period_tracker/app/core/constants/strings.dart';
-import 'package:awesome_period_tracker/app/core/extensions/date_time_extensions.dart';
 import 'package:awesome_period_tracker/app/state/state_manager.dart';
+import 'package:awesome_period_tracker/config/constants/strings.dart';
 import 'package:awesome_period_tracker/data/repositories/auth_repository.dart';
 import 'package:awesome_period_tracker/data/repositories/cycle_events_repository.dart';
 import 'package:awesome_period_tracker/data/repositories/symptoms_repository.dart';
@@ -8,6 +7,7 @@ import 'package:awesome_period_tracker/domain/models/cycle_event.dart';
 import 'package:awesome_period_tracker/domain/models/cycle_event_type.dart';
 import 'package:awesome_period_tracker/domain/models/log_event_step.dart';
 import 'package:awesome_period_tracker/domain/models/period_flow.dart';
+import 'package:awesome_period_tracker/utils/extensions/date_time_extensions.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:collection/collection.dart';
 import 'package:dart_mappable/dart_mappable.dart';

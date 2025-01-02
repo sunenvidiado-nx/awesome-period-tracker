@@ -1,6 +1,3 @@
-import 'package:awesome_period_tracker/app/core/extensions/build_context_extensions.dart';
-import 'package:awesome_period_tracker/app/core/extensions/color_extensions.dart';
-import 'package:awesome_period_tracker/app/core/extensions/string_extensions.dart';
 import 'package:awesome_period_tracker/domain/models/cycle_event_type.dart';
 import 'package:awesome_period_tracker/domain/models/log_event_step.dart';
 import 'package:awesome_period_tracker/domain/models/menstruation_phase.dart';
@@ -8,6 +5,9 @@ import 'package:awesome_period_tracker/ui/common_widgets/app_loader/app_shimmer.
 import 'package:awesome_period_tracker/ui/common_widgets/cards/app_card.dart';
 import 'package:awesome_period_tracker/ui/features/home/home_state_manager.dart';
 import 'package:awesome_period_tracker/ui/features/log_cycle_event/log_cycle_event_bottom_sheet.dart';
+import 'package:awesome_period_tracker/utils/extensions/build_context_extensions.dart';
+import 'package:awesome_period_tracker/utils/extensions/color_extensions.dart';
+import 'package:awesome_period_tracker/utils/extensions/string_extensions.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:skeletonizer/skeletonizer.dart';

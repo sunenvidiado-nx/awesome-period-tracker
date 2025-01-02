@@ -1,10 +1,10 @@
-import 'package:awesome_period_tracker/app/core/extensions/date_time_extensions.dart';
 import 'package:awesome_period_tracker/app/state/state_manager.dart';
 import 'package:awesome_period_tracker/data/repositories/cycle_events_repository.dart';
 import 'package:awesome_period_tracker/data/services/ai_insights_service.dart';
 import 'package:awesome_period_tracker/data/services/forecast_service.dart';
 import 'package:awesome_period_tracker/domain/models/forecast.dart';
 import 'package:awesome_period_tracker/domain/models/insight.dart';
+import 'package:awesome_period_tracker/utils/extensions/date_time_extensions.dart';
 import 'package:dart_mappable/dart_mappable.dart';
 import 'package:injectable/injectable.dart';
 
