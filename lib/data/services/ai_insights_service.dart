@@ -1,21 +1,21 @@
-import 'package:awesome_period_tracker/app/core/extensions/date_time_extensions.dart';
-import 'package:awesome_period_tracker/app/core/extensions/string_extensions.dart';
 import 'package:awesome_period_tracker/data/clients/gemini_client.dart';
 import 'package:awesome_period_tracker/domain/models/forecast.dart';
 import 'package:awesome_period_tracker/domain/models/insight.dart';
 import 'package:awesome_period_tracker/domain/models/menstruation_phase.dart';
+import 'package:awesome_period_tracker/utils/extensions/date_time_extensions.dart';
+import 'package:awesome_period_tracker/utils/extensions/string_extensions.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:injectable/injectable.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 @injectable
 class AiInsightsService {
   const AiInsightsService(
-    this._sharedPreferences,
+    this._secureStorage,
     this._geminiClient,
   );
 
-  final SharedPreferences _sharedPreferences;
+  final FlutterSecureStorage _secureStorage;
   final GeminiClient _geminiClient;
 
   Future<Insight> getInsightForForecast({
@@ -25,9 +25,9 @@ class AiInsightsService {
     final prefsKey = forecast.date.toYmdString();
 
     try {
-      if (_sharedPreferences.containsKey(prefsKey) && useCache) {
+      if (await _secureStorage.containsKey(key: prefsKey) && useCache) {
         final cachedInsight =
-            InsightMapper.fromJson(_sharedPreferences.getString(prefsKey)!);
+            InsightMapper.fromJson((await _secureStorage.read(key: prefsKey))!);
 
         final isCacheValid =
             isSameDay(cachedInsight.date, forecast.date.toUtc());
@@ -54,7 +54,7 @@ class AiInsightsService {
       isPast: isPast,
     );
 
-    await _sharedPreferences.setString(prefsKey, insight.toJson());
+    await _secureStorage.write(key: prefsKey, value: insight.toJson());
 
     return insight;
   }

@@ -9,24 +9,25 @@ import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get_it/get_it.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   runZoned(() async {
     WidgetsFlutterBinding.ensureInitialized();
 
-    _setUpLicenses();
-
     await _setUpFirebase(); // Must be called before any other initialization
 
     await Future.wait([
-      _clearCacheOnNewVersion(),
       _preloadSvgs(),
       configureDependencies(),
     ]);
 
+    await _clearCacheOnNewVersion(); // Must be called after dependencies initialization
+
+    _setUpLicenses();
     _setUpNavigationAndStatusBarColors();
 
     runApp(const App());
@@ -58,7 +59,6 @@ Future<void> _setUpFirebase() async {
 
   FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
 
-  // Pass all uncaught asynchronous errors that aren't handled by the Flutter framework to Crashlytics
   PlatformDispatcher.instance.onError = (error, stack) {
     FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
     return true;
@@ -66,14 +66,14 @@ Future<void> _setUpFirebase() async {
 }
 
 Future<void> _clearCacheOnNewVersion() async {
-  // Generate random strings here: http://bit.ly/random-strings-generator
+  // Generate cache key here: http://bit.ly/random-strings-generator
   const key = 'tnULfB0HpgDR';
-  final prefs = await SharedPreferences.getInstance();
+  final secureStorage = GetIt.I<FlutterSecureStorage>();
   final pInfo = await PackageInfo.fromPlatform();
 
-  if (pInfo.version != prefs.getString(key)) {
-    await prefs.clear();
-    await prefs.setString(key, pInfo.version);
+  if (pInfo.version != await secureStorage.read(key: key)) {
+    await secureStorage.deleteAll();
+    await secureStorage.write(key: key, value: pInfo.version);
   }
 }
 

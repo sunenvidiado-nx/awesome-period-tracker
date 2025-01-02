@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:awesome_period_tracker/app/core/extensions/date_time_extensions.dart';
 import 'package:awesome_period_tracker/config/environment/env.dart';
 import 'package:awesome_period_tracker/data/model/api_prediction.dart';
 import 'package:awesome_period_tracker/data/model/process_cycle_data_request.dart';
@@ -8,22 +7,23 @@ import 'package:awesome_period_tracker/domain/models/cycle_event.dart';
 import 'package:awesome_period_tracker/domain/models/cycle_event_type.dart';
 import 'package:awesome_period_tracker/domain/models/forecast.dart';
 import 'package:awesome_period_tracker/domain/models/menstruation_phase.dart';
+import 'package:awesome_period_tracker/utils/extensions/date_time_extensions.dart';
 import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:injectable/injectable.dart';
 import 'package:intl/intl.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 @injectable
 class ForecastService {
   ForecastService(
     this._env,
-    this._prefs,
+    this._secureStorage,
     @Named('cycle_api_client') this._cycleApiClient,
   );
 
   final Env _env;
-  final SharedPreferences _prefs;
+  final FlutterSecureStorage _secureStorage;
   final Dio _cycleApiClient;
 
   late final _dateFormatter = DateFormat('yyyy-MM-dd');
@@ -459,14 +459,18 @@ class ForecastService {
     final eventsJson = jsonEncode(events.map((e) => e.toJson()).toList());
 
     await Future.wait([
-      _prefs.setString(_cacheKeyEvents, eventsJson),
-      _prefs.setString(_cacheKeyApiResponse, apiResponse.toJson()),
+      _secureStorage.write(key: _cacheKeyEvents, value: eventsJson),
+      _secureStorage.write(
+        key: _cacheKeyApiResponse,
+        value: apiResponse.toJson(),
+      ),
     ]);
   }
 
   Future<ApiPrediction?> _getFromCache(List<CycleEvent> currentEvents) async {
-    final cachedEventsJson = _prefs.getString(_cacheKeyEvents);
-    final cachedApiResponseJson = _prefs.getString(_cacheKeyApiResponse);
+    final cachedEventsJson = await _secureStorage.read(key: _cacheKeyEvents);
+    final cachedApiResponseJson =
+        await _secureStorage.read(key: _cacheKeyApiResponse);
 
     if (cachedEventsJson == null || cachedApiResponseJson == null) return null;
 

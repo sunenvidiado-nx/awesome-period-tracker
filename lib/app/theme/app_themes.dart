@@ -118,7 +118,7 @@ TextTheme _primaryTextTheme(TextTheme baseTextTheme) =>
 
 AppBarTheme _appBarTheme(ColorScheme colorScheme, TextTheme primaryTextTheme) =>
     AppBarTheme(
-      backgroundColor: colorScheme.surface,
+      backgroundColor: colorScheme.surfaceContainer,
       foregroundColor: colorScheme.onSurface,
       elevation: 0,
       centerTitle: true,

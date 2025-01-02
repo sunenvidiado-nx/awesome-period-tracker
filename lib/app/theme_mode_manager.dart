@@ -1,26 +1,27 @@
 import 'package:awesome_period_tracker/app/state/state_manager.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:injectable/injectable.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 @singleton
 class ThemeModeManager extends StateManager<ThemeMode> {
-  ThemeModeManager(this._preferences) : super(ThemeMode.light);
+  ThemeModeManager(this._secureStorage) : super(ThemeMode.light);
 
-  final SharedPreferences _preferences;
+  final FlutterSecureStorage _secureStorage;
 
   // Generate random strings here: http://bit.ly/random-strings-generator
   static const _prefsKey = 'yNLV1XGjsDaV';
 
-  void initialize() {
-    final isDark = _preferences.getBool(_prefsKey) ?? false;
+  Future<void> initialize() async {
+    final isDarkStr = await _secureStorage.read(key: _prefsKey);
+    final isDark = isDarkStr == 'true';
     notifier.value = isDark ? ThemeMode.dark : ThemeMode.light;
   }
 
-  void toggleTheme() {
-    _preferences.setBool(_prefsKey, notifier.value != ThemeMode.dark);
-    notifier.value =
-        notifier.value == ThemeMode.dark ? ThemeMode.light : ThemeMode.dark;
+  Future<void> toggleTheme() async {
+    final newIsDark = notifier.value != ThemeMode.dark;
+    await _secureStorage.write(key: _prefsKey, value: newIsDark.toString());
+    notifier.value = newIsDark ? ThemeMode.dark : ThemeMode.light;
   }
 
   @disposeMethod // Annotated so `get_it` can dispose this properly
