@@ -131,12 +131,12 @@ class ForecastService {
   }
 
   Future<ApiPrediction> _fetchFromApi(List<CycleEvent> events) async {
-    final cachedData = await _getFromCache(events);
-    if (cachedData != null) return cachedData;
-
     final periodEvents = events
         .where((e) => e.type == CycleEventType.period)
         .sortedBy((e) => e.date);
+
+    final cachedData = await _getFromCache(periodEvents);
+    if (cachedData != null) return cachedData;
 
     final pastData = ProcessCycleDataRequest(
       currentDate: DateTime.now().toIso8601String().split('T')[0],
@@ -162,12 +162,11 @@ class ForecastService {
         averagePeriodLength: predictions[2],
       );
 
-      await _saveToCache(events, apiPrediction);
+      await _saveToCache(periodEvents, apiPrediction);
 
       return apiPrediction;
     } catch (_) {
-      // TODO: Handle error
-      rethrow;
+      rethrow; // TODO: Handle error
     }
   }
 
