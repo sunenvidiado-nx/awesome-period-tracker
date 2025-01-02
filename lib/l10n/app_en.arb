@@ -38,7 +38,7 @@
   "usedProtection": "Used protection",
   "didNotUseProtection": "Did not use protection",
   "longGenericError": "An error occurred while processing your request.",
-  "genericError": "An error occurred.",
+  "genericError": "An error has occurred.",
   "shortGenericError": "Error occurred.",
   "veryShortGenericError": "Error.",
   "cycleDay": "Cycle day",

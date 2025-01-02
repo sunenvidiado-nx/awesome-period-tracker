@@ -25,9 +25,9 @@ class HomeStateManager extends StateManager<HomeState> {
 
   Future<void> initialize({DateTime? date, bool useCache = true}) async {
     try {
-      date ??= DateTime.now().withoutTime();
-
       state = state.copyWith(isLoading: true, selectedDate: date);
+
+      date ??= DateTime.now().withoutTime();
 
       final forecast = await _forecastService.createForecastForDateFromEvents(
         date: date,
@@ -40,8 +40,8 @@ class HomeStateManager extends StateManager<HomeState> {
       );
 
       state = state.copyWith(forecast: forecast, insight: insight);
-    } catch (e) {
-      // TODO Handle error
+    } on Exception catch (error) {
+      state = state.copyWith(error: error);
     } finally {
       state = state.copyWith(isLoading: false);
     }

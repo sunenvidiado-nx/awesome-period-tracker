@@ -9,7 +9,7 @@ abstract class AppThemes {
 
 final _darkTheme = ThemeData(
   brightness: Brightness.dark,
-  scaffoldBackgroundColor: _darkColorScheme.surface,
+  scaffoldBackgroundColor: _darkColorScheme.surfaceContainer,
   colorScheme: _darkColorScheme,
   textTheme: _textTheme(_darkColorScheme),
   primaryTextTheme: _primaryTextTheme(_textTheme(_darkColorScheme)),

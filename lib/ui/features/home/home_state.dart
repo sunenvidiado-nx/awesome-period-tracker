@@ -7,15 +7,19 @@ class HomeState with HomeStateMappable {
     required this.isLoading,
     this.forecast,
     this.insight,
+    this.error,
   });
 
-  factory HomeState.initial() => HomeState(
-        isLoading: false,
-        selectedDate: DateTime.now().withoutTime(),
-      );
+  factory HomeState.initial() {
+    return HomeState(
+      isLoading: false,
+      selectedDate: DateTime.now().withoutTime(),
+    );
+  }
 
-  final Forecast? forecast;
-  final Insight? insight;
   final DateTime selectedDate;
   final bool isLoading;
+  final Forecast? forecast;
+  final Insight? insight;
+  final Exception? error;
 }
