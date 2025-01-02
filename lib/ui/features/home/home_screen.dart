@@ -39,21 +39,25 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          _buildAppBar(),
-          _buildCalendarSection(),
-          _buildCardsSection(),
-          _buildSymptoms(),
-          _buildCycleInsightsSection(),
-          const SliverToBoxAdapter(child: SafeArea(child: SizedBox.shrink())),
-        ],
+      body: RefreshIndicator(
+        onRefresh: () async => _stateManager.initialize(),
+        child: CustomScrollView(
+          slivers: [
+            _buildAppBar(),
+            _buildCalendarSection(),
+            _buildCardsSection(),
+            _buildSymptoms(),
+            _buildCycleInsightsSection(),
+            const SliverToBoxAdapter(child: SafeArea(child: SizedBox.shrink())),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildAppBar() {
     return SliverAppBar(
+      pinned: false,
       toolbarHeight: 40,
       automaticallyImplyLeading: false,
       leading: _showThemeSwitcher ? _buildThemeModeSwitcher() : null,
