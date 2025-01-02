@@ -1,8 +1,8 @@
 import 'dart:async';
 
-import 'package:awesome_period_tracker/core/app_assets.dart';
-import 'package:awesome_period_tracker/core/infrastructure/dependency_injection.dart';
-import 'package:awesome_period_tracker/features/app/presentation/app.dart';
+import 'package:awesome_period_tracker/app/app.dart';
+import 'package:awesome_period_tracker/app/theme/app_assets.dart';
+import 'package:awesome_period_tracker/config/dependency_injection.dart';
 import 'package:awesome_period_tracker/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
