@@ -12,6 +12,7 @@ import 'package:awesome_period_tracker/utils/extensions/string_extensions.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:skeletonizer/skeletonizer.dart';
+import 'package:very_simple_state_manager/very_simple_state_manager.dart';
 
 class InfoCards extends StatelessWidget {
   const InfoCards(this._stateManager, {super.key});
@@ -20,9 +21,9 @@ class InfoCards extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder<HomeState>(
-      valueListenable: _stateManager.notifier,
-      builder: (context, state, _) {
+    return StateBuilder(
+      stateManager: _stateManager,
+      builder: (context, state) {
         final forecast = state.forecast;
 
         return Stack(

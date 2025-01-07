@@ -1,7 +1,7 @@
-import 'package:awesome_period_tracker/app/state/state_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:injectable/injectable.dart';
+import 'package:very_simple_state_manager/very_simple_state_manager.dart';
 
 @singleton
 class ThemeModeManager extends StateManager<ThemeMode> {

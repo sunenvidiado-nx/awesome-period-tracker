@@ -1,4 +1,3 @@
-import 'package:awesome_period_tracker/app/state/state_manager.dart';
 import 'package:awesome_period_tracker/config/constants/strings.dart';
 import 'package:awesome_period_tracker/data/repositories/auth_repository.dart';
 import 'package:awesome_period_tracker/data/repositories/cycle_events_repository.dart';
@@ -13,6 +12,7 @@ import 'package:collection/collection.dart';
 import 'package:dart_mappable/dart_mappable.dart';
 import 'package:injectable/injectable.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'package:very_simple_state_manager/very_simple_state_manager.dart';
 
 part 'log_cycle_event_state.dart';
 part 'log_cycle_event_state_manager.mapper.dart';

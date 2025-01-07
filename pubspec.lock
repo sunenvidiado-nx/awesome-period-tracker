@@ -1151,6 +1151,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.4"
+  very_simple_state_manager:
+    dependency: "direct main"
+    description:
+      name: very_simple_state_manager
+      sha256: "8eebb2256fa04e3e152b27414b80cd243c9d3e5d9ab36a61b868ed1bc08a3296"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.0+1"
   vm_service:
     dependency: transitive
     description:

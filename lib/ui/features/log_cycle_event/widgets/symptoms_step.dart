@@ -7,6 +7,7 @@ import 'package:awesome_period_tracker/ui/features/log_cycle_event/log_cycle_eve
 import 'package:awesome_period_tracker/utils/extensions/build_context_extensions.dart';
 import 'package:awesome_period_tracker/utils/extensions/string_extensions.dart';
 import 'package:flutter/material.dart';
+import 'package:very_simple_state_manager/very_simple_state_manager.dart';
 
 class SymptomsStep extends StatefulWidget {
   const SymptomsStep({
@@ -58,9 +59,9 @@ class _SymptomsStepState extends State<SymptomsStep> {
   }
 
   Widget _buildSymptoms() {
-    return ValueListenableBuilder(
-      valueListenable: widget.stateManager.notifier,
-      builder: (context, state, _) {
+    return StateBuilder(
+      stateManager: widget.stateManager,
+      builder: (context, state) {
         return AnimatedSwitcher(
           duration: const Duration(milliseconds: 250),
           child: state.isLoadingSymptoms
@@ -169,9 +170,9 @@ class _SymptomsStepState extends State<SymptomsStep> {
 
   Widget _buildSubmitButton() {
     return AppShadow(
-      child: ValueListenableBuilder(
-        valueListenable: widget.stateManager.notifier,
-        builder: (context, state, _) {
+      child: StateBuilder(
+        stateManager: widget.stateManager,
+        builder: (context, state) {
           return ElevatedButton(
             onPressed: _isSubmitting && state.selectedSymptoms.isEmpty
                 ? null

@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:skeletonizer/skeletonizer.dart';
+import 'package:very_simple_state_manager/very_simple_state_manager.dart';
 
 class CycleInsights extends StatelessWidget {
   const CycleInsights(this.homeStateManager, {super.key});
@@ -24,9 +25,9 @@ class CycleInsights extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder<HomeState>(
-      valueListenable: homeStateManager.notifier,
-      builder: (context, state, _) {
+    return StateBuilder(
+      stateManager: homeStateManager,
+      builder: (context, state) {
         return AppCard(
           child: AppShimmer(
             isLoading: state.isLoading,

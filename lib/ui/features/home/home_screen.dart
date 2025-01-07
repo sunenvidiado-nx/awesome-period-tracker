@@ -10,6 +10,7 @@ import 'package:awesome_period_tracker/utils/extensions/build_context_extensions
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get_it/get_it.dart';
+import 'package:very_simple_state_manager/very_simple_state_manager.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -72,9 +73,9 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildThemeModeSwitcher() {
-    return ValueListenableBuilder<ThemeMode>(
-      valueListenable: GetIt.I<ThemeModeManager>().notifier,
-      builder: (context, state, _) => AnimatedSwitcher(
+    return StateBuilder(
+      stateManager: GetIt.I<ThemeModeManager>(),
+      builder: (context, state) => AnimatedSwitcher(
         duration: const Duration(milliseconds: 450),
         child: Padding(
           padding: const EdgeInsets.only(top: 4),
@@ -97,9 +98,9 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Padding(
         padding: const EdgeInsets.fromLTRB(8, 12, 8, 0),
         child: AppCard(
-          child: ValueListenableBuilder<HomeState>(
-            valueListenable: _stateManager.notifier,
-            builder: (context, state, _) => Calendar(
+          child: StateBuilder(
+            stateManager: _stateManager,
+            builder: (context, state) => Calendar(
               onDaySelected: (date, _) =>
                   _stateManager.changeSelectedDateAndReinitialize(date: date),
               selectedDate: state.selectedDate,
