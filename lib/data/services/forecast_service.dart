@@ -48,6 +48,7 @@ class ForecastService {
     final averagePeriodLength = apiResponse.averagePeriodLength;
 
     final predictions = _generatePredictions(
+      date,
       events,
       apiResponse.predictedCycleStarts,
       startDate,
@@ -274,6 +275,7 @@ class ForecastService {
   }
 
   List<CycleEvent> _generatePredictions(
+    DateTime date,
     List<CycleEvent> events,
     List<DateTime> predictedCycleStarts,
     DateTime startDate,
@@ -283,8 +285,34 @@ class ForecastService {
   ) {
     final predictions = <CycleEvent>[];
 
-    // Generate period predictions for future cycles
-    for (final predictedStart in predictedCycleStarts) {
+    // Find the last actual period
+    final lastActualPeriod = events
+        .where((e) => e.type == CycleEventType.period && !e.isPrediction)
+        .map((e) => e.date)
+        .lastOrNull;
+
+    // Adjust predictions if period is late
+    var adjustedPredictedStarts = List<DateTime>.from(predictedCycleStarts);
+
+    if (lastActualPeriod != null) {
+      final firstMissedPrediction =
+          predictedCycleStarts.where((date) => date.isBefore(date)).lastOrNull;
+
+      if (firstMissedPrediction != null &&
+          firstMissedPrediction.isAfter(lastActualPeriod)) {
+        // If we have a missed prediction, shift all future predictions
+        final daysToShift = date.difference(firstMissedPrediction).inDays;
+        adjustedPredictedStarts = predictedCycleStarts.map((date) {
+          if (date.isAfter(lastActualPeriod)) {
+            return date.add(Duration(days: daysToShift));
+          }
+          return date;
+        }).toList();
+      }
+    }
+
+    // Generate period predictions for future cycles using adjusted dates
+    for (final predictedStart in adjustedPredictedStarts) {
       if (predictedStart.isAfter(startDate) &&
           predictedStart.isBefore(endDate)) {
         predictions.addAll(
@@ -333,20 +361,10 @@ class ForecastService {
 
     // Generate current period fertile window only if
     // it's not already covered by past periods
-    final lastPeriodDate = events
-        .where(
-          (e) =>
-              e.type == CycleEventType.period &&
-              !e.isPrediction &&
-              e.date.isBefore(endDate),
-        )
-        .map((e) => e.date)
-        .lastOrNull;
-
-    if (lastPeriodDate != null && !periodStarts.contains(lastPeriodDate)) {
+    if (lastActualPeriod != null && !periodStarts.contains(lastActualPeriod)) {
       predictions.addAll(
         _generateFertileWindow(
-          lastPeriodDate,
+          lastActualPeriod,
           averageCycleLength,
           endDate,
         ),
