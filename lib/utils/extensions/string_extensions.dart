@@ -27,12 +27,8 @@ extension StringExtensions on String {
     );
   }
 
-  String removeEmojis() {
-    final cleanString = EmojiParser().unemojify(this)
-      ..replaceAll(r':\w+:', '').replaceAll(r':\w+:', '');
-
-    return cleanString;
-  }
+  String removeEmojis() =>
+      EmojiParser().unemojify(this).replaceAll(RegExp(r':\w+:'), '');
 
   String toTitleCase() {
     return split(' ').map((word) => word.capitalize()).join(' ').splitMapJoin(
