@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.5.3] - 2025-01-07
+
+### Changed
+
+- Updated splash screen background color.
+- Reworked how predictions and AI-powered insights are generated.
+
+### Fixed
+
+- Fixed issues with iOS local storage.
+
 ## [1.5.2] - 2025-01-02
 
 ### Fixed
