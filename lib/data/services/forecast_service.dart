@@ -350,9 +350,15 @@ class ForecastService {
           predictedStart.isBefore(endDate)) {
         predictions.addAll([
           ..._generatePeriodEvents(
-              predictedStart, averagePeriodLength, endDate),
+            predictedStart,
+            averagePeriodLength,
+            endDate,
+          ),
           ..._generateFertileWindow(
-              predictedStart, averageCycleLength, endDate),
+            predictedStart,
+            averageCycleLength,
+            endDate,
+          ),
         ]);
       }
     }
