@@ -24,7 +24,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   flutter_markdown: ^0.7.3
-  flutter_secure_storage: ^9.2.2
+  flutter_secure_storage: ^9.2.3
   flutter_styled_toast: ^2.2.1
   flutter_svg: ^2.0.10+1
   get_it: ^8.0.3
@@ -68,8 +68,8 @@ flutter:
           weight: 700
 
 flutter_native_splash:
-  color: "#F3FBFE"
+  color: "#FFF0F5"
   image: "assets/splash/app_icon.png"
   android_12:
-    color: "#F3FBFE"
+    color: "#FFF0F5"
     image: "assets/splash/app_icon.png"
