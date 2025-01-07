@@ -28,15 +28,15 @@ class HomeStateManager extends StateManager<HomeState> {
       state = state.copyWith(isLoading: true, selectedDate: date);
 
       date ??= DateTime.now().withoutTime();
+      final events = await _cycleEventsRepository.get();
 
-      final forecast = await _forecastService.createForecastForDateFromEvents(
-        date: date,
-        events: await _cycleEventsRepository.get(),
-      );
+      final forecast =
+          await _forecastService.createForecastForDateFromEvents(date, events);
 
       final insight = await _insightsService.getInsightForForecast(
-        forecast: forecast,
+        forecast,
         useCache: useCache,
+        isPast: date.isBefore(DateTime.now()),
       );
 
       state = state.copyWith(forecast: forecast, insight: insight);

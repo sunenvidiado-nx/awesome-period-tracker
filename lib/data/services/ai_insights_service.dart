@@ -18,11 +18,15 @@ class AiInsightsService {
   final FlutterSecureStorage _secureStorage;
   final GeminiClient _geminiClient;
 
-  Future<Insight> getInsightForForecast({
-    required Forecast forecast,
+  // Cache keys generated here: http://bit.ly/random-strings-generator
+  static const _cacheKeyPrefix = 'd5flbx32awUM_';
+
+  Future<Insight> getInsightForForecast(
+    Forecast forecast, {
     bool useCache = true,
+    bool isPast = false,
   }) async {
-    final prefsKey = forecast.date.toYmdString();
+    final prefsKey = '$_cacheKeyPrefix${forecast.date.toYmdString()}';
 
     try {
       if (await _secureStorage.containsKey(key: prefsKey) && useCache) {
@@ -39,8 +43,6 @@ class AiInsightsService {
       // This is to prevent app crashes due to corrupted cache data.
     }
 
-    const isPast = false; // TODO Make this dymaic
-
     final geminiInsight = await _generateInsights(
       forecast.dayOfCycle,
       forecast.averageCycleLength,
@@ -49,7 +51,7 @@ class AiInsightsService {
     );
 
     final insight = Insight(
-      insights: geminiInsight.removeEmojis(),
+      insights: geminiInsight.removeEmojis().removeDoubleSpaces(),
       date: forecast.date.toUtc(),
       isPast: isPast,
     );
@@ -86,38 +88,43 @@ class AiInsightsService {
     switch (phase) {
       case MenstruationPhase.follicular:
         phaseInfo = 'follicular phase';
-        additionalInfo =
-            'Give expectations for coming days. Add a light-hearted comment about renewed energy or optimism.';
+        additionalInfo = isPast
+            ? 'Mention energy levels and mood changes experienced. Add an encouraging note about the body\'s natural renewal.'
+            : 'Share tips for harnessing increased energy. Add a light-hearted comment about feeling refreshed.';
         break;
       case MenstruationPhase.ovulation:
         phaseInfo = 'ovulation phase';
-        additionalInfo =
-            'Discuss fertility peaks. Include a playful remark about feeling "frisky/freaky" or extra energetic.';
+        additionalInfo = isPast
+            ? 'Discuss peak fertility signs experienced. Include a playful note about heightened confidence or charm.'
+            : 'Highlight fertility window and energy peaks. Add a fun comment about feeling extra magnetic/freaky today.';
         break;
       case MenstruationPhase.luteal:
         phaseInfo = 'luteal phase';
         if (dayOfCycle > averageCycleLength) {
-          additionalInfo =
-              'Mention common premenstrual symptoms. Note the period is late but it\'s normal. You may add a light joke about being fashionably late.';
+          additionalInfo = isPast
+              ? 'Describe late period symptoms experienced. Add a gentle reminder about cycle variations being normal.'
+              : 'Address common late period concerns. Include a light joke about being fashionably late.';
         } else {
-          additionalInfo =
-              'Discuss common premenstrual symptoms. Share an interesting fact about this phase with a gentle joke.';
+          additionalInfo = isPast
+              ? 'Reflect on premenstrual changes experienced. Share a relatable observation about this phase.'
+              : 'Prepare for upcoming premenstrual changes. Add a gentle reminder about self-care with a touch of humor.';
         }
         break;
       case MenstruationPhase.menstruation:
         phaseInfo = 'menstruation phase';
-        additionalInfo =
-            'Encourage self-care and symptom management. Add a witty, relatable joke about periods.';
+        additionalInfo = isPast
+            ? 'Acknowledge period experiences. Share a supportive note with a touch of period humor.'
+            : 'Suggest comfort measures and self-care tips. Add an empathetic joke about period challenges.';
         break;
     }
 
-    final timeContext = isPast ? 'previous' : 'current';
+    final timeContext = isPast ? 'past' : 'upcoming';
     final summaryOrAdvice = isPast
-        ? 'Summarize likely experiences'
-        : 'Provide friendly advice and useful insights';
+        ? 'Share insights about what likely happened'
+        : 'Provide friendly advice and useful tips';
 
     return '''
-CRITICAL INSTRUCTIONS - READ CAREFULLY:
+CRITICAL INSTRUCTIONS:
 
 1. RESPONSE MUST BE EXACTLY 50 WORDS OR LESS.
 2. USE MARKDOWN LIST FORMAT WITH 2-3 BULLET POINTS.
@@ -125,16 +132,14 @@ CRITICAL INSTRUCTIONS - READ CAREFULLY:
 4. USE A FRIENDLY, SUPPORTIVE, AND GENTLY HUMOROUS TONE.
 5. FOLLOW THIS EXACT FORMAT:
 
-- [Point 1 about the phase, supportive tone]
-- [Point 2 with additional info, friendly advice]
-- (Optional) [Point 3 with more info and gentle humor]
+- [Point 1: Main phase insight with supportive tone]
+- [Point 2: Practical advice or reflection]
+- (Optional) [Point 3: Uplifting or humorous observation]
 
 Context: $timeContext menstrual cycle, day $dayOfCycle of $averageCycleLength-day cycle, $phaseInfo.
-Include: $summaryOrAdvice, $additionalInfo. Don't mention cycle day.
+Include: $summaryOrAdvice, $additionalInfo. Don't mention cycle day numbers.
 
 MAINTAIN A SUPPORTIVE MEDICAL EXPERT PERSONA THROUGHOUT.
-
-FAILURE TO FOLLOW THESE RULES WILL RESULT IN IMMEDIATE REJECTION.
 ''';
   }
 }

@@ -37,4 +37,6 @@ extension StringExtensions on String {
           onNonMatch: (m) => m,
         );
   }
+
+  String removeDoubleSpaces() => replaceAll(RegExp(r'\s{2,}'), ' ');
 }
