@@ -2,7 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
-## [1.5.1] - 2025-12-02
+## [1.5.2] - 2025-01-02
+
+### Fixed
+
+- Fixed issue with removing emojis from the AI-generated insights.
+- Fixed prediction inaccuracies by adjusting forecasts when periods are delayed.
+
+## [1.5.1] - 2025-01-02
 
 ### Changed
 
@@ -10,7 +17,7 @@ All notable changes to this project will be documented in this file.
 - Improved data privacy by making local storage more secure.
 - Optimized API usage with smarter caching system.
 
-## [1.5.0] - 2025-12-02
+## [1.5.0] - 2025-01-02
 
 ### Changed
 
