@@ -1155,10 +1155,10 @@ packages:
     dependency: "direct main"
     description:
       name: very_simple_state_manager
-      sha256: "8eebb2256fa04e3e152b27414b80cd243c9d3e5d9ab36a61b868ed1bc08a3296"
+      sha256: c4f8c8317f8477e440b5a2daf11ae08d38646e8ccc27082568c14b03b8e92a14
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.0+1"
+    version: "1.0.1"
   vm_service:
     dependency: transitive
     description:

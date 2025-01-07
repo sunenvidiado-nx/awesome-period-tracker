@@ -39,7 +39,7 @@ dependencies:
   pretty_dio_logger: ^1.4.0
   skeletonizer: ^1.4.2
   table_calendar: ^3.1.2
-  very_simple_state_manager: ^1.0.0+1
+  very_simple_state_manager: ^1.0.1
 
 dev_dependencies:
   build_runner: ^2.4.11
