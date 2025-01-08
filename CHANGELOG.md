@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.5.4] - 2025-01-08
+
+### Changed
+
+- Small fix regarding the state management of the app.
+
 ## [1.5.3] - 2025-01-07
 
 ### Changed
