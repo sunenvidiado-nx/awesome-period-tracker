@@ -11,15 +11,13 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final themeMode = GetIt.I<ThemeModeManager>().notifier.value;
-
     return MaterialApp.router(
       title: 'Awesome Period Tracker',
       debugShowCheckedModeBanner: false,
       routerConfig: GetIt.I<GoRouter>(),
       theme: AppThemes.light,
       darkTheme: AppThemes.dark,
-      themeMode: themeMode,
+      themeMode: GetIt.I<ThemeModeManager>().state,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       builder: (context, child) => KeyboardDismissOnTap(

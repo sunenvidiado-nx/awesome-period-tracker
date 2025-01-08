@@ -15,13 +15,13 @@ class ThemeModeManager extends StateManager<ThemeMode> {
   Future<void> initialize() async {
     final isDarkStr = await _secureStorage.read(key: _prefsKey);
     final isDark = isDarkStr == 'true';
-    notifier.value = isDark ? ThemeMode.dark : ThemeMode.light;
+    state = isDark ? ThemeMode.dark : ThemeMode.light;
   }
 
   Future<void> toggleTheme() async {
-    final newIsDark = notifier.value != ThemeMode.dark;
+    final newIsDark = state != ThemeMode.dark;
     await _secureStorage.write(key: _prefsKey, value: newIsDark.toString());
-    notifier.value = newIsDark ? ThemeMode.dark : ThemeMode.light;
+    state = newIsDark ? ThemeMode.dark : ThemeMode.light;
   }
 
   @disposeMethod // Annotated so `get_it` can dispose this properly
