@@ -1,9 +1,12 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:awesome_period_tracker/app/app.dart';
 import 'package:awesome_period_tracker/app/theme/app_assets.dart';
+import 'package:awesome_period_tracker/app/theme/app_colors.dart';
 import 'package:awesome_period_tracker/config/dependency_injection.dart';
 import 'package:awesome_period_tracker/firebase_options.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
@@ -21,29 +24,37 @@ void main() {
     await _setUpFirebase(); // Must be called before any other initialization
 
     await Future.wait([
-      _preloadSvgs(),
       configureDependencies(),
+      _preloadSvgs(),
+      _setUpNavigationAndStatusBarColors(),
     ]);
 
     await _clearCacheOnNewVersion(); // Must be called after dependencies initialization
 
     _setUpLicenses();
-    _setUpNavigationAndStatusBarColors();
 
     runApp(const App());
   });
 }
 
-void _setUpNavigationAndStatusBarColors() {
-  SystemChrome.setSystemUIOverlayStyle(
-    SystemUiOverlayStyle(
-      statusBarColor: Colors.transparent,
-      statusBarIconBrightness: Brightness.dark,
-      systemNavigationBarColor: Colors.black.withValues(alpha: 255),
-      systemNavigationBarIconBrightness: Brightness.dark,
-    ),
+Future<void> _setUpNavigationAndStatusBarColors() async {
+  var overlayStyle = SystemUiOverlayStyle(
+    statusBarColor: Colors.transparent,
+    statusBarIconBrightness: Brightness.dark,
+    systemNavigationBarColor: Colors.black.withValues(alpha: 255),
+    systemNavigationBarIconBrightness: Brightness.dark,
   );
 
+  if (Platform.isAndroid) {
+    final androidInfo = await DeviceInfoPlugin().androidInfo;
+    if (androidInfo.version.sdkInt >= 15) {
+      overlayStyle = overlayStyle.copyWith(
+        systemNavigationBarColor: AppColors.bgPalePink,
+      );
+    }
+  }
+
+  SystemChrome.setSystemUIOverlayStyle(overlayStyle);
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
 }
 
