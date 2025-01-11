@@ -23,11 +23,15 @@ class HomeStateManager extends StateManager<HomeState> {
   final ForecastService _forecastService;
   final AiInsightsService _insightsService;
 
-  Future<void> initialize({DateTime? date, bool useCache = true}) async {
+  Future<void> initialize({
+    DateTime? date,
+    bool useCache = true,
+  }) async {
     try {
+      date ??= DateTime.now().withoutTime();
+
       state = state.copyWith(isLoading: true, selectedDate: date);
 
-      date ??= DateTime.now().withoutTime();
       final events = await _cycleEventsRepository.get();
 
       final forecast =
@@ -45,14 +49,5 @@ class HomeStateManager extends StateManager<HomeState> {
     } finally {
       state = state.copyWith(isLoading: false);
     }
-  }
-
-  /// Updates the selected date in the [HomeState] with the time part removed.
-  void changeSelectedDateAndReinitialize({
-    required DateTime date,
-    bool useCache = true,
-  }) {
-    state = state.copyWith(selectedDate: date.withoutTime());
-    initialize(date: date.withoutTime(), useCache: useCache);
   }
 }

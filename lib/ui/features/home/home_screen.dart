@@ -7,6 +7,7 @@ import 'package:awesome_period_tracker/ui/features/home/widgets/cycle_insights.d
 import 'package:awesome_period_tracker/ui/features/home/widgets/info_cards.dart';
 import 'package:awesome_period_tracker/ui/features/home/widgets/symptoms_section.dart';
 import 'package:awesome_period_tracker/utils/extensions/build_context_extensions.dart';
+import 'package:awesome_period_tracker/utils/extensions/date_time_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get_it/get_it.dart';
@@ -61,13 +62,38 @@ class _HomeScreenState extends State<HomeScreen> {
       pinned: false,
       toolbarHeight: 40,
       automaticallyImplyLeading: false,
-      leading: _showThemeSwitcher ? _buildThemeModeSwitcher() : null,
+      actions: _showThemeSwitcher ? [_buildThemeModeSwitcher()] : null,
+      leading: _buildBackToTodayButton(),
+      leadingWidth: 70,
       title: AnimatedSwitcher(
         duration: const Duration(milliseconds: 450),
         child: Padding(
           padding: const EdgeInsets.only(top: 8),
           child: SvgPicture.asset(AppAssets.mainIconLong, height: 28),
         ),
+      ),
+    );
+  }
+
+  Widget _buildBackToTodayButton() {
+    return StateBuilder(
+      stateManager: _stateManager,
+      builder: (context, state) => AnimatedSwitcher(
+        duration: const Duration(milliseconds: 450),
+        child: state.selectedDate.isToday
+            ? const SizedBox.shrink()
+            : TextButton(
+                onPressed: _stateManager.initialize,
+                style: TextButton.styleFrom(
+                  padding: const EdgeInsets.only(top: 12),
+                ),
+                child: Text(
+                  context.l10n.today,
+                  style: context.primaryTextTheme.titleSmall?.copyWith(
+                    color: context.colorScheme.onSurface.withAlpha(170),
+                  ),
+                ),
+              ),
       ),
     );
   }
@@ -101,8 +127,7 @@ class _HomeScreenState extends State<HomeScreen> {
           child: StateBuilder(
             stateManager: _stateManager,
             builder: (context, state) => Calendar(
-              onDaySelected: (date, _) =>
-                  _stateManager.changeSelectedDateAndReinitialize(date: date),
+              onDaySelected: (date, _) => _stateManager.initialize(date: date),
               selectedDate: state.selectedDate,
               cycleEvents: state.forecast?.events ?? [],
             ),
