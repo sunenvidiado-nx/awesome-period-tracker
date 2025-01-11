@@ -59,33 +59,23 @@ const _lightColorScheme = ColorScheme.light(
   surfaceContainer: AppColors.bgPalePink,
   error: Color(0xFFF66279),
   onPrimary: AppColors.bgWhite,
-  onSecondary: AppColors.outline,
+  onSecondary: AppColors.black,
   onTertiary: AppColors.bgWhite,
-  onSurface: AppColors.outline,
+  onSurface: AppColors.black,
   onError: Color.fromARGB(255, 43, 23, 23),
+  shadow: AppColors.shadow,
 );
 
-final _darkColorScheme = ColorScheme.dark(
-  primary: AppColors.red.withAlpha(204),
-  primaryContainer: AppColors.red.withAlpha(51),
-  secondary: AppColors.pink.withAlpha(204),
-  secondaryContainer: AppColors.pink.withAlpha(51),
-  secondaryFixed: AppColors.orange.withAlpha(204),
-  tertiary: AppColors.purple.withAlpha(204),
-  tertiaryContainer: AppColors.purple.withAlpha(51),
-  surface: const Color(0xFF121212),
-  error: const Color(0xFFCF6679),
-  onPrimary: AppColors.bgWhite,
-  onSecondary: AppColors.outline,
-  onTertiary: AppColors.bgWhite,
-  onSurface: AppColors.bgWhite,
-  onError: AppColors.outline,
+final _darkColorScheme = ColorScheme.fromSeed(
+  brightness: Brightness.dark,
+  seedColor: AppColors.red,
+  // TODO: Set dark theme
 );
 
 TextTheme _textTheme(ColorScheme colorScheme) =>
     GoogleFonts.dmSansTextTheme().apply(
-      displayColor: colorScheme.shadow,
-      bodyColor: colorScheme.shadow,
+      displayColor: colorScheme.onSecondary,
+      bodyColor: colorScheme.onSecondary,
     );
 
 TextTheme _primaryTextTheme(TextTheme baseTextTheme) =>

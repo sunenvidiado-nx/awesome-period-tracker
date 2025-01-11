@@ -20,5 +20,6 @@ abstract class AppColors {
   static const bgPaleSage = Color(0xFFE8F5E9); // Pale Sage
 
   // Additional Colors
-  static const outline = Color(0xFF000000); // Black (for outlines)
+  static const black = Color(0xFF1c1917);
+  static const shadow = Color(0xFF262626);
 }
