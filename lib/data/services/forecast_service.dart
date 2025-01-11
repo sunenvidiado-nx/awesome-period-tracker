@@ -39,7 +39,6 @@ class ForecastService {
     events.sort((a, b) => a.date.compareTo(b.date));
 
     final endDate = selectedDate.add(const Duration(days: 365));
-    final dayOfCycle = _getDayOfCurrentCycle(events, selectedDate);
     final apiPrediction = await _fetchFromApi(events);
     final averageCycleLength = apiPrediction.averageCycleLength;
     final averagePeriodLength = apiPrediction.averagePeriodLength;
@@ -48,7 +47,6 @@ class ForecastService {
       selectedDate,
       events,
       apiPrediction.predictedCycleStarts,
-      selectedDate,
       endDate,
       averageCycleLength,
       averagePeriodLength,
@@ -83,6 +81,8 @@ class ForecastService {
       selectedDate,
       averagePeriodLength,
     );
+
+    final dayOfCycle = _getDayOfCurrentCycle(mergedEvents, selectedDate);
 
     final phase = _determineMenstruationPhase(
       dayOfCycle,
@@ -240,15 +240,13 @@ class ForecastService {
     };
   }
 
-  int _getDayOfCurrentCycle(List<CycleEvent> events, DateTime now) {
+  int _getDayOfCurrentCycle(List<CycleEvent> events, DateTime selectedDate) {
     if (events.isEmpty) return 1;
 
     final recentPeriods = events
         .where(
           (e) =>
-              e.type == CycleEventType.period &&
-              !e.isPrediction &&
-              !e.date.isAfter(now),
+              e.type == CycleEventType.period && !e.date.isAfter(selectedDate),
         )
         .toList();
 
@@ -268,14 +266,13 @@ class ForecastService {
       }
     }
 
-    return now.difference(periodStart).inDays + 1;
+    return selectedDate.difference(periodStart).inDays + 1;
   }
 
   List<CycleEvent> _generatePredictions(
-    DateTime date,
+    DateTime selectedDate,
     List<CycleEvent> events,
     List<DateTime> predictedCycleStarts,
-    DateTime startDate,
     DateTime endDate,
     int averageCycleLength,
     int averagePeriodLength,
@@ -291,14 +288,15 @@ class ForecastService {
     // Adjust predictions if period is late
     var adjustedPredictedStarts = List<DateTime>.from(predictedCycleStarts);
 
-    if (lastActualPeriod != null) {
+    if (lastActualPeriod != null && selectedDate.isAfter(DateTime.now())) {
       final firstMissedPrediction =
           predictedCycleStarts.where((date) => date.isBefore(date)).lastOrNull;
 
       if (firstMissedPrediction != null &&
           firstMissedPrediction.isAfter(lastActualPeriod)) {
         // If we have a missed prediction, shift all future predictions
-        final daysToShift = date.difference(firstMissedPrediction).inDays;
+        final daysToShift =
+            selectedDate.difference(firstMissedPrediction).inDays;
         adjustedPredictedStarts = predictedCycleStarts.map((date) {
           if (date.isAfter(lastActualPeriod)) {
             return date.add(Duration(days: daysToShift));
@@ -310,7 +308,7 @@ class ForecastService {
 
     // Generate period predictions for future cycles using adjusted dates
     for (final predictedStart in adjustedPredictedStarts) {
-      if (predictedStart.isAfter(startDate) &&
+      if (predictedStart.isAfter(lastActualPeriod!) &&
           predictedStart.isBefore(endDate)) {
         predictions.addAll(
           _generatePeriodEvents(
