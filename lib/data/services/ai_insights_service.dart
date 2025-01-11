@@ -19,14 +19,14 @@ class AiInsightsService {
   final GeminiClient _geminiClient;
 
   // Cache keys generated here: http://bit.ly/random-strings-generator
-  static const _cacheKeyPrefix = 'd5flbx32awUM_';
+  static const _insightStorageKeyPrefix = 'd5flbx32awBNM_';
 
   Future<Insight> getInsightForForecast(
     Forecast forecast, {
     bool useCache = true,
     bool isPast = false,
   }) async {
-    final prefsKey = '$_cacheKeyPrefix${forecast.date.toYmdString()}';
+    final prefsKey = '$_insightStorageKeyPrefix${forecast.date.toYmdString()}';
 
     try {
       if (await _secureStorage.containsKey(key: prefsKey) && useCache) {
@@ -38,8 +38,8 @@ class AiInsightsService {
 
         if (isCacheValid) return cachedInsight;
       }
-    } catch (e) {
-      // On exceptions, do nothing and generate new a new insight.
+    } catch (_) {
+      // On exceptions, do nothing and generate new insight.
       // This is to prevent app crashes due to corrupted cache data.
     }
 
