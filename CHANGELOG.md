@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+# [1.5.5] - 2025-01-11
+
+### Fixed
+
+- Fixed issue with calendar not scrolling vertically.
+- Fixed how fertile window predictions are generated.
+
 ## [1.5.4] - 2025-01-08
 
 ### Changed
