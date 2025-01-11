@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.5.6] - 2025-01-11
+
+### Added
+
+- Added button to go back to today's date in the calendar.
+
+### Fixed
+
+- Fixed issues with determining the current cycle day.
+- Fixed issue where new predictions are made when selecting a date in the calendar.
+
 ## [1.5.5] - 2025-01-11
 
 ### Fixed
