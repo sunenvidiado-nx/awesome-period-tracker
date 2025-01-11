@@ -23,32 +23,24 @@ class Calendar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(4, 4, 4, 8),
-      child: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 200),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              TableCalendar<CycleEvent>(
-                key: ValueKey(cycleEvents),
-                firstDay: DateTime(DateTime.now().year - 10),
-                lastDay: DateTime(DateTime.now().year + 10),
-                focusedDay: selectedDate,
-                eventLoader: _getEventsForDay,
-                headerStyle: _headerStyle(context),
-                onDaySelected: onDaySelected,
-                selectedDayPredicate: (day) => isSameDay(selectedDate, day),
-                calendarBuilders: CalendarBuilders(
-                  markerBuilder: _markerBuilder,
-                  todayBuilder: _todayBuilder,
-                  selectedBuilder: _selectedBuilder,
-                  defaultBuilder: _defaultBuilder,
-                ),
-              ),
-            ],
-          ),
+      child: TableCalendar<CycleEvent>(
+        key: ValueKey(cycleEvents),
+        firstDay: DateTime(DateTime.now().year - 10),
+        lastDay: DateTime(DateTime.now().year + 10),
+        focusedDay: selectedDate,
+        eventLoader: _getEventsForDay,
+        headerStyle: _headerStyle(context),
+        onDaySelected: onDaySelected,
+        selectedDayPredicate: (day) => isSameDay(selectedDate, day),
+        calendarBuilders: CalendarBuilders(
+          markerBuilder: _markerBuilder,
+          todayBuilder: _todayBuilder,
+          selectedBuilder: _selectedBuilder,
+          defaultBuilder: _defaultBuilder,
         ),
+        availableCalendarFormats: const {CalendarFormat.month: ''},
+        pageAnimationEnabled: false,
+        availableGestures: AvailableGestures.horizontalSwipe,
       ),
     );
   }
