@@ -12,7 +12,6 @@ import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:injectable/injectable.dart';
-import 'package:intl/intl.dart';
 
 @injectable
 class ForecastService {
@@ -26,14 +25,12 @@ class ForecastService {
   final FlutterSecureStorage _secureStorage;
   final Dio _cycleApiClient;
 
-  late final _dateFormatter = DateFormat('yyyy-MM-dd');
-
   static const _defaultPeriodDaysLength = 5;
   static const _defaultCycleDaysLength = 28;
 
   // Cache keys generated here: http://bit.ly/random-strings-generator
   static const _eventsStorageKey = 'nz8mgeG9Mrkh';
-  static const _apiPredictionStorageKey = 'wBC2Dv3LBdAU';
+  static const _apiPredictionStorageKey = 'wTcgDv3LBdAU';
 
   Future<Forecast> createForecastForDateFromEvents(
     DateTime selectedDate,
@@ -43,16 +40,14 @@ class ForecastService {
 
     final endDate = selectedDate.add(const Duration(days: 365));
     final apiPrediction = await _fetchFromApi(events);
-    final averageCycleLength = apiPrediction.averageCycleLength;
-    final averagePeriodLength = apiPrediction.averagePeriodLength;
 
     final predictions = _generatePredictions(
       selectedDate,
       events,
       apiPrediction.predictedCycleStarts,
       endDate,
-      averageCycleLength,
-      averagePeriodLength,
+      apiPrediction.averageCycleLength,
+      apiPrediction.averagePeriodLength,
     );
 
     final mergedEvents = _mergePredictionsWithActualEvents(events, predictions);
@@ -67,7 +62,8 @@ class ForecastService {
           (e) =>
               e.date.isSameDay(selectedDate) ||
               e.date.isBefore(selectedDate) &&
-                  selectedDate.difference(e.date).inDays < averagePeriodLength,
+                  selectedDate.difference(e.date).inDays <
+                      apiPrediction.averagePeriodLength,
         );
 
     final daysUntilNextPeriod = _calculateDaysUntilNextPeriod(
@@ -82,7 +78,7 @@ class ForecastService {
     final hasPeriodBeenLoggedRecently = _hasPeriodBeenLoggedRecently(
       events,
       selectedDate,
-      averagePeriodLength,
+      apiPrediction.averagePeriodLength,
     );
 
     final dayOfCycle = _getDayOfCurrentCycle(mergedEvents, selectedDate);
@@ -100,8 +96,8 @@ class ForecastService {
     return Forecast(
       date: selectedDate,
       dayOfCycle: dayOfCycle,
-      averageCycleLength: averageCycleLength,
-      averagePeriodLength: averagePeriodLength,
+      averageCycleLength: apiPrediction.averageCycleLength,
+      averagePeriodLength: apiPrediction.averagePeriodLength,
       daysUntilNextPeriod: daysUntilNextPeriod,
       phase: phase,
       events: mergedEvents,
@@ -144,40 +140,39 @@ class ForecastService {
       pastCycleData: _getPastCycleDataFromEvents(periodEvents),
     );
 
-    try {
-      final response = await _cycleApiClient.post(
-        '/process_cycle_data',
-        data: pastData.toMap(),
-      );
+    final response = await _cycleApiClient.post(
+      '/process_cycle_data',
+      data: pastData.toMap(),
+    );
 
-      if (response.statusCode != 200) {
-        throw Exception('Failed to fetch predictions');
-      }
-
-      final requestId = response.data!['request_id'] as String;
-      final predictions = await _fetchPredictions(requestId);
-
-      final apiPrediction = ApiPrediction(
-        predictedCycleStarts: predictions[0],
-        averageCycleLength: predictions[1],
-        averagePeriodLength: predictions[2],
-      );
-
-      await _saveToCache(periodEvents, apiPrediction);
-
-      return apiPrediction;
-    } catch (_) {
-      rethrow; // TODO: Handle error
+    if (response.statusCode != 200) {
+      throw Exception('Failed to fetch predictions');
     }
+
+    final requestId = response.data!['request_id'] as String;
+    final predictions = await _fetchPredictions(requestId);
+
+    final apiPrediction = ApiPrediction(
+      predictedCycleStarts: predictions[0] as List<DateTime>,
+      averageCycleLength: predictions[1] as int,
+      averagePeriodLength: predictions[2] as int,
+    );
+
+    await _saveToCache(periodEvents, apiPrediction);
+
+    return apiPrediction;
   }
 
   Future<List<dynamic>> _fetchPredictions(String requestId) async {
-    final predictedCycleStarts = await _cycleApiClient
-        .get('/get_data/$requestId/predicted_cycle_starts');
-    final averageCycleLength =
-        await _cycleApiClient.get('/get_data/$requestId/average_cycle_length');
-    final averagePeriodLength =
-        await _cycleApiClient.get('/get_data/$requestId/average_period_length');
+    final [
+      predictedCycleStarts,
+      averageCycleLength,
+      averagePeriodLength,
+    ] = await Future.wait([
+      _cycleApiClient.get('/get_data/$requestId/predicted_cycle_starts'),
+      _cycleApiClient.get('/get_data/$requestId/average_cycle_length'),
+      _cycleApiClient.get('/get_data/$requestId/average_period_length'),
+    ]);
 
     if (predictedCycleStarts.statusCode != 200 ||
         averageCycleLength.statusCode != 200 ||
@@ -195,9 +190,7 @@ class ForecastService {
     ).round();
 
     return [
-      predictedCycleStartsData
-          .map((e) => _dateFormatter.parse(e as String))
-          .toList(),
+      predictedCycleStartsData.map((e) => DateTime.parse(e as String)).toList(),
       averageCycleLengthData,
       averagePeriodLengthData,
     ];
@@ -293,56 +286,196 @@ class ForecastService {
             .lastOrNull ??
         selectedDate;
 
-    // Adjust predictions if period is late
-    var adjustedPredictedStarts = List<DateTime>.from(predictedCycleStarts);
+    // Adjust predictions if period might be late
+    final adjustedPredictedStarts = _adjustPredictedStarts(
+      selectedDate,
+      lastActualPeriod,
+      predictedCycleStarts,
+    );
 
-    if (selectedDate.isAfterToday) {
-      final firstMissedPrediction =
-          predictedCycleStarts.where((date) => date.isBefore(date)).lastOrNull;
-
-      if (firstMissedPrediction != null &&
-          firstMissedPrediction.isAfter(lastActualPeriod)) {
-        // If we have a missed prediction, shift all future predictions
-        final daysToShift =
-            selectedDate.difference(firstMissedPrediction).inDays;
-        adjustedPredictedStarts = predictedCycleStarts.map((date) {
-          if (date.isAfter(lastActualPeriod)) {
-            return date.add(Duration(days: daysToShift));
-          }
-          return date;
-        }).toList();
-      }
-    }
-
-    if (lastActualPeriod.isToday) {
-      final fiveDaysAgo =
-          lastActualPeriod.subtract(Duration(days: averagePeriodLength));
-      final pastPeriodEvents = events
-          .where(
-            (e) =>
-                e.type == CycleEventType.period &&
-                !e.isPrediction &&
-                e.date.isAfter(fiveDaysAgo),
-          )
-          .toList();
-
-      final periodDaysToCreate = averagePeriodLength - pastPeriodEvents.length;
-
-      if (periodDaysToCreate > 0) {
-        for (int i = 1; i <= periodDaysToCreate; i++) {
-          final date = lastActualPeriod.withoutTime().add(Duration(days: i));
-          predictions.add(
-            CycleEvent(
-              date: date,
-              type: CycleEventType.period,
-              createdBy: _env.systemId,
-            ),
-          );
-        }
-      }
-    }
+    // If period is today, this gets ignored by the API, so we need to generate
+    // it manually
+    predictions.addAll(
+      _generateCurrentCyclePeriodDays(
+        lastActualPeriod,
+        events,
+        averagePeriodLength,
+      ),
+    );
 
     // Generate period predictions for future cycles using adjusted dates
+    predictions.addAll(
+      _generateFuturePeriodPredictions(
+        lastActualPeriod,
+        adjustedPredictedStarts,
+        endDate,
+        averagePeriodLength,
+      ),
+    );
+
+    // Generate fertile window predictions
+    predictions.addAll(
+      _generateFertileWindowPredictions([...events, ...predictions]),
+    );
+
+    return predictions;
+  }
+
+  List<CycleEvent> _generateFertileWindowPredictions(List<CycleEvent> events) {
+    final periodFirstDates = _findPeriodStartDates(events);
+    final fertileWindowEvents = <CycleEvent>[];
+
+    // Require at least two period dates to predict fertile windows
+    if (periodFirstDates.length < 2) return fertileWindowEvents;
+
+    for (int i = 0; i < periodFirstDates.length - 1; i++) {
+      final nextPeriodStart = periodFirstDates[i + 1];
+
+      // Predict ovulation 14 days before next period
+      final ovulationDate = nextPeriodStart.subtract(const Duration(days: 14));
+
+      // Fertile window is 5 days before and day of ovulation
+      final fertileWindowStart =
+          ovulationDate.subtract(const Duration(days: 5));
+      final fertileWindowEnd = ovulationDate;
+
+      // Generate fertile window events
+      var currentDate = fertileWindowStart;
+
+      while (!currentDate.isAfter(fertileWindowEnd)) {
+        fertileWindowEvents.add(
+          CycleEvent(
+            date: currentDate,
+            type: CycleEventType.fertile,
+            isPrediction: true,
+            createdBy: _env.systemId,
+          ),
+        );
+        currentDate = currentDate.add(const Duration(days: 1));
+      }
+    }
+
+    return fertileWindowEvents;
+  }
+
+  List<DateTime> _findPeriodStartDates(List<CycleEvent> events) {
+    // Sort and deduplicate event dates
+    final mergedEvents = events
+        .where(
+          (e) => e.type == CycleEventType.period && !e.isUncertainPrediction,
+        )
+        .map((e) => e.date.withoutTime())
+        .toSet()
+        .toList()
+      ..sort((a, b) => a.compareTo(b));
+
+    final periodStartDates = <DateTime>[];
+
+    // Start with first date
+    periodStartDates.add(mergedEvents.first);
+
+    for (int i = 1; i < mergedEvents.length; i++) {
+      final currentDate = mergedEvents[i];
+      final lastStartDate = periodStartDates.last;
+
+      // Check for potential new cycle start
+      final daysSinceLastStart = currentDate.difference(lastStartDate).inDays;
+
+      if (daysSinceLastStart > (_defaultCycleDaysLength)) {
+        // Validate if this is truly a new cycle
+        bool isNewCycle = true;
+
+        for (int j = i - 1; j >= 0; j--) {
+          final prevDate = mergedEvents[j];
+          final daysFromPrev = currentDate.difference(prevDate).inDays;
+
+          if (daysFromPrev <= _defaultPeriodDaysLength) {
+            isNewCycle = false;
+            break;
+          }
+
+          if (daysFromPrev > (_defaultCycleDaysLength)) break;
+        }
+
+        if (isNewCycle) periodStartDates.add(currentDate);
+      }
+    }
+
+    return periodStartDates;
+  }
+
+  List<DateTime> _adjustPredictedStarts(
+    DateTime selectedDate,
+    DateTime lastActualPeriod,
+    List<DateTime> predictedCycleStarts,
+  ) {
+    if (!selectedDate.isAfterToday) return predictedCycleStarts;
+
+    final firstMissedPrediction =
+        predictedCycleStarts.where((date) => date.isBefore(date)).lastOrNull;
+
+    if (firstMissedPrediction == null ||
+        !firstMissedPrediction.isAfter(lastActualPeriod)) {
+      return predictedCycleStarts;
+    }
+
+    // If we have a missed prediction, shift all future predictions
+    final daysToShift = selectedDate.difference(firstMissedPrediction).inDays;
+    return predictedCycleStarts
+        .map(
+          (date) => date.isAfter(lastActualPeriod)
+              ? date.add(Duration(days: daysToShift))
+              : date,
+        )
+        .toList();
+  }
+
+  List<CycleEvent> _generateCurrentCyclePeriodDays(
+    DateTime lastActualPeriod,
+    List<CycleEvent> events,
+    int averagePeriodLength,
+  ) {
+    final predictions = <CycleEvent>[];
+
+    if (!lastActualPeriod.isToday) return predictions;
+
+    final fiveDaysAgo =
+        lastActualPeriod.subtract(Duration(days: averagePeriodLength));
+    final pastPeriodEvents = events
+        .where(
+          (e) =>
+              e.type == CycleEventType.period &&
+              !e.isPrediction &&
+              e.date.isAfter(fiveDaysAgo),
+        )
+        .toList();
+
+    final periodDaysToCreate = averagePeriodLength - pastPeriodEvents.length;
+
+    if (periodDaysToCreate > 0) {
+      for (int i = 1; i <= periodDaysToCreate; i++) {
+        final date = lastActualPeriod.withoutTime().add(Duration(days: i));
+        predictions.add(
+          CycleEvent(
+            date: date,
+            type: CycleEventType.period,
+            createdBy: _env.systemId,
+          ),
+        );
+      }
+    }
+
+    return predictions;
+  }
+
+  List<CycleEvent> _generateFuturePeriodPredictions(
+    DateTime lastActualPeriod,
+    List<DateTime> adjustedPredictedStarts,
+    DateTime endDate,
+    int averagePeriodLength,
+  ) {
+    final predictions = <CycleEvent>[];
+
     for (final predictedStart in adjustedPredictedStarts) {
       if (predictedStart.isAfter(lastActualPeriod) &&
           predictedStart.isBefore(endDate)) {
@@ -359,53 +492,6 @@ class ForecastService {
         );
       }
     }
-
-    // Generate fertile windows
-    final periodEvents = [...events, ...predictions]
-        .where(
-          (e) => e.type == CycleEventType.period && e.date.isBefore(endDate),
-        )
-        .toSet()
-        .toList()
-      ..sort((a, b) => a.date.compareTo(b.date));
-
-    if (periodEvents.isEmpty) return predictions;
-
-    // Start from the first recorded period
-    for (int i = 0; i < periodEvents.length - 1; i++) {
-      final currentPeriod = periodEvents[i].date;
-      final nextPeriod = periodEvents[i + 1].date;
-
-      // Calculate cycle length between current and next period
-      final cycleLength = nextPeriod.difference(currentPeriod).inDays;
-
-      // Use this cycle length to generate fertile window
-      final fertilePeriodPredictions =
-          _generateFertileWindow(currentPeriod, cycleLength, endDate);
-
-      // Only add unique predictions before end date
-      predictions.addAll(
-        fertilePeriodPredictions.where(
-          (prediction) =>
-              prediction.date.isBefore(endDate) &&
-              !predictions.any((existing) => existing.date == prediction.date),
-        ),
-      );
-    }
-
-    // Generate fertile window for the last recorded period
-    final lastPeriod = periodEvents.last.date;
-
-    final lastFertilePredictions =
-        _generateFertileWindow(lastPeriod, averageCycleLength, endDate);
-
-    predictions.addAll(
-      lastFertilePredictions.where(
-        (prediction) =>
-            prediction.date.isBefore(endDate) &&
-            !predictions.any((existing) => existing.date == prediction.date),
-      ),
-    );
 
     return predictions;
   }
@@ -429,64 +515,7 @@ class ForecastService {
       );
     }
 
-    if (previousPredictedStart != null) {
-      final periodDaysToCreate =
-          predictedStart.difference(previousPredictedStart).inDays -
-              _defaultCycleDaysLength;
-
-      if (periodDaysToCreate == 0) return periodEvents;
-
-      final newPredictedStart =
-          predictedStart.subtract(Duration(days: periodDaysToCreate));
-
-      // TODO Improve this
-      for (int i = 0; i <= periodDaysToCreate; i++) {
-        final periodDate = newPredictedStart.add(Duration(days: i));
-        periodEvents.add(
-          CycleEvent(
-            date: periodDate,
-            type: CycleEventType.period,
-            isPrediction: true,
-            createdBy: _env.systemId,
-            isUncertainPrediction: true,
-          ),
-        );
-      }
-    }
-
     return periodEvents;
-  }
-
-  List<CycleEvent> _generateFertileWindow(
-    DateTime start,
-    int averageCycleLength,
-    DateTime endDate,
-  ) {
-    final fertileWindow = <CycleEvent>[];
-
-    final fertileWindowStart =
-        start.add(Duration(days: (averageCycleLength * 0.5).floor()));
-    final fertileWindowLength =
-        (averageCycleLength * 0.2).floor().clamp(0, 6); // Max 6 days
-
-    var currentDate = fertileWindowStart;
-    final fertileWindowEnd =
-        fertileWindowStart.add(Duration(days: fertileWindowLength));
-
-    while (currentDate.isBefore(fertileWindowEnd) &&
-        currentDate.isBefore(endDate)) {
-      fertileWindow.add(
-        CycleEvent(
-          date: currentDate,
-          type: CycleEventType.fertile,
-          isPrediction: true,
-          createdBy: _env.systemId,
-        ),
-      );
-      currentDate = currentDate.add(const Duration(days: 1));
-    }
-
-    return fertileWindow;
   }
 
   List<CycleEvent> _mergePredictionsWithActualEvents(
@@ -496,8 +525,12 @@ class ForecastService {
     final mergedEvents = [...actualEvents];
 
     for (final prediction in predictions) {
-      if (!mergedEvents
-          .any((e) => e.date == prediction.date && e.type == prediction.type)) {
+      if (!mergedEvents.any(
+        (e) =>
+            e.date == prediction.date &&
+            e.type == prediction.type &&
+            e.isPrediction == prediction.isPrediction,
+      )) {
         mergedEvents.add(prediction);
       }
     }
