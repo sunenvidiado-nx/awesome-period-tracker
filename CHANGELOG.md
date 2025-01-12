@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.6.0] - 2025-01-12
+
+### Added
+
+- Introduce "uncertain predictions" for period events when cycle lengths exceed 28 days, since most people's cycles are not perfectly regular.
+
+### Fixed
+
+- Fixed issue with 3-button navigation bar color for Android 15+ devices.
+- Fixed issue with how errors are handled and displayed in the home screen.
+
 ## [1.5.6] - 2025-01-11
 
 ### Added
