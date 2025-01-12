@@ -7,7 +7,7 @@ import 'package:injectable/injectable.dart';
 import 'dependency_injection.config.dart';
 
 @InjectableInit()
-Future<void> configureDependencies() async => GetIt.I.init();
+void configureDependencies() => GetIt.I.init();
 
 @module
 abstract class ExternalServicesModule {

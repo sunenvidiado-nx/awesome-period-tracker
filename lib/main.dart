@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:awesome_period_tracker/app/app.dart';
-import 'package:awesome_period_tracker/app/theme/app_assets.dart';
 import 'package:awesome_period_tracker/app/theme/app_colors.dart';
 import 'package:awesome_period_tracker/config/dependency_injection.dart';
 import 'package:awesome_period_tracker/firebase_options.dart';
@@ -13,7 +12,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get_it/get_it.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
@@ -21,23 +19,21 @@ void main() {
   runZoned(() async {
     WidgetsFlutterBinding.ensureInitialized();
 
-    await _setUpFirebase(); // Must be called before any other initialization
+    await _configureFirebase(); // Must be called before any other initialization
+
+    configureDependencies();
+    _configureLicenses();
 
     await Future.wait([
-      configureDependencies(),
-      _preloadSvgs(),
-      _setUpNavigationAndStatusBarColors(),
+      _configureNavigationAndStatusBarColors(),
+      _clearCacheOnNewVersion(),
     ]);
-
-    await _clearCacheOnNewVersion(); // Must be called after dependencies initialization
-
-    _setUpLicenses();
 
     runApp(const App());
   });
 }
 
-Future<void> _setUpNavigationAndStatusBarColors() async {
+Future<void> _configureNavigationAndStatusBarColors() async {
   var overlayStyle = SystemUiOverlayStyle(
     statusBarColor: Colors.transparent,
     statusBarIconBrightness: Brightness.dark,
@@ -58,14 +54,14 @@ Future<void> _setUpNavigationAndStatusBarColors() async {
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
 }
 
-void _setUpLicenses() {
+void _configureLicenses() {
   LicenseRegistry.addLicense(() async* {
     final license = await rootBundle.loadString('google_fonts/OFL.txt');
     yield LicenseEntryWithLineBreaks(['google_fonts'], license);
   });
 }
 
-Future<void> _setUpFirebase() async {
+Future<void> _configureFirebase() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
@@ -86,25 +82,4 @@ Future<void> _clearCacheOnNewVersion() async {
     await secureStorage.deleteAll();
     await secureStorage.write(key: key, value: pInfo.version);
   }
-}
-
-Future<void> _preloadSvgs() async {
-  const mainIconLoader = SvgAssetLoader(AppAssets.mainIcon);
-  const mainIconLongLoader = SvgAssetLoader(AppAssets.mainIconLong);
-  const googleGeminiIconLoader = SvgAssetLoader(AppAssets.googleGeminiIcon);
-
-  await Future.wait([
-    svg.cache.putIfAbsent(
-      mainIconLoader.cacheKey(null),
-      () => mainIconLoader.loadBytes(null),
-    ),
-    svg.cache.putIfAbsent(
-      mainIconLongLoader.cacheKey(null),
-      () => mainIconLongLoader.loadBytes(null),
-    ),
-    svg.cache.putIfAbsent(
-      googleGeminiIconLoader.cacheKey(null),
-      () => googleGeminiIconLoader.loadBytes(null),
-    ),
-  ]);
 }

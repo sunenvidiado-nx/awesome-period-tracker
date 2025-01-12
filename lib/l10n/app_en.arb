@@ -107,5 +107,9 @@
   "addSymptom": "Add symptom",
   "addNewSymptom": "Add new symptom",
   "fieldCantBeEmpty": "Field can't be empty",
-  "symptom": "Symptom"
+  "symptom": "Symptom",
+  "incorrectPinError": "Incorrect PIN.",
+  "firebaseGenericError": "An error occurred. Please try again later.",
+  "dioGenericError": "An error occurred with the API. Please try again later.",
+  "insightsGenericError": "An error occurred while generating insights. Please try again later."
 }
