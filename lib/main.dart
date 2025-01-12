@@ -26,7 +26,7 @@ void main() {
 
     await Future.wait([
       _configureNavigationAndStatusBarColors(),
-      _clearCacheOnNewVersion(),
+      _configureLocalStorage(),
     ]);
 
     runApp(const App());
@@ -72,7 +72,8 @@ Future<void> _configureFirebase() async {
   };
 }
 
-Future<void> _clearCacheOnNewVersion() async {
+/// Clear local storage if the app version has changed
+Future<void> _configureLocalStorage() async {
   // Generate cache key here: http://bit.ly/random-strings-generator
   const key = 'tnULfB0HpgDR';
   final secureStorage = GetIt.I<FlutterSecureStorage>();

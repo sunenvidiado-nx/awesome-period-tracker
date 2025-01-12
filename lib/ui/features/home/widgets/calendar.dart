@@ -21,27 +21,25 @@ class Calendar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(4, 4, 4, 8),
-      child: TableCalendar<CycleEvent>(
-        key: ValueKey(cycleEvents),
-        firstDay: DateTime(DateTime.now().year - 10),
-        lastDay: DateTime(DateTime.now().year + 10),
-        focusedDay: selectedDate,
-        eventLoader: _getEventsForDay,
-        headerStyle: _headerStyle(context),
-        onDaySelected: onDaySelected,
-        selectedDayPredicate: (day) => isSameDay(selectedDate, day),
-        calendarBuilders: CalendarBuilders(
-          markerBuilder: _markerBuilder,
-          todayBuilder: _todayBuilder,
-          selectedBuilder: _selectedBuilder,
-          defaultBuilder: _defaultBuilder,
-        ),
-        availableCalendarFormats: const {CalendarFormat.month: ''},
-        pageAnimationEnabled: false,
-        availableGestures: AvailableGestures.horizontalSwipe,
+    return TableCalendar<CycleEvent>(
+      key: ValueKey(cycleEvents),
+      firstDay: DateTime(DateTime.now().year - 10),
+      lastDay: DateTime(DateTime.now().year + 10),
+      focusedDay: selectedDate,
+      eventLoader: _getEventsForDay,
+      headerStyle: _headerStyle(context),
+      onDaySelected: onDaySelected,
+      selectedDayPredicate: (day) => isSameDay(selectedDate, day),
+      calendarBuilders: CalendarBuilders(
+        markerBuilder: _markerBuilder,
+        todayBuilder: _todayBuilder,
+        selectedBuilder: _selectedBuilder,
+        defaultBuilder: _defaultBuilder,
+        outsideBuilder: _defaultBuilder,
       ),
+      availableCalendarFormats: const {CalendarFormat.month: ''},
+      pageAnimationEnabled: false,
+      availableGestures: AvailableGestures.horizontalSwipe,
     );
   }
 
@@ -166,8 +164,6 @@ class Calendar extends StatelessWidget {
     DateTime date,
     DateTime focusedDay,
   ) {
-    if (!date.isSameMonth(focusedDay)) return null;
-
     final events = _getEventsForDay(date).toList();
 
     if (events.isEmpty) return null;
@@ -180,25 +176,32 @@ class Calendar extends StatelessWidget {
 
     if (event == null) return null;
 
+    final isOutsde = !date.isSameMonth(focusedDay);
+
     return Container(
       margin: const EdgeInsets.all(11),
       decoration: BoxDecoration(
-        color: event.type.color.withAlpha(
-          event.isUncertainPrediction
-              ? 30
-              : event.isPrediction
-                  ? 90
-                  : 255,
-        ),
+        color: isOutsde
+            ? context.colorScheme.shadow.withAlpha(10)
+            : event.type.color.withAlpha(
+                event.isUncertainPrediction
+                    ? 30
+                    : event.isPrediction
+                        ? 90
+                        : 255,
+              ),
         shape: BoxShape.circle,
       ),
       alignment: Alignment.center,
       child: Text(
         date.day.toString(),
         style: TextStyle(
-          color: event.isPrediction
-              ? event.type.color.darken(event.isUncertainPrediction ? 0.5 : 0.4)
-              : context.colorScheme.surface,
+          color: isOutsde
+              ? context.colorScheme.shadow.withAlpha(120)
+              : event.isPrediction
+                  ? event.type.color
+                      .darken(event.isUncertainPrediction ? 0.5 : 0.4)
+                  : context.colorScheme.surface,
         ),
       ),
     );
