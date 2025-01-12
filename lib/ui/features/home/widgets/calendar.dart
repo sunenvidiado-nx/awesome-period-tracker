@@ -183,7 +183,13 @@ class Calendar extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.all(11),
       decoration: BoxDecoration(
-        color: event.type.color.withAlpha(event.isPrediction ? 89 : 255),
+        color: event.type.color.withAlpha(
+          event.isUncertainPrediction
+              ? 30
+              : event.isPrediction
+                  ? 90
+                  : 255,
+        ),
         shape: BoxShape.circle,
       ),
       alignment: Alignment.center,
@@ -191,7 +197,7 @@ class Calendar extends StatelessWidget {
         date.day.toString(),
         style: TextStyle(
           color: event.isPrediction
-              ? event.type.color.darken(0.4)
+              ? event.type.color.darken(event.isUncertainPrediction ? 0.5 : 0.4)
               : context.colorScheme.surface,
         ),
       ),

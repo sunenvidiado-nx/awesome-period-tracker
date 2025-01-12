@@ -12,6 +12,7 @@ class CycleEvent with CycleEventMappable {
     required this.type,
     required this.createdBy,
     this.isPrediction = false,
+    this.isUncertainPrediction = false,
     this.id,
     this.additionalData,
   });
@@ -21,6 +22,7 @@ class CycleEvent with CycleEventMappable {
   final CycleEventType type;
   final String? additionalData;
   final bool isPrediction;
+  final bool isUncertainPrediction;
   final String createdBy;
 
   DateTime get localDate => date.toLocal();
