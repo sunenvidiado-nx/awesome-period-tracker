@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.6.1] - 2025-01-12
+
+### Fixed
+
+- Fixed (again 😓) how cycle event predictions are generated.
+
 ## [1.6.0] - 2025-01-12
 
 ### Added
