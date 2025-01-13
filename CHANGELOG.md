@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.6.2] - 2025-01-13
+
+### Fixed
+
+- Fixed issue where predictions for period events that are currently happening were not being generated properly.
+- Fixed small UI issues with buttons, shadows, and colors.
+
 ## [1.6.1] - 2025-01-12
 
 ### Fixed
