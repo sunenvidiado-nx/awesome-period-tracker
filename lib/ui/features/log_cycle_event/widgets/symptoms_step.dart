@@ -92,29 +92,29 @@ class _SymptomsStepState extends State<SymptomsStep> {
           InkWell(
             onTap: () =>
                 widget.stateManager.setStep(LogEventStep.addNewSymptom),
-            child: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                border: Border.all(
-                  color: context.colorScheme.onSurface.withAlpha(51),
+            child: AppShadow(
+              shadowColor: context.colorScheme.shadow.withAlpha(15),
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(14),
+                  color: context.colorScheme.onTertiary,
                 ),
-                borderRadius: BorderRadius.circular(14),
-                color: context.colorScheme.onTertiary,
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.add,
-                    size: 18,
-                    color: context.colorScheme.onSurface,
-                  ),
-                  const SizedBox(width: 2),
-                  Text(
-                    context.l10n.addSymptom,
-                    style: TextStyle(color: context.colorScheme.onSurface),
-                  ),
-                ],
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.add,
+                      size: 18,
+                      color: context.colorScheme.onSurface,
+                    ),
+                    const SizedBox(width: 2),
+                    Text(
+                      context.l10n.addSymptom,
+                      style: TextStyle(color: context.colorScheme.onSurface),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -130,39 +130,37 @@ class _SymptomsStepState extends State<SymptomsStep> {
   ) {
     return InkWell(
       onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          border: Border.all(
+      child: AppShadow(
+        shadowColor: context.colorScheme.shadow.withAlpha(15),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(14),
             color: isSelected
                 ? context.colorScheme.secondary
-                : context.colorScheme.onSurface.withAlpha(153),
+                : context.colorScheme.onTertiary,
           ),
-          borderRadius: BorderRadius.circular(14),
-          color: isSelected
-              ? context.colorScheme.secondary
-              : context.colorScheme.onTertiary,
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (isSelected)
-              Icon(
-                Icons.check,
-                size: 18,
-                color: context.colorScheme.onTertiary,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (isSelected)
+                Icon(
+                  Icons.check,
+                  size: 18,
+                  color: context.colorScheme.onTertiary,
+                ),
+              const SizedBox(width: 2),
+              Text(
+                symptom.toTitleCase(),
+                style: TextStyle(
+                  color: isSelected
+                      ? context.colorScheme.onTertiary
+                      : context.colorScheme.onSurface,
+                ),
               ),
-            const SizedBox(width: 2),
-            Text(
-              symptom.toTitleCase(),
-              style: TextStyle(
-                color: isSelected
-                    ? context.colorScheme.onTertiary
-                    : context.colorScheme.onSurface,
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

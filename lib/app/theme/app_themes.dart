@@ -7,6 +7,31 @@ abstract class AppThemes {
   static ThemeData get dark => _darkTheme;
 }
 
+const _lightColorScheme = ColorScheme.light(
+  primary: AppColors.red,
+  primaryContainer: AppColors.bgPalePink,
+  secondary: AppColors.pink,
+  secondaryContainer: AppColors.bgPaleBlue,
+  secondaryFixed: AppColors.orange,
+  tertiary: AppColors.purple,
+  tertiaryContainer: AppColors.bgLightGray,
+  surface: AppColors.bgWhite,
+  surfaceContainer: AppColors.bgPalePink,
+  error: Color(0xFFF66279),
+  onPrimary: AppColors.bgWhite,
+  onSecondary: AppColors.black,
+  onTertiary: AppColors.bgWhite,
+  onSurface: AppColors.black,
+  onError: Color.fromARGB(255, 43, 23, 23),
+  shadow: AppColors.shadow,
+);
+
+final _darkColorScheme = ColorScheme.fromSeed(
+  brightness: Brightness.dark,
+  seedColor: AppColors.red,
+  // TODO: Set dark theme
+);
+
 final _darkTheme = ThemeData(
   brightness: Brightness.dark,
   scaffoldBackgroundColor: _darkColorScheme.surfaceContainer,
@@ -45,31 +70,6 @@ final _lightTheme = ThemeData(
   textButtonTheme: _textButtonTheme(_lightColorScheme),
   inputDecorationTheme:
       _inputDecorationTheme(_lightColorScheme, _textTheme(_darkColorScheme)),
-);
-
-const _lightColorScheme = ColorScheme.light(
-  primary: AppColors.red,
-  primaryContainer: AppColors.bgPalePink,
-  secondary: AppColors.pink,
-  secondaryContainer: AppColors.bgPaleBlue,
-  secondaryFixed: AppColors.orange,
-  tertiary: AppColors.purple,
-  tertiaryContainer: AppColors.bgLightGray,
-  surface: AppColors.bgWhite,
-  surfaceContainer: AppColors.bgPalePink,
-  error: Color(0xFFF66279),
-  onPrimary: AppColors.bgWhite,
-  onSecondary: AppColors.black,
-  onTertiary: AppColors.bgWhite,
-  onSurface: AppColors.black,
-  onError: Color.fromARGB(255, 43, 23, 23),
-  shadow: AppColors.shadow,
-);
-
-final _darkColorScheme = ColorScheme.fromSeed(
-  brightness: Brightness.dark,
-  seedColor: AppColors.red,
-  // TODO: Set dark theme
 );
 
 TextTheme _textTheme(ColorScheme colorScheme) =>
@@ -123,9 +123,9 @@ ElevatedButtonThemeData _elevatedButtonTheme(
       style: ButtonStyle(
         backgroundColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.disabled)) {
-            return colorScheme.primary.withAlpha(31);
+            return colorScheme.tertiary.withAlpha(200);
           }
-          return colorScheme.primary;
+          return colorScheme.tertiary;
         }),
         foregroundColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.disabled)) {
@@ -141,6 +141,7 @@ ElevatedButtonThemeData _elevatedButtonTheme(
           RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         ),
         textStyle: WidgetStateProperty.all(primaryTextTheme.labelLarge),
+        minimumSize: WidgetStateProperty.all(const Size(double.infinity, 48)),
       ),
     );
 
@@ -159,9 +160,9 @@ TextButtonThemeData _textButtonTheme(ColorScheme colorScheme) =>
       style: ButtonStyle(
         foregroundColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.disabled)) {
-            return colorScheme.onSurface.withAlpha(31);
+            return colorScheme.tertiary.withAlpha(31);
           }
-          return colorScheme.primary;
+          return colorScheme.tertiary;
         }),
         overlayColor: WidgetStateProperty.all(
           colorScheme.primary.withAlpha(31),
@@ -178,7 +179,7 @@ InputDecorationTheme _inputDecorationTheme(
 ) =>
     InputDecorationTheme(
       filled: true,
-      fillColor: colorScheme.surfaceContainer,
+      fillColor: colorScheme.onPrimary,
       contentPadding: const EdgeInsets.symmetric(horizontal: 12),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
@@ -190,10 +191,7 @@ InputDecorationTheme _inputDecorationTheme(
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: BorderSide(
-          color: colorScheme.primary,
-          width: 2,
-        ),
+        borderSide: BorderSide.none,
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
@@ -209,14 +207,11 @@ InputDecorationTheme _inputDecorationTheme(
           width: 2,
         ),
       ),
-      labelStyle: textTheme.bodyLarge?.copyWith(
-        color: colorScheme.onSurface.withAlpha(153),
-      ),
-      floatingLabelStyle: textTheme.bodyLarge?.copyWith(
-        color: colorScheme.primary,
+      hintStyle: textTheme.bodyLarge?.copyWith(
+        color: colorScheme.onSurface.withAlpha(100),
       ),
       errorStyle: textTheme.bodySmall?.copyWith(
         color: colorScheme.error,
       ),
-      suffixIconColor: colorScheme.onSurface.withAlpha(153),
+      suffixIconColor: colorScheme.onSurface.withAlpha(100),
     );

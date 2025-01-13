@@ -85,9 +85,6 @@ class _IntimacyStepState extends State<IntimacyStep> {
   Widget _buildSubmitButton() {
     return AppShadow(
       child: ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          minimumSize: const Size(double.infinity, 48),
-        ),
         onPressed: _isSubmitting ? null : () => _onSubmit(),
         child: _isSubmitting
             ? AppLoader(color: context.colorScheme.surface, size: 30)

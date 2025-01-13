@@ -67,17 +67,16 @@ class _AddNewSymptomStepState extends State<AddNewSymptomStep> {
   }
 
   Widget _buildSymptomTextField() {
-    return TextFormField(
-      controller: _symptomController,
-      autofocus: true,
-      decoration: InputDecoration(hintText: context.l10n.symptom),
-      validator: (value) {
-        if (value == null || value.isEmpty) {
-          return context.l10n.fieldCantBeEmpty;
-        }
-
-        return null;
-      },
+    return AppShadow(
+      shadowColor: context.colorScheme.shadow.withAlpha(15),
+      child: TextFormField(
+        controller: _symptomController,
+        autofocus: true,
+        decoration: InputDecoration(hintText: context.l10n.symptom),
+        validator: (value) => value == null || value.isEmpty
+            ? context.l10n.fieldCantBeEmpty
+            : null,
+      ),
     );
   }
 

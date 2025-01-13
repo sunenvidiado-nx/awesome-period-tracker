@@ -95,7 +95,9 @@ class _PeriodFlowStepState extends State<PeriodFlowStep> {
       style: ElevatedButton.styleFrom(
         minimumSize: const Size(double.infinity, 48),
         backgroundColor: Colors.transparent,
+        disabledBackgroundColor: Colors.transparent,
         foregroundColor: context.colorScheme.error,
+        elevation: 0,
       ),
       onPressed: _isSubmitting
           ? null
@@ -104,7 +106,7 @@ class _PeriodFlowStepState extends State<PeriodFlowStep> {
               _onSubmit();
             },
       child: _isSubmitting
-          ? AppLoader(color: context.colorScheme.surface, size: 30)
+          ? const AppLoader(size: 30)
           : Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -123,9 +125,6 @@ class _PeriodFlowStepState extends State<PeriodFlowStep> {
   Widget _buildSubmitButton() {
     return AppShadow(
       child: ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          minimumSize: const Size(double.infinity, 48),
-        ),
         onPressed: _isSubmitting ? null : () => _onSubmit(),
         child: _isSubmitting
             ? AppLoader(color: context.colorScheme.surface, size: 30)
