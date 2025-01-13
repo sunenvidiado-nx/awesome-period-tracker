@@ -293,8 +293,8 @@ class ForecastService {
       predictedCycleStarts,
     );
 
-    // If period is today, this gets ignored by the API, so we need to generate
-    // it manually
+    // The API predictions do not include the current cycle
+    // so we generate predictions for the current cycle
     predictions.addAll(
       _generateCurrentCyclePeriodDays(
         lastActualPeriod,
@@ -374,27 +374,30 @@ class ForecastService {
     // Start with first date
     periodStartDates.add(mergedEvents.first);
 
-    for (int i = 1; i < mergedEvents.length; i++) {
-      final currentDate = mergedEvents[i];
-      final lastStartDate = periodStartDates.last;
+    for (int eventIndex = 1; eventIndex < mergedEvents.length; eventIndex++) {
+      final currentDate = mergedEvents[eventIndex];
+      final previousStartDate = periodStartDates.last;
 
       // Check for potential new cycle start
-      final daysSinceLastStart = currentDate.difference(lastStartDate).inDays;
+      final daysSincePreviousStart =
+          currentDate.difference(previousStartDate).inDays;
 
-      if (daysSinceLastStart > (_defaultCycleDaysLength)) {
+      if (daysSincePreviousStart > (_defaultCycleDaysLength)) {
         // Validate if this is truly a new cycle
         bool isNewCycle = true;
 
-        for (int j = i - 1; j >= 0; j--) {
-          final prevDate = mergedEvents[j];
-          final daysFromPrev = currentDate.difference(prevDate).inDays;
+        for (int prevEventIndex = eventIndex - 1;
+            prevEventIndex >= 0;
+            prevEventIndex--) {
+          final previousDate = mergedEvents[prevEventIndex];
+          final daysFromPrevious = currentDate.difference(previousDate).inDays;
 
-          if (daysFromPrev <= _defaultPeriodDaysLength) {
+          if (daysFromPrevious <= _defaultPeriodDaysLength) {
             isNewCycle = false;
             break;
           }
 
-          if (daysFromPrev > (_defaultCycleDaysLength)) break;
+          if (daysFromPrevious > (_defaultCycleDaysLength)) break;
         }
 
         if (isNewCycle) periodStartDates.add(currentDate);
@@ -437,16 +440,26 @@ class ForecastService {
   ) {
     final predictions = <CycleEvent>[];
 
-    if (!lastActualPeriod.isToday) return predictions;
+    final fiveDaysBefore = lastActualPeriod.subtract(const Duration(days: 5));
+    final fiveDaysAfter = lastActualPeriod.add(const Duration(days: 5));
+    final isInPeriod = events.any(
+      (e) =>
+          !e.isPrediction &&
+          e.type == CycleEventType.period &&
+          e.date.isAfter(fiveDaysBefore) &&
+          e.date.isBefore(fiveDaysAfter),
+    );
 
-    final fiveDaysAgo =
+    if (!isInPeriod) return predictions;
+
+    final startDateOfLastPeriod =
         lastActualPeriod.subtract(Duration(days: averagePeriodLength));
     final pastPeriodEvents = events
         .where(
           (e) =>
               e.type == CycleEventType.period &&
               !e.isPrediction &&
-              e.date.isAfter(fiveDaysAgo),
+              e.date.isAfter(startDateOfLastPeriod),
         )
         .toList();
 
