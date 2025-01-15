@@ -30,6 +30,17 @@ class CycleEventsRepository {
         .then((s) => s.docs.map(CycleEvent.fromFirestore).toList());
   }
 
+  Future<List<CycleEvent>> getByDateRange(DateTime start, DateTime end) async {
+    return _collection
+        .where(
+          'date',
+          isGreaterThanOrEqualTo: Timestamp.fromDate(start.withoutTime()),
+          isLessThanOrEqualTo: Timestamp.fromDate(end.withoutTime()),
+        )
+        .get()
+        .then((s) => s.docs.map(CycleEvent.fromFirestore).toList());
+  }
+
   Future<CycleEvent?> getByDate(DateTime date) async {
     final snapshot = await _collection
         .where(

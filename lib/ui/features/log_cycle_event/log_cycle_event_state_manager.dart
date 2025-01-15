@@ -81,7 +81,34 @@ class LogCycleEventStateManager extends StateManager<LogCycleEventState> {
   }
 
   Future<void> logPeriod(PeriodFlow flow) async {
-    await _createOrUpdateEventByType(CycleEventType.period, flow.name);
+    const defaultPeriodDaysLength = 5; // TODO Make configurable
+    final currentDate = state.date;
+    final fiveDaysBefore = currentDate.subtract(const Duration(days: 5));
+
+    final existingPeriodEvents = await _cycleEventsRepository.getByDateRange(
+      fiveDaysBefore,
+      currentDate,
+    );
+
+    if (existingPeriodEvents.isNotEmpty) {
+      return _createOrUpdateEventByType(CycleEventType.period, flow.name);
+    }
+
+    // If there were no period dates in the last 5 days and the user is logging a period
+    // we need to create period events for the next 5 days
+    final futures = <Future<void>>[];
+
+    for (var i = 1; i <= (defaultPeriodDaysLength + 1); i++) {
+      futures.add(
+        _createOrUpdateEventByType(
+          CycleEventType.period,
+          flow.name,
+          fiveDaysBefore.add(Duration(days: i)),
+        ),
+      );
+    }
+
+    await Future.wait(futures);
   }
 
   Future<void> logSymptoms(
@@ -145,13 +172,14 @@ class LogCycleEventStateManager extends StateManager<LogCycleEventState> {
 
   Future<void> _createOrUpdateEventByType(
     CycleEventType type,
-    String additionalData,
-  ) async {
+    String additionalData, [
+    DateTime? date,
+  ]) async {
     late CycleEvent? cycleEvent;
 
     cycleEvent = await _cycleEventsRepository.get({
       'createdBy': _authRepository.getCurrentUser()!.uid,
-      'date': Timestamp.fromDate(state.date.withoutTime()),
+      'date': Timestamp.fromDate(date ?? state.date.withoutTime()),
       'type': type.name,
     }).then(
       (value) => value.firstWhereOrNull((e) => isSameDay(e.date, state.date)),

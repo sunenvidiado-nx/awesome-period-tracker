@@ -231,12 +231,8 @@ class ForecastService {
     return {
       'cycle_start_date':
           currentGroup.first.date.toIso8601String().split('T')[0],
-      'period_length': currentGroup.last.date
-                  .difference(currentGroup.first.date)
-                  .inDays <
-              _defaultPeriodDaysLength
-          ? _defaultPeriodDaysLength
-          : currentGroup.last.date.difference(currentGroup.first.date).inDays,
+      'period_length':
+          currentGroup.last.date.difference(currentGroup.first.date).inDays,
     };
   }
 
@@ -291,16 +287,6 @@ class ForecastService {
       selectedDate,
       lastActualPeriod,
       predictedCycleStarts,
-    );
-
-    // The API predictions do not include the current cycle
-    // so we generate predictions for the current cycle
-    predictions.addAll(
-      _generateCurrentCyclePeriodDays(
-        lastActualPeriod,
-        events,
-        averagePeriodLength,
-      ),
     );
 
     // Generate period predictions for future cycles using adjusted dates
@@ -431,54 +417,6 @@ class ForecastService {
               : date,
         )
         .toList();
-  }
-
-  List<CycleEvent> _generateCurrentCyclePeriodDays(
-    DateTime lastActualPeriod,
-    List<CycleEvent> events,
-    int averagePeriodLength,
-  ) {
-    final predictions = <CycleEvent>[];
-
-    final fiveDaysBefore = lastActualPeriod.subtract(const Duration(days: 5));
-    final fiveDaysAfter = lastActualPeriod.add(const Duration(days: 5));
-    final isInPeriod = events.any(
-      (e) =>
-          !e.isPrediction &&
-          e.type == CycleEventType.period &&
-          e.date.isAfter(fiveDaysBefore) &&
-          e.date.isBefore(fiveDaysAfter),
-    );
-
-    if (!isInPeriod) return predictions;
-
-    final startDateOfLastPeriod =
-        lastActualPeriod.subtract(Duration(days: averagePeriodLength));
-    final pastPeriodEvents = events
-        .where(
-          (e) =>
-              e.type == CycleEventType.period &&
-              !e.isPrediction &&
-              e.date.isAfter(startDateOfLastPeriod),
-        )
-        .toList();
-
-    final periodDaysToCreate = averagePeriodLength - pastPeriodEvents.length;
-
-    if (periodDaysToCreate > 0) {
-      for (int i = 1; i <= periodDaysToCreate; i++) {
-        final date = lastActualPeriod.withoutTime().add(Duration(days: i));
-        predictions.add(
-          CycleEvent(
-            date: date,
-            type: CycleEventType.period,
-            createdBy: _env.systemId,
-          ),
-        );
-      }
-    }
-
-    return predictions;
   }
 
   List<CycleEvent> _generateFuturePeriodPredictions(
