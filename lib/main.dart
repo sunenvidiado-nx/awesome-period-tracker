@@ -1,11 +1,8 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:awesome_period_tracker/app/app.dart';
-import 'package:awesome_period_tracker/app/theme/app_colors.dart';
 import 'package:awesome_period_tracker/config/dependency_injection.dart';
 import 'package:awesome_period_tracker/firebase_options.dart';
-import 'package:device_info_plus/device_info_plus.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
@@ -34,23 +31,15 @@ void main() {
 }
 
 Future<void> _configureNavigationAndStatusBarColors() async {
-  var overlayStyle = SystemUiOverlayStyle(
-    statusBarColor: Colors.transparent,
-    statusBarIconBrightness: Brightness.dark,
-    systemNavigationBarColor: Colors.black.withValues(alpha: 255),
-    systemNavigationBarIconBrightness: Brightness.dark,
+  SystemChrome.setSystemUIOverlayStyle(
+    SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.dark,
+      systemNavigationBarColor: Colors.black.withValues(alpha: 1),
+      systemNavigationBarIconBrightness: Brightness.dark,
+    ),
   );
 
-  if (Platform.isAndroid) {
-    final androidInfo = await DeviceInfoPlugin().androidInfo;
-    if (androidInfo.version.sdkInt >= 15) {
-      overlayStyle = overlayStyle.copyWith(
-        systemNavigationBarColor: AppColors.bgPalePink,
-      );
-    }
-  }
-
-  SystemChrome.setSystemUIOverlayStyle(overlayStyle);
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
 }
 
