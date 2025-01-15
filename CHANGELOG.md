@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.6.3] - 2025-01-15
+
+### Changed
+
+- Enhanced period logging accuracy. Now, when the first day of a period is logged, the app automatically logs the entire period duration (defaulting to 5 days) for that cycle. This replaces the previous method of logging only the first day and predicting the rest, which often led to inaccurate forecasts.
+
+### Fixed
+
+- Fixed issue where intimacy marker was not visible in the calendar on a period day because they had similar colors.
+- Fixed issue with navigation bar color not being transparent on Android devices.
+
 ## [1.6.2] - 2025-01-13
 
 ### Fixed
