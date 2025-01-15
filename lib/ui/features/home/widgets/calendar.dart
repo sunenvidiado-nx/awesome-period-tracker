@@ -67,12 +67,18 @@ class Calendar extends StatelessWidget {
     List<CycleEvent> events,
   ) {
     if (events.any((e) => e.type == CycleEventType.intimacy)) {
+      final useLightColor = events.any(
+        (e) => e.type == CycleEventType.period && e.date.isSameDay(date),
+      );
+
       return Positioned.fill(
-        top: 24,
+        top: 22,
         child: Icon(
           Icons.favorite,
-          color: context.colorScheme.error,
-          size: 10,
+          color: useLightColor
+              ? context.colorScheme.primaryContainer
+              : context.colorScheme.error,
+          size: 8,
         ),
       );
     }
