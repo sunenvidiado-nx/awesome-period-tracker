@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.7.0] - 2025-01-16
+
+### Changed
+
+- Upgraded to Flutter v3.28.3.
+- Upgraded Gemini to v2.0.
+
 ## [1.6.3] - 2025-01-15
 
 ### Changed
