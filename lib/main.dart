@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:awesome_period_tracker/app/app.dart';
+import 'package:awesome_period_tracker/app/theme/app_colors.dart';
 import 'package:awesome_period_tracker/config/dependency_injection.dart';
 import 'package:awesome_period_tracker/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -35,7 +36,7 @@ Future<void> _configureNavigationAndStatusBarColors() async {
     SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
       statusBarIconBrightness: Brightness.dark,
-      systemNavigationBarColor: Colors.black.withValues(alpha: 1),
+      systemNavigationBarColor: AppColors.bgPalePink.withValues(alpha: 1),
       systemNavigationBarIconBrightness: Brightness.dark,
     ),
   );

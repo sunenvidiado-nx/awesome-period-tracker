@@ -56,3 +56,5 @@ app.*.map.json
 **/GoogleService-Info.plist
 **/google-services.json
 **/firebase_app_id_file.json
+firebase.json
+ios/build/**

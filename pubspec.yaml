@@ -4,8 +4,8 @@ publish_to: "none"
 version: 1.6.3
 
 environment:
-  sdk: ">=3.6.0 <4.0.0"
-  flutter: "3.27.1"
+  sdk: ">=3.6.1 <4.0.0"
+  flutter: "3.27.3"
 
 dependencies:
   animations: ^2.0.11
@@ -20,7 +20,7 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_emoji: ^2.5.1
-  flutter_keyboard_visibility: ^6.0.0
+  flutter_keyboard_visibility_temp_fork: ^0.1.4
   flutter_localizations:
     sdk: flutter
   flutter_markdown: ^0.7.3

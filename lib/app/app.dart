@@ -2,7 +2,7 @@ import 'package:awesome_period_tracker/app/theme/app_themes.dart';
 import 'package:awesome_period_tracker/app/theme/theme_mode_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
+import 'package:flutter_keyboard_visibility_temp_fork/flutter_keyboard_visibility_temp_fork.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 
