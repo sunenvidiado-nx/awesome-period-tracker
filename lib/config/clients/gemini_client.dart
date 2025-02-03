@@ -10,7 +10,7 @@ class GeminiClient {
 
   final GenerativeModel _model;
 
-  static const _modelIdentifier = 'gemini-1.5-flash-latest';
+  static const _modelIdentifier = 'gemini-2.0-flash-thinking-exp-01-21';
 
   /// Generates AI content from a text prompt.
   ///
