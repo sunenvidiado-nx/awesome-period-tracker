@@ -25,13 +25,18 @@ jobs:
         with:
           flutter-version: 3.27.3 # Must be the same with the one in pubspec.yaml
 
-      - name: Configure Firebase
-        run: |
-          echo "${{ secrets.FIREBASE_OPTIONS }}" | base64 --decode > lib/firebase_options.dart
-          echo "${{ secrets.GOOGLE_SERVICES_JSON }}" | base64 --decode > android/app/google-services.json
-
       - name: Configure environment
         run: echo "${{ secrets.ENVIRONMENT }}" | base64 --decode > .env
+
+      - name: Configure firebase
+        run: |
+          curl -sL https://firebase.tools | bash
+          dart pub global activate flutterfire_cli
+          flutterfire configure \
+            --project=awesome-period-tracker \
+            --platforms=android \
+            --token=${{ secrets.FIREBASE_CI_TOKEN }} \
+            --yes
 
       - name: Download dependencies
         run: flutter pub get
@@ -44,18 +49,18 @@ jobs:
       - name: Build Android
         run: flutter build apk --release --obfuscate --split-debug-info=build/app/outputs/symbols --build-number=${{ github.run_number }} --split-per-abi
 
+      - name: Upload debug symbols to Firebase Crashlytics
+        run: |
+          firebase crashlytics:symbols:upload \
+            --token=${{ secrets.FIREBASE_CI_TOKEN }} \
+            --app=${{ secrets.FIREBASE_ANDROID_APP_ID }} \
+            build/app/outputs/symbols
+
       - name: Upload Android build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: android-artifacts
           path: build/app/outputs/flutter-apk/*.apk
-
-      - name: Upload Android debug symbols
-        uses: actions/upload-artifact@v4
-        with:
-          name: android-debug-symbols
-          path: build/app/outputs/symbols
-          retention-days: 1
 
   build-ios:
     name: Build IPA
@@ -71,12 +76,6 @@ jobs:
         with:
           flutter-version: 3.27.3 # Must be the same with the one in pubspec.yaml
 
-      - name: Configure Firebase
-        run: |
-          echo "${{ secrets.FIREBASE_OPTIONS }}" | base64 --decode > lib/firebase_options.dart
-          echo "${{ secrets.FIREBASE_APP_ID_FILE }}" | base64 --decode > ios/firebase_app_id_file.json
-          echo "${{ secrets.GOOGLE_SERVICE_INFO_PLIST }}" | base64 --decode > ios/Runner/GoogleService-Info.plist
-
       - name: Configure environment
         run: echo "${{ secrets.ENVIRONMENT }}" | base64 --decode > .env
 
@@ -87,6 +86,16 @@ jobs:
         run: |
           flutter pub run build_runner build --delete-conflicting-outputs
           flutter gen-l10n
+
+      - name: Configure firebase
+        run: |
+          curl -sL https://firebase.tools | bash
+          dart pub global activate flutterfire_cli
+          flutterfire configure \
+            --project=where-i-m-at-app \
+            --platforms=ios \
+            --token=${{ secrets.FIREBASE_CI_TOKEN }} \
+            --yes
 
       - name: Build iOS
         run: flutter build ios --release --no-codesign --obfuscate --split-debug-info=build/ios/outputs/symbols --build-number=${{ github.run_number }}
@@ -103,13 +112,6 @@ jobs:
         with:
           name: ios-artifacts
           path: build/ios/iphoneos/app.ipa
-
-      - name: Upload iOS debug symbols
-        uses: actions/upload-artifact@v4
-        with:
-          name: ios-debug-symbols
-          path: build/ios/outputs/symbols
-          retention-days: 1
 
   create-release:
     name: Create Release
