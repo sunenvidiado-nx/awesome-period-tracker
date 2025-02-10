@@ -1,5 +1,7 @@
 {
   "@@locale": "en",
+  "periodReminderChannelName": "Period Reminders",
+  "periodReminderChannelDescription": "Notifications for upcoming periods",
   "pinVerification": "PIN Verification",
   "toGetStartedEnterTheDesignatedPin": "To get started, enter the designated PIN.",
   "todayDate": "Today, {date}",
@@ -111,5 +113,7 @@
   "incorrectPinError": "Incorrect PIN.",
   "firebaseGenericError": "An error occurred. Please try again later.",
   "dioGenericError": "An error occurred with the API. Please try again later.",
-  "insightsGenericError": "An error occurred while generating insights. Please try again later."
+  "insightsGenericError": "An error occurred while generating insights. Please try again later.",
+  "upcomingPeriodNotificationTitle": "Upcoming Period",
+  "upcomingPeriodNotificationBody": "Your next period is expected to start in one week"
 }

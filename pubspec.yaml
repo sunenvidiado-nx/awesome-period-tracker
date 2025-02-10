@@ -21,6 +21,7 @@ dependencies:
     sdk: flutter
   flutter_emoji: ^2.5.1
   flutter_keyboard_visibility_temp_fork: ^0.1.4
+  flutter_local_notifications: ^18.0.1
   flutter_localizations:
     sdk: flutter
   flutter_markdown: ^0.7.3
@@ -39,6 +40,7 @@ dependencies:
   pretty_dio_logger: ^1.4.0
   skeletonizer: ^1.4.2
   table_calendar: ^3.1.3
+  timezone: ^0.10.0
   very_simple_state_manager: ^1.3.0+1
 
 dev_dependencies:
@@ -49,6 +51,7 @@ dev_dependencies:
   flutter_native_splash: ^2.4.1
   flutter_test:
     sdk: flutter
+  icons_launcher: ^3.0.0
   injectable_generator: ^2.6.2
 
 flutter:
@@ -73,3 +76,15 @@ flutter_native_splash:
   android_12:
     color: "#FFF0F5"
     image: "assets/splash/app_icon.png"
+
+icons_launcher:
+  platforms:
+    android:
+      enable: true
+      image_path: "assets/images/ic_android.png"
+      adaptive_foreground_image: "assets/images/ic_android.png"
+      notification_image: "assets/images/ic_notification.png"
+      adaptive_background_color: "#FFF0F5"
+    ios:
+      enable: true
+      image_path: "assets/images/ic_ios.png"

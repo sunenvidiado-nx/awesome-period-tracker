@@ -36,6 +36,8 @@ class CycleEvent with CycleEventMappable {
         .toList();
   }
 
+  bool get isPeriod => type == CycleEventType.period;
+
   factory CycleEvent.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
     return CycleEventMapper.fromMap({

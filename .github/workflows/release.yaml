@@ -36,6 +36,7 @@ jobs:
             --project=awesome-period-tracker \
             --platforms=android \
             --token=${{ secrets.FIREBASE_CI_TOKEN }} \
+            --out=lib/config/environment/firebase_options.dart \
             --yes
 
       - name: Download dependencies
@@ -92,9 +93,10 @@ jobs:
           curl -sL https://firebase.tools | bash
           dart pub global activate flutterfire_cli
           flutterfire configure \
-            --project=where-i-m-at-app \
+            --project=awesome-period-tracker \
             --platforms=ios \
             --token=${{ secrets.FIREBASE_CI_TOKEN }} \
+            --out=lib/config/environment/firebase_options.dart \
             --yes
 
       - name: Build iOS

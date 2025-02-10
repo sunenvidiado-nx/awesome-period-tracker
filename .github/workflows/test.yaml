@@ -41,6 +41,7 @@ jobs:
             --project=awesome-period-tracker \
             --platforms=android \
             --token=${{ secrets.FIREBASE_CI_TOKEN }} \
+            --out=lib/config/environment/firebase_options.dart \
             --yes
 
       - name: Analyze
