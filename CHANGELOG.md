@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.8.0] - 2025-02-10
+
+### Added
+
+- Added push notifications to alert users before their next predicted period.
+
+### Changed
+
+- Improved AI insight accuracy and migrated to Gemini version 2.0-lite-flash for improved performance.
+
 ## [1.7.0] - 2025-01-16
 
 ### Changed
