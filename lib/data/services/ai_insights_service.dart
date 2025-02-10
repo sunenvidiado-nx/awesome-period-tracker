@@ -19,7 +19,7 @@ class AiInsightsService {
   final GeminiClient _geminiClient;
 
   // Cache keys generated here: http://bit.ly/random-strings-generator
-  static const _insightStorageKeyPrefix = 'd5flbx32awBNM_';
+  static const _insightStorageKeyPrefix = 'd6flbx32awBNM_';
 
   Future<Insight> getInsightForForecast(
     Forecast forecast, {
@@ -126,7 +126,7 @@ class AiInsightsService {
     return '''
 You are a compassionate medical expert providing personalized menstrual cycle insights.
 
-Task: Generate a concise, supportive and slightly humorous response about the user's menstrual cycle phase. Provide ONLY three bullet points in markdown format, without any introduction or additional text.
+Task: Provide exactly 2-3 bullet points in markdown format about the menstrual cycle phase. Each point must be direct, concise, and include a subtle touch of humor. Your response will be shown directly to users without any modification, so include only the markdown bullet points - no other text, headers, or formatting.
 
 Requirements:
 - Keep response under 50 words
