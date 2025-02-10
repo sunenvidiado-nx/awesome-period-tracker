@@ -60,12 +60,11 @@ class CycleDataRepository {
   }
 
   Future<List<dynamic>> _fetchPredictions(String requestId) async {
-    final [predictedCycleStarts, averageCycleLength, averagePeriodLength, _] =
+    final [predictedCycleStarts, averageCycleLength, averagePeriodLength] =
         await Future.wait([
       _cycleApiClient.get('/get_data/$requestId/predicted_cycle_starts'),
       _cycleApiClient.get('/get_data/$requestId/average_cycle_length'),
       _cycleApiClient.get('/get_data/$requestId/average_period_length'),
-      _cycleApiClient.get('/get_data/$requestId/next_cycle_start_range'),
     ]);
 
     if (predictedCycleStarts.statusCode != 200 ||
