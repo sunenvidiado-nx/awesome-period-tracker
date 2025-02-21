@@ -1,4 +1,4 @@
-part of 'home_state_manager.dart';
+part of 'home_cubit.dart';
 
 @MappableClass()
 class HomeState with HomeStateMappable {

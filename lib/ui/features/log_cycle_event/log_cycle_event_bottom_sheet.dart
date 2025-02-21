@@ -2,7 +2,7 @@ import 'package:animations/animations.dart';
 import 'package:awesome_period_tracker/domain/models/cycle_event.dart';
 import 'package:awesome_period_tracker/domain/models/cycle_event_type.dart';
 import 'package:awesome_period_tracker/domain/models/log_event_step.dart';
-import 'package:awesome_period_tracker/ui/features/log_cycle_event/log_cycle_event_state_manager.dart';
+import 'package:awesome_period_tracker/ui/features/log_cycle_event/log_cycle_event_cubit.dart';
 import 'package:awesome_period_tracker/ui/features/log_cycle_event/widgets/add_new_symptom_step.dart';
 import 'package:awesome_period_tracker/ui/features/log_cycle_event/widgets/intimacy_step.dart';
 import 'package:awesome_period_tracker/ui/features/log_cycle_event/widgets/period_flow_step.dart';
@@ -10,15 +10,14 @@ import 'package:awesome_period_tracker/ui/features/log_cycle_event/widgets/sympt
 import 'package:awesome_period_tracker/utils/extensions/build_context_extensions.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
-import 'package:very_simple_state_manager/very_simple_state_manager.dart';
 
 class LogCycleEventBottomSheet extends StatefulWidget {
-  const LogCycleEventBottomSheet({
+  const LogCycleEventBottomSheet._({
     required this.date,
     required this.step,
     required this.cycleEventsForDate,
-    super.key,
   });
 
   final DateTime date;
@@ -38,10 +37,13 @@ class LogCycleEventBottomSheet extends StatefulWidget {
       barrierColor: context.colorScheme.shadow.withAlpha(140),
       builder: (context) => Padding(
         padding: MediaQuery.of(context).viewInsets,
-        child: LogCycleEventBottomSheet(
-          date: date,
-          step: step,
-          cycleEventsForDate: cycleEventsForDate,
+        child: BlocProvider(
+          create: (_) => GetIt.I<LogCycleEventCubit>(),
+          child: LogCycleEventBottomSheet._(
+            date: date,
+            step: step,
+            cycleEventsForDate: cycleEventsForDate,
+          ),
         ),
       ),
     );
@@ -52,27 +54,20 @@ class LogCycleEventBottomSheet extends StatefulWidget {
 }
 
 class _LogCycleEventBottomSheetState extends State<LogCycleEventBottomSheet> {
-  final _stateManager = GetIt.I<LogCycleEventStateManager>();
+  late final _cubit = context.read<LogCycleEventCubit>();
 
   @override
   void initState() {
     super.initState();
 
-    _stateManager
+    _cubit
       ..setDate(widget.date)
       ..setStep(widget.step);
   }
 
   @override
-  void dispose() {
-    _stateManager.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return StateBuilder(
-      stateManager: _stateManager,
+    return BlocBuilder<LogCycleEventCubit, LogCycleEventState>(
       builder: (context, state) {
         final height =
             MediaQuery.of(context).size.height * state.step.heightFactor;
@@ -125,25 +120,21 @@ class _LogCycleEventBottomSheetState extends State<LogCycleEventBottomSheet> {
         },
         child: switch (step) {
           LogEventStep.periodFlow => PeriodFlowStep(
-              stateManager: _stateManager,
               periodEvent: widget.cycleEventsForDate.firstWhereOrNull(
                 (e) => e.type == CycleEventType.period && !e.isPrediction,
               ),
             ),
           LogEventStep.symptoms => SymptomsStep(
-              stateManager: _stateManager,
               symptomEvent: widget.cycleEventsForDate.firstWhereOrNull(
                 (e) => e.type == CycleEventType.symptoms,
               ),
             ),
           LogEventStep.intimacy => IntimacyStep(
-              stateManager: _stateManager,
               intimacyEvent: widget.cycleEventsForDate.firstWhereOrNull(
                 (e) => e.type == CycleEventType.intimacy && !e.isPrediction,
               ),
             ),
-          LogEventStep.addNewSymptom =>
-            AddNewSymptomStep(stateManager: _stateManager),
+          LogEventStep.addNewSymptom => const AddNewSymptomStep(),
         },
       ),
     );

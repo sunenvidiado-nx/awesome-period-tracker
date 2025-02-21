@@ -5,15 +5,15 @@ import 'package:awesome_period_tracker/domain/models/forecast.dart';
 import 'package:awesome_period_tracker/domain/models/insight.dart';
 import 'package:awesome_period_tracker/utils/extensions/date_time_extensions.dart';
 import 'package:dart_mappable/dart_mappable.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
-import 'package:very_simple_state_manager/very_simple_state_manager.dart';
 
 part 'home_state.dart';
-part 'home_state_manager.mapper.dart';
+part 'home_cubit.mapper.dart';
 
 @injectable
-class HomeStateManager extends StateManager<HomeState> {
-  HomeStateManager(
+class HomeCubit extends Cubit<HomeState> {
+  HomeCubit(
     this._cycleEventsRepository,
     this._forecastService,
     this._insightsService,
@@ -30,7 +30,7 @@ class HomeStateManager extends StateManager<HomeState> {
     try {
       date ??= DateTime.now().withoutTime();
 
-      state = state.copyWith(isLoading: true, selectedDate: date);
+      emit(state.copyWith(isLoading: true, selectedDate: date));
 
       final events = await _cycleEventsRepository.get();
 
@@ -43,11 +43,11 @@ class HomeStateManager extends StateManager<HomeState> {
         isPast: date.isBefore(DateTime.now()),
       );
 
-      state = state.copyWith(forecast: forecast, insight: insight);
+      emit(state.copyWith(forecast: forecast, insight: insight));
     } on Exception catch (error) {
-      state = state.copyWith(error: error);
+      emit(state.copyWith(error: error));
     } finally {
-      state = state.copyWith(isLoading: false);
+      emit(state.copyWith(isLoading: false));
     }
   }
 }

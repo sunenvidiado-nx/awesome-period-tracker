@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:awesome_period_tracker/config/di_keys.dart';
 import 'package:awesome_period_tracker/domain/models/api_prediction.dart';
 import 'package:awesome_period_tracker/domain/models/cycle_event.dart';
 import 'package:awesome_period_tracker/domain/models/cycle_event_type.dart';
@@ -13,7 +14,7 @@ import 'package:injectable/injectable.dart';
 class CycleDataRepository {
   const CycleDataRepository(
     this._secureStorage,
-    @Named('cycle_api_client') this._cycleApiClient,
+    @Named(DiKeys.cycleApiClientKey) this._cycleApiClient,
   );
 
   final FlutterSecureStorage _secureStorage;
@@ -123,7 +124,12 @@ class CycleDataRepository {
       'cycle_start_date':
           currentGroup.first.date.toIso8601String().split('T')[0],
       'period_length':
-          currentGroup.last.date.difference(currentGroup.first.date).inDays,
+          // If the period is less than 5 days, set it to 5 days to avoid errors
+          currentGroup.last.date.difference(currentGroup.first.date).inDays < 5
+              ? 5
+              : currentGroup.last.date
+                  .difference(currentGroup.first.date)
+                  .inDays,
     };
   }
 

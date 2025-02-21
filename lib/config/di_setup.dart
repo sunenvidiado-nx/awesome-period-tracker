@@ -7,7 +7,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
 import 'package:injectable/injectable.dart';
 
-import 'dependency_injection.config.dart';
+import 'di_setup.config.dart';
 
 @InjectableInit()
 Future<void> configureDependencies() async => GetIt.I.init();

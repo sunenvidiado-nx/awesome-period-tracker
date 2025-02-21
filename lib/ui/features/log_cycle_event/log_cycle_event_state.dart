@@ -1,4 +1,4 @@
-part of 'log_cycle_event_state_manager.dart';
+part of 'log_cycle_event_cubit.dart';
 
 @MappableClass()
 class LogCycleEventState with LogCycleEventStateMappable {

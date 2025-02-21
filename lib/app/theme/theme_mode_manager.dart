@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:injectable/injectable.dart';
-import 'package:very_simple_state_manager/very_simple_state_manager.dart';
 
 @singleton
-class ThemeModeManager extends StateManager<ThemeMode> {
-  ThemeModeManager(this._secureStorage) : super(ThemeMode.light);
+class ThemeModeCubit extends Cubit<ThemeMode> {
+  ThemeModeCubit(this._secureStorage) : super(ThemeMode.light);
 
   final FlutterSecureStorage _secureStorage;
 
@@ -15,18 +15,16 @@ class ThemeModeManager extends StateManager<ThemeMode> {
   Future<void> initialize() async {
     final isDarkStr = await _secureStorage.read(key: _prefsKey);
     final isDark = isDarkStr == 'true';
-    state = isDark ? ThemeMode.dark : ThemeMode.light;
+    emit(isDark ? ThemeMode.dark : ThemeMode.light);
   }
 
   Future<void> toggleTheme() async {
     final newIsDark = state != ThemeMode.dark;
     await _secureStorage.write(key: _prefsKey, value: newIsDark.toString());
-    state = newIsDark ? ThemeMode.dark : ThemeMode.light;
+    emit(newIsDark ? ThemeMode.dark : ThemeMode.light);
   }
 
   @disposeMethod // Annotated so `get_it` can dispose this properly
   @override
-  void dispose() {
-    super.dispose();
-  }
+  Future<void> close() async => super.close();
 }

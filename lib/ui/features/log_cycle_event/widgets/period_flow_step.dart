@@ -4,18 +4,14 @@ import 'package:awesome_period_tracker/ui/common_widgets/app_loader/app_loader.d
 import 'package:awesome_period_tracker/ui/common_widgets/cards/app_card.dart';
 import 'package:awesome_period_tracker/ui/common_widgets/shadow/app_shadow.dart';
 import 'package:awesome_period_tracker/ui/common_widgets/snackbars/app_snackbar.dart';
-import 'package:awesome_period_tracker/ui/features/log_cycle_event/log_cycle_event_state_manager.dart';
+import 'package:awesome_period_tracker/ui/features/log_cycle_event/log_cycle_event_cubit.dart';
 import 'package:awesome_period_tracker/utils/extensions/build_context_extensions.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class PeriodFlowStep extends StatefulWidget {
-  const PeriodFlowStep({
-    required this.stateManager,
-    this.periodEvent,
-    super.key,
-  });
+  const PeriodFlowStep({this.periodEvent, super.key});
 
-  final LogCycleEventStateManager stateManager;
   final CycleEvent? periodEvent;
 
   @override
@@ -23,6 +19,8 @@ class PeriodFlowStep extends StatefulWidget {
 }
 
 class _PeriodFlowStepState extends State<PeriodFlowStep> {
+  late final _cubit = context.read<LogCycleEventCubit>();
+
   var _selectedFlow = PeriodFlow.light;
   var _isSubmitting = false;
 
@@ -99,12 +97,7 @@ class _PeriodFlowStepState extends State<PeriodFlowStep> {
         foregroundColor: context.colorScheme.error,
         elevation: 0,
       ),
-      onPressed: _isSubmitting
-          ? null
-          : () {
-              setState(() => _selectedFlow = PeriodFlow.noFlow);
-              _onSubmit();
-            },
+      onPressed: _isSubmitting ? null : () => _onSubmit(isDeleting: true),
       child: _isSubmitting
           ? const AppLoader(size: 30)
           : Row(
@@ -133,11 +126,17 @@ class _PeriodFlowStepState extends State<PeriodFlowStep> {
     );
   }
 
-  Future<void> _onSubmit() async {
+  Future<void> _onSubmit({bool? isDeleting}) async {
     try {
       setState(() => _isSubmitting = true);
-      await widget.stateManager.logPeriod(_selectedFlow);
-      widget.stateManager.clearCachedInsights();
+
+      if (isDeleting == true) {
+        await _cubit.removeEvent(widget.periodEvent!);
+      } else {
+        await _cubit.logPeriod(_selectedFlow);
+      }
+      // await _cubit.removeEvent(widget.periodEvent!);
+      _cubit.clearCache();
       context
         ..showSnackbar(context.l10n.cycleEventLoggedSuccessfully)
         ..popNavigator(true);

@@ -3,7 +3,7 @@ import 'package:awesome_period_tracker/domain/models/log_event_step.dart';
 import 'package:awesome_period_tracker/domain/models/menstruation_phase.dart';
 import 'package:awesome_period_tracker/ui/common_widgets/app_loader/app_shimmer.dart';
 import 'package:awesome_period_tracker/ui/common_widgets/cards/app_card.dart';
-import 'package:awesome_period_tracker/ui/features/home/home_state_manager.dart';
+import 'package:awesome_period_tracker/ui/features/home/home_cubit.dart';
 import 'package:awesome_period_tracker/ui/features/log_cycle_event/log_cycle_event_bottom_sheet.dart';
 import 'package:awesome_period_tracker/utils/extensions/build_context_extensions.dart';
 import 'package:awesome_period_tracker/utils/extensions/color_extensions.dart';
@@ -11,18 +11,15 @@ import 'package:awesome_period_tracker/utils/extensions/exception_extensions.dar
 import 'package:awesome_period_tracker/utils/extensions/string_extensions.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:skeletonizer/skeletonizer.dart';
-import 'package:very_simple_state_manager/very_simple_state_manager.dart';
 
 class InfoCards extends StatelessWidget {
-  const InfoCards(this._stateManager, {super.key});
-
-  final HomeStateManager _stateManager;
+  const InfoCards({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return StateBuilder(
-      stateManager: _stateManager,
+    return BlocBuilder<HomeCubit, HomeState>(
       builder: (context, state) {
         final forecast = state.forecast;
 
@@ -106,7 +103,9 @@ class InfoCards extends StatelessWidget {
                         );
 
                         if (shouldRefreshHome == true) {
-                          _stateManager.initialize(date: state.selectedDate);
+                          context
+                              .read<HomeCubit>()
+                              .initialize(date: state.selectedDate);
                         }
                       },
                     ),
@@ -178,7 +177,9 @@ class InfoCards extends StatelessWidget {
                         );
 
                         if (shouldRefreshHome == true) {
-                          _stateManager.initialize(date: state.selectedDate);
+                          context
+                              .read<HomeCubit>()
+                              .initialize(date: state.selectedDate);
                         }
                       },
                     ),

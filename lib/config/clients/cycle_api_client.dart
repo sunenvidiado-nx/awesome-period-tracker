@@ -1,3 +1,4 @@
+import 'package:awesome_period_tracker/config/di_keys.dart';
 import 'package:awesome_period_tracker/config/environment/env.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
@@ -7,7 +8,7 @@ import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 @module
 abstract class CycleApiClient {
   @factoryMethod
-  @Named('cycle_api_client')
+  @Named(DiKeys.cycleApiClientKey)
   Dio createInstance(Env env) {
     final headers = {
       'X-RapidAPI-Key': env.cyclePhaseApiKey,

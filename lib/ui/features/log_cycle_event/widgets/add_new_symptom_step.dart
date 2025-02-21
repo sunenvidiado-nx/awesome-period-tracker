@@ -2,23 +2,21 @@ import 'package:awesome_period_tracker/domain/models/log_event_step.dart';
 import 'package:awesome_period_tracker/ui/common_widgets/app_loader/app_loader.dart';
 import 'package:awesome_period_tracker/ui/common_widgets/buttons/app_back_button.dart';
 import 'package:awesome_period_tracker/ui/common_widgets/shadow/app_shadow.dart';
-import 'package:awesome_period_tracker/ui/features/log_cycle_event/log_cycle_event_state_manager.dart';
+import 'package:awesome_period_tracker/ui/features/log_cycle_event/log_cycle_event_cubit.dart';
 import 'package:awesome_period_tracker/utils/extensions/build_context_extensions.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class AddNewSymptomStep extends StatefulWidget {
-  const AddNewSymptomStep({
-    required this.stateManager,
-    super.key,
-  });
-
-  final LogCycleEventStateManager stateManager;
+  const AddNewSymptomStep({super.key});
 
   @override
   State<AddNewSymptomStep> createState() => _AddNewSymptomStepState();
 }
 
 class _AddNewSymptomStepState extends State<AddNewSymptomStep> {
+  late final _cubit = context.read<LogCycleEventCubit>();
+
   final _formKey = GlobalKey<FormState>();
   final _symptomController = TextEditingController();
 
@@ -62,7 +60,7 @@ class _AddNewSymptomStepState extends State<AddNewSymptomStep> {
 
   Widget _buildBackButton() {
     return AppBackButton(
-      onPressed: () => widget.stateManager.setStep(LogEventStep.symptoms),
+      onPressed: () => _cubit.setStep(LogEventStep.symptoms),
     );
   }
 
@@ -94,8 +92,8 @@ class _AddNewSymptomStepState extends State<AddNewSymptomStep> {
   Future<void> _onSubmit() async {
     try {
       setState(() => _isSubmitting = true);
-      await widget.stateManager.createSymptom(_symptomController.text);
-      widget.stateManager.setStep(LogEventStep.symptoms);
+      await _cubit.createSymptom(_symptomController.text);
+      _cubit.setStep(LogEventStep.symptoms);
     } catch (e) {
       // TODO Implement
     } finally {

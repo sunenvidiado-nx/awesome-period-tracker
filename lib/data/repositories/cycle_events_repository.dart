@@ -64,6 +64,17 @@ class CycleEventsRepository {
     await _collection.add(updatedCycleEvent.toFirestore());
   }
 
+  Future<void> createMultiple(List<CycleEvent> cycleEvents) async {
+    final batch = _firestore.batch();
+    for (final cycleEvent in cycleEvents) {
+      final updatedCycleEvent =
+          cycleEvent.copyWith(date: cycleEvent.date.withoutTime());
+      final docRef = _collection.doc();
+      batch.set(docRef, updatedCycleEvent.toFirestore());
+    }
+    await batch.commit();
+  }
+
   Future<void> update(CycleEvent cycleEvent) async {
     final updatedCycleEvent =
         cycleEvent.copyWith(date: cycleEvent.date.withoutTime());
@@ -74,6 +85,24 @@ class CycleEventsRepository {
   }
 
   Future<void> delete(CycleEvent cycleEvent) async {
-    await _collection.doc(cycleEvent.id).delete();
+    if (cycleEvent.id == null) {
+      throw Exception('Cannot delete cycle event: ID is null');
+    }
+
+    final docRef = _collection.doc(cycleEvent.id);
+    
+    // Check if document exists before deletion
+    final doc = await docRef.get();
+    if (!doc.exists) {
+      throw Exception('Cannot delete cycle event: Document not found');
+    }
+
+    await docRef.delete();
+
+    // Verify deletion
+    final verifyDoc = await docRef.get();
+    if (verifyDoc.exists) {
+      throw Exception('Failed to delete cycle event: Document still exists');
+    }
   }
 }

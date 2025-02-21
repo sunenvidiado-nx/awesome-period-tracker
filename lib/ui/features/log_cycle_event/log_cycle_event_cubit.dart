@@ -10,16 +10,16 @@ import 'package:awesome_period_tracker/utils/extensions/date_time_extensions.dar
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:collection/collection.dart';
 import 'package:dart_mappable/dart_mappable.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import 'package:table_calendar/table_calendar.dart';
-import 'package:very_simple_state_manager/very_simple_state_manager.dart';
 
 part 'log_cycle_event_state.dart';
-part 'log_cycle_event_state_manager.mapper.dart';
+part 'log_cycle_event_cubit.mapper.dart';
 
 @injectable
-class LogCycleEventStateManager extends StateManager<LogCycleEventState> {
-  LogCycleEventStateManager(
+class LogCycleEventCubit extends Cubit<LogCycleEventState> {
+  LogCycleEventCubit(
     this._cycleEventsRepository,
     this._authRepository,
     this._symptomsRepository,
@@ -30,53 +30,57 @@ class LogCycleEventStateManager extends StateManager<LogCycleEventState> {
   final SymptomsRepository _symptomsRepository;
 
   void setStep(LogEventStep step) {
-    state = state.copyWith(step: step);
+    emit(state.copyWith(step: step));
   }
 
   void setDate(DateTime date) {
-    state = state.copyWith(date: date);
+    emit(state.copyWith(date: date));
   }
 
   Future<void> createSymptom(String symptom) async {
     try {
-      state = state.copyWith(isLoadingSymptoms: true);
+      emit(state.copyWith(isLoadingSymptoms: true));
       await _symptomsRepository.create(symptom);
     } catch (e) {
       // TODO Handle error
     } finally {
-      state = state.copyWith(isLoadingSymptoms: false);
+      emit(state.copyWith(isLoadingSymptoms: false));
     }
   }
 
-  Future<void> clearCachedInsights() async {
+  Future<void> clearCache() async {
     await _authRepository.clearUserCache();
   }
 
   /// Call this when the user wants to log symptoms.
   Future<void> loadSymptoms(String joinedSelectedSymptoms) async {
     try {
-      state = state.copyWith(isLoadingSymptoms: true);
+      emit(state.copyWith(isLoadingSymptoms: true));
 
       final selectedSymptoms =
           joinedSelectedSymptoms.split(Strings.symptomSeparator);
       final symptoms = await _symptomsRepository.get();
 
-      state = state.copyWith(
-        selectedSymptoms: selectedSymptoms,
-        symptoms: symptoms,
+      emit(
+        state.copyWith(
+          selectedSymptoms: selectedSymptoms,
+          symptoms: symptoms,
+        ),
       );
     } catch (e) {
       // TODO Handle error
     } finally {
-      state = state.copyWith(isLoadingSymptoms: false);
+      emit(state.copyWith(isLoadingSymptoms: false));
     }
   }
 
   void toggleSymptom(String symptom) {
-    state = state.copyWith(
-      selectedSymptoms: state.selectedSymptoms.contains(symptom)
-          ? state.selectedSymptoms.where((s) => s != symptom).toList()
-          : [...state.selectedSymptoms, symptom],
+    emit(
+      state.copyWith(
+        selectedSymptoms: state.selectedSymptoms.contains(symptom)
+            ? state.selectedSymptoms.where((s) => s != symptom).toList()
+            : [...state.selectedSymptoms, symptom],
+      ),
     );
   }
 
@@ -96,19 +100,12 @@ class LogCycleEventStateManager extends StateManager<LogCycleEventState> {
 
     // If there were no period dates in the last 5 days and the user is logging a period
     // we need to create period events for the next 5 days
-    final futures = <Future<void>>[];
+    final periodEvents = List.generate(
+      defaultPeriodDaysLength,
+      (index) => currentDate.add(Duration(days: index)),
+    );
 
-    for (var i = 1; i <= (defaultPeriodDaysLength + 1); i++) {
-      futures.add(
-        _createOrUpdateEventByType(
-          CycleEventType.period,
-          flow.name,
-          fiveDaysBefore.add(Duration(days: i)),
-        ),
-      );
-    }
-
-    await Future.wait(futures);
+    await _createPeriodEvents(periodEvents, flow: flow);
   }
 
   Future<void> logSymptoms(
@@ -116,7 +113,7 @@ class LogCycleEventStateManager extends StateManager<LogCycleEventState> {
     String? addtionalInfo,
   ]) async {
     try {
-      state = state.copyWith(isLoading: true);
+      emit(state.copyWith(isLoading: true));
 
       symptoms = symptoms.where((s) => s.isNotEmpty).toList();
 
@@ -140,13 +137,13 @@ class LogCycleEventStateManager extends StateManager<LogCycleEventState> {
     } catch (e) {
       // TODO Handle error
     } finally {
-      state = state.copyWith(isLoading: false);
+      emit(state.copyWith(isLoading: false));
     }
   }
 
   Future<void> logIntimacy(bool didUseProtection) async {
     try {
-      state = state.copyWith(isLoading: true);
+      emit(state.copyWith(isLoading: true));
 
       await _createOrUpdateEventByType(
         CycleEventType.intimacy,
@@ -155,19 +152,35 @@ class LogCycleEventStateManager extends StateManager<LogCycleEventState> {
     } catch (e) {
       // TODO Handle error
     } finally {
-      state = state.copyWith(isLoading: false);
+      emit(state.copyWith(isLoading: false));
     }
   }
 
   Future<void> removeEvent(CycleEvent event) async {
     try {
-      state = state.copyWith(isLoading: true);
+      emit(state.copyWith(isLoading: true));
       await _cycleEventsRepository.delete(event);
     } catch (e) {
       // TODO Handle error
     } finally {
-      state = state.copyWith(isLoading: false);
+      emit(state.copyWith(isLoading: false));
     }
+  }
+
+  Future<void> _createPeriodEvents(
+    List<DateTime> dates, {
+    PeriodFlow? flow,
+  }) async {
+    final periodEvents = List.generate(
+      dates.length,
+      (index) => CycleEvent(
+        date: dates[index],
+        type: CycleEventType.period,
+        additionalData: (flow ?? PeriodFlow.light).name,
+        createdBy: _authRepository.getCurrentUser()!.uid,
+      ),
+    );
+    await _cycleEventsRepository.createMultiple(periodEvents);
   }
 
   Future<void> _createOrUpdateEventByType(

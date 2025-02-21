@@ -3,18 +3,14 @@ import 'package:awesome_period_tracker/ui/common_widgets/app_loader/app_loader.d
 import 'package:awesome_period_tracker/ui/common_widgets/cards/app_card.dart';
 import 'package:awesome_period_tracker/ui/common_widgets/shadow/app_shadow.dart';
 import 'package:awesome_period_tracker/ui/common_widgets/snackbars/app_snackbar.dart';
-import 'package:awesome_period_tracker/ui/features/log_cycle_event/log_cycle_event_state_manager.dart';
+import 'package:awesome_period_tracker/ui/features/log_cycle_event/log_cycle_event_cubit.dart';
 import 'package:awesome_period_tracker/utils/extensions/build_context_extensions.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class IntimacyStep extends StatefulWidget {
-  const IntimacyStep({
-    required this.stateManager,
-    this.intimacyEvent,
-    super.key,
-  });
+  const IntimacyStep({this.intimacyEvent, super.key});
 
-  final LogCycleEventStateManager stateManager;
   final CycleEvent? intimacyEvent;
 
   @override
@@ -22,6 +18,8 @@ class IntimacyStep extends StatefulWidget {
 }
 
 class _IntimacyStepState extends State<IntimacyStep> {
+  late final _cubit = context.read<LogCycleEventCubit>();
+
   var _didUseProtection = true;
   var _isSubmitting = false;
 
@@ -122,10 +120,9 @@ class _IntimacyStepState extends State<IntimacyStep> {
     setState(() => _isSubmitting = true);
 
     try {
-      await widget.stateManager.logIntimacy(_didUseProtection).then(
+      await _cubit.logIntimacy(_didUseProtection).then(
         (_) {
-          widget.stateManager.clearCachedInsights();
-
+          _cubit.clearCache();
           context
             ..showSnackbar(context.l10n.cycleEventLoggedSuccessfully)
             ..popNavigator(true);
@@ -144,8 +141,8 @@ class _IntimacyStepState extends State<IntimacyStep> {
 
     try {
       setState(() => _isSubmitting = true);
-      await widget.stateManager.removeEvent(widget.intimacyEvent!);
-      widget.stateManager.clearCachedInsights();
+      await _cubit.removeEvent(widget.intimacyEvent!);
+      _cubit.clearCache();
       context
         ..showSnackbar(context.l10n.cycleEventLoggedSuccessfully)
         ..popNavigator(true);

@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:awesome_period_tracker/app/app.dart';
 import 'package:awesome_period_tracker/app/theme/app_colors.dart';
-import 'package:awesome_period_tracker/config/dependency_injection.dart';
+import 'package:awesome_period_tracker/config/di_setup.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';

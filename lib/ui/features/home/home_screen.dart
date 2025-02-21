@@ -1,7 +1,7 @@
 import 'package:awesome_period_tracker/app/theme/app_assets.dart';
 import 'package:awesome_period_tracker/app/theme/theme_mode_manager.dart';
 import 'package:awesome_period_tracker/ui/common_widgets/cards/app_card.dart';
-import 'package:awesome_period_tracker/ui/features/home/home_state_manager.dart';
+import 'package:awesome_period_tracker/ui/features/home/home_cubit.dart';
 import 'package:awesome_period_tracker/ui/features/home/widgets/calendar.dart';
 import 'package:awesome_period_tracker/ui/features/home/widgets/cycle_insights.dart';
 import 'package:awesome_period_tracker/ui/features/home/widgets/info_cards.dart';
@@ -9,9 +9,9 @@ import 'package:awesome_period_tracker/ui/features/home/widgets/symptoms_section
 import 'package:awesome_period_tracker/utils/extensions/build_context_extensions.dart';
 import 'package:awesome_period_tracker/utils/extensions/date_time_extensions.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get_it/get_it.dart';
-import 'package:very_simple_state_manager/very_simple_state_manager.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -21,7 +21,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  late HomeStateManager _stateManager;
+  late final _cubit = context.read<HomeCubit>();
 
   /// Set to `true` to show theme switcher in app bar.
   final _showThemeSwitcher = false;
@@ -29,20 +29,14 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    _stateManager = GetIt.I()..initialize();
-  }
-
-  @override
-  void dispose() {
-    _stateManager.dispose();
-    super.dispose();
+    _cubit.initialize();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: RefreshIndicator(
-        onRefresh: () async => _stateManager.initialize(),
+        onRefresh: _cubit.initialize,
         child: CustomScrollView(
           slivers: [
             _buildAppBar(),
@@ -76,14 +70,13 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildBackToTodayButton() {
-    return StateBuilder(
-      stateManager: _stateManager,
+    return BlocBuilder<HomeCubit, HomeState>(
       builder: (context, state) => AnimatedSwitcher(
         duration: const Duration(milliseconds: 450),
         child: state.selectedDate.isToday
             ? const SizedBox.shrink()
             : TextButton(
-                onPressed: _stateManager.initialize,
+                onPressed: _cubit.initialize,
                 style: TextButton.styleFrom(
                   padding: const EdgeInsets.only(top: 12),
                 ),
@@ -99,8 +92,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildThemeModeSwitcher() {
-    return StateBuilder(
-      stateManager: GetIt.I<ThemeModeManager>(),
+    return BlocBuilder<ThemeModeCubit, ThemeMode>(
       builder: (context, state) => AnimatedSwitcher(
         duration: const Duration(milliseconds: 450),
         child: Padding(
@@ -112,7 +104,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   : Icons.brightness_4_rounded,
               color: context.colorScheme.onSurface.withAlpha(153),
             ),
-            onPressed: GetIt.I<ThemeModeManager>().toggleTheme,
+            onPressed: GetIt.I<ThemeModeCubit>().toggleTheme,
           ),
         ),
       ),
@@ -124,10 +116,9 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Padding(
         padding: const EdgeInsets.fromLTRB(8, 12, 8, 0),
         child: AppCard(
-          child: StateBuilder(
-            stateManager: _stateManager,
+          child: BlocBuilder<HomeCubit, HomeState>(
             builder: (context, state) => Calendar(
-              onDaySelected: (date, _) => _stateManager.initialize(date: date),
+              onDaySelected: (date, _) => _cubit.initialize(date: date),
               selectedDate: state.selectedDate,
               cycleEvents: state.forecast?.events ?? [],
             ),
@@ -138,28 +129,28 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildCardsSection() {
-    return SliverToBoxAdapter(
+    return const SliverToBoxAdapter(
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(8, 16, 8, 0),
-        child: InfoCards(_stateManager),
+        padding: EdgeInsets.fromLTRB(8, 16, 8, 0),
+        child: InfoCards(),
       ),
     );
   }
 
   Widget _buildSymptoms() {
-    return SliverToBoxAdapter(
+    return const SliverToBoxAdapter(
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(8, 14, 8, 0),
-        child: SymptomsSection(_stateManager),
+        padding: EdgeInsets.fromLTRB(8, 14, 8, 0),
+        child: SymptomsSection(),
       ),
     );
   }
 
   Widget _buildCycleInsightsSection() {
-    return SliverToBoxAdapter(
+    return const SliverToBoxAdapter(
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(8, 18, 8, 0),
-        child: CycleInsights(_stateManager),
+        padding: EdgeInsets.fromLTRB(8, 18, 8, 0),
+        child: CycleInsights(),
       ),
     );
   }

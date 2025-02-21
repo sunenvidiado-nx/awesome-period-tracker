@@ -3,20 +3,15 @@ import 'package:awesome_period_tracker/domain/models/log_event_step.dart';
 import 'package:awesome_period_tracker/ui/common_widgets/app_loader/app_loader.dart';
 import 'package:awesome_period_tracker/ui/common_widgets/shadow/app_shadow.dart';
 import 'package:awesome_period_tracker/ui/common_widgets/snackbars/app_snackbar.dart';
-import 'package:awesome_period_tracker/ui/features/log_cycle_event/log_cycle_event_state_manager.dart';
+import 'package:awesome_period_tracker/ui/features/log_cycle_event/log_cycle_event_cubit.dart';
 import 'package:awesome_period_tracker/utils/extensions/build_context_extensions.dart';
 import 'package:awesome_period_tracker/utils/extensions/string_extensions.dart';
 import 'package:flutter/material.dart';
-import 'package:very_simple_state_manager/very_simple_state_manager.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SymptomsStep extends StatefulWidget {
-  const SymptomsStep({
-    required this.stateManager,
-    this.symptomEvent,
-    super.key,
-  });
+  const SymptomsStep({this.symptomEvent, super.key});
 
-  final LogCycleEventStateManager stateManager;
   final CycleEvent? symptomEvent;
 
   @override
@@ -24,15 +19,14 @@ class SymptomsStep extends StatefulWidget {
 }
 
 class _SymptomsStepState extends State<SymptomsStep> {
+  late final _cubit = context.read<LogCycleEventCubit>();
   var _isSubmitting = false;
 
   @override
   void initState() {
     super.initState();
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      widget.stateManager
-          .loadSymptoms(widget.symptomEvent?.additionalData ?? '');
+      _cubit.loadSymptoms(widget.symptomEvent?.additionalData ?? '');
     });
   }
 
@@ -59,8 +53,7 @@ class _SymptomsStepState extends State<SymptomsStep> {
   }
 
   Widget _buildSymptoms() {
-    return StateBuilder(
-      stateManager: widget.stateManager,
+    return BlocBuilder<LogCycleEventCubit, LogCycleEventState>(
       builder: (context, state) {
         return AnimatedSwitcher(
           duration: const Duration(milliseconds: 250),
@@ -87,11 +80,10 @@ class _SymptomsStepState extends State<SymptomsStep> {
             _buildChip(
               symptom,
               selected.contains(symptom),
-              () => widget.stateManager.toggleSymptom(symptom),
+              () => _cubit.toggleSymptom(symptom),
             ),
           InkWell(
-            onTap: () =>
-                widget.stateManager.setStep(LogEventStep.addNewSymptom),
+            onTap: () => _cubit.setStep(LogEventStep.addNewSymptom),
             child: AppShadow(
               shadowColor: context.colorScheme.shadow.withAlpha(15),
               child: Container(
@@ -168,8 +160,7 @@ class _SymptomsStepState extends State<SymptomsStep> {
 
   Widget _buildSubmitButton() {
     return AppShadow(
-      child: StateBuilder(
-        stateManager: widget.stateManager,
+      child: BlocBuilder<LogCycleEventCubit, LogCycleEventState>(
         builder: (context, state) {
           return ElevatedButton(
             onPressed: _isSubmitting && state.selectedSymptoms.isEmpty
@@ -187,8 +178,8 @@ class _SymptomsStepState extends State<SymptomsStep> {
   Future<void> _onSubmit(List<String> selectedSymptoms) async {
     try {
       setState(() => _isSubmitting = true);
-      await widget.stateManager.logSymptoms(selectedSymptoms);
-      widget.stateManager.clearCachedInsights();
+      await _cubit.logSymptoms(selectedSymptoms);
+      _cubit.clearCache();
       context
         ..showSnackbar(context.l10n.cycleEventLoggedSuccessfully)
         ..popNavigator(true);
