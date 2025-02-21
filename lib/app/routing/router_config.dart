@@ -1,7 +1,7 @@
 import 'package:awesome_period_tracker/app/routing/routes.dart';
 import 'package:awesome_period_tracker/data/repositories/auth_repository.dart';
-import 'package:awesome_period_tracker/ui/features/home/home_screen.dart';
 import 'package:awesome_period_tracker/ui/features/home/home_cubit.dart';
+import 'package:awesome_period_tracker/ui/features/home/home_screen.dart';
 import 'package:awesome_period_tracker/ui/features/pin_login/pin_login_screen.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
