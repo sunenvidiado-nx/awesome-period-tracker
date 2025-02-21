@@ -1,6 +1,18 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.
+# [1.9.0] - 2025-02-21
+
+### Added
+
+- Feature to permanently delete a symptom from the selection.
+
+### Fixed
+
+- Fixed issue with logging periods causing API errors.
+
+### Changed
+
+- Upgrade to Flutter 3.29! 🎉
 
 ## [1.8.0] - 2025-02-10
 
