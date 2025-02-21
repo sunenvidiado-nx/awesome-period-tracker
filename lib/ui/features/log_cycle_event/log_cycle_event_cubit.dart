@@ -48,6 +48,24 @@ class LogCycleEventCubit extends Cubit<LogCycleEventState> {
     }
   }
 
+  Future<void> removeSymptom(String symptom) async {
+    try {
+      emit(state.copyWith(isLoadingSymptoms: true));
+      await _symptomsRepository.delete(symptom);
+      emit(
+        state.copyWith(
+          symptoms: state.symptoms.where((s) => s != symptom).toList(),
+          selectedSymptoms:
+              state.selectedSymptoms.where((s) => s != symptom).toList(),
+        ),
+      );
+    } catch (e) {
+      // TODO Handle error
+    } finally {
+      emit(state.copyWith(isLoadingSymptoms: false));
+    }
+  }
+
   Future<void> clearCache() async {
     await _authRepository.clearUserCache();
   }

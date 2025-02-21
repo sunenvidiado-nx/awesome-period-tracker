@@ -20,14 +20,13 @@ class SymptomsStep extends StatefulWidget {
 
 class _SymptomsStepState extends State<SymptomsStep> {
   late final _cubit = context.read<LogCycleEventCubit>();
+
   var _isSubmitting = false;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _cubit.loadSymptoms(widget.symptomEvent?.additionalData ?? '');
-    });
+    _cubit.loadSymptoms(widget.symptomEvent?.additionalData ?? '');
   }
 
   @override
@@ -141,8 +140,17 @@ class _SymptomsStepState extends State<SymptomsStep> {
                   Icons.check,
                   size: 18,
                   color: context.colorScheme.onTertiary,
+                )
+              else
+                InkWell(
+                  onTap: () => _cubit.removeSymptom(symptom),
+                  child: Icon(
+                    Icons.close_rounded,
+                    size: 18,
+                    color: context.colorScheme.onSurface,
+                  ),
                 ),
-              const SizedBox(width: 2),
+              SizedBox(width: isSelected ? 2 : 4),
               Text(
                 symptom.toTitleCase(),
                 style: TextStyle(
