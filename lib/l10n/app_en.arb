@@ -115,5 +115,6 @@
   "dioGenericError": "An error occurred with the API. Please try again later.",
   "insightsGenericError": "An error occurred while generating insights. Please try again later.",
   "upcomingPeriodNotificationTitle": "Upcoming Period",
-  "upcomingPeriodNotificationBody": "Your next period is expected to start in one week"
+  "upcomingPeriodNotificationBody": "Your next period is expected to start in one week",
+  "deleteSymptom": "Delete symptom"
 }
