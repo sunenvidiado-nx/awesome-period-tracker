@@ -108,7 +108,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
-- Upgraded to Flutter 3.27.3! 🎉
+- Upgraded to Flutter 3.29.0! 🎉
 - Now using an external API for calculating cycle forecasts.
 
 ### Fixed
