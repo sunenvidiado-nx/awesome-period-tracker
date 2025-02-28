@@ -1,4 +1,5 @@
 import 'package:awesome_period_tracker/utils/extensions/build_context_extensions.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:pinput/pinput.dart';
 
@@ -32,7 +33,7 @@ class PinInputField extends StatelessWidget {
         length: 6,
         validator: validator,
         onCompleted: onCompleted,
-        autofocus: true,
+        autofocus: !kIsWeb,
         showCursor: true,
         obscureText: true,
         defaultPinTheme: _defaultPinTheme(context),
