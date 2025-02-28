@@ -165,5 +165,7 @@ jobs:
           body: |
             ${{ steps.changelog.outputs.content }}
 
+            ## Live URL: https://period-tracker.sun-envidiado.com
+
             > [!WARNING]
             > The IPA file is unsigned and intended solely for testing purposes. It is not eligible for App Store submission. It requires a developer account and Xcode to install and run on a device.

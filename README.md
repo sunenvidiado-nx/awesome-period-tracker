@@ -6,6 +6,8 @@
 
 An awesome period tracker app, because your cycle deserves a standing ovulation. Built with Flutter. 🩵
 
+Live URL: https://period-tracker.sun-envidiado.com
+
 ## Features
 
 - Track cycle events (period, fertile days, symptoms, intimacy).
