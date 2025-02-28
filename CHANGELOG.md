@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.10.0] - 2025-02-28
+
+### Added
+
+- Now supports web!
+
+### Changed
+
+- Swapped out `flutter_secure_storage` for `shared_preferences`.
+
+### Fixed
+
+- Fixed issue with determining menstruation phase for selected date in calendar.
+- Fixed symptoms showing up even after being removed from the list.
+
 ## [1.9.0] - 2025-02-21
 
 ### Added
