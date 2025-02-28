@@ -1,4 +1,5 @@
 import 'package:awesome_period_tracker/data/repositories/cycle_events_repository.dart';
+import 'package:awesome_period_tracker/data/repositories/symptoms_repository.dart';
 import 'package:awesome_period_tracker/data/services/ai_insights_service.dart';
 import 'package:awesome_period_tracker/data/services/forecast_service.dart';
 import 'package:awesome_period_tracker/domain/models/forecast.dart';
@@ -17,11 +18,13 @@ class HomeCubit extends Cubit<HomeState> {
     this._cycleEventsRepository,
     this._forecastService,
     this._insightsService,
+    this._symptomsRepository,
   ) : super(HomeState.initial());
 
   final CycleEventsRepository _cycleEventsRepository;
   final ForecastService _forecastService;
   final AiInsightsService _insightsService;
+  final SymptomsRepository _symptomsRepository;
 
   Future<void> initialize({
     DateTime? date,
@@ -34,6 +37,8 @@ class HomeCubit extends Cubit<HomeState> {
 
       final events = await _cycleEventsRepository.get();
 
+      final symptoms = await _symptomsRepository.get();
+
       final forecast =
           await _forecastService.createForecastForDateFromEvents(date, events);
 
@@ -43,7 +48,13 @@ class HomeCubit extends Cubit<HomeState> {
         isPast: date.isBefore(DateTime.now()),
       );
 
-      emit(state.copyWith(forecast: forecast, insight: insight));
+      emit(
+        state.copyWith(
+          forecast: forecast,
+          insight: insight,
+          symptoms: symptoms,
+        ),
+      );
     } on Exception catch (error) {
       emit(state.copyWith(error: error));
     } finally {

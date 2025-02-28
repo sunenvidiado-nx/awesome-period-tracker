@@ -5,6 +5,7 @@ class HomeState with HomeStateMappable {
   const HomeState({
     required this.selectedDate,
     required this.isLoading,
+    this.symptoms = const [],
     this.forecast,
     this.insight,
     this.error,
@@ -19,6 +20,7 @@ class HomeState with HomeStateMappable {
 
   final DateTime selectedDate;
   final bool isLoading;
+  final List<String> symptoms;
   final Forecast? forecast;
   final Insight? insight;
   final Exception? error;

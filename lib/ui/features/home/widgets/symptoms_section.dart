@@ -79,6 +79,7 @@ class SymptomsSection extends StatelessWidget {
                         _buildSymptomsList(
                           context,
                           state.forecast?.eventsForDate ?? [],
+                          state.symptoms,
                         ),
                     ],
                   ),
@@ -94,18 +95,21 @@ class SymptomsSection extends StatelessWidget {
   Widget _buildSymptomsList(
     BuildContext context,
     List<CycleEvent> events,
+    List<String> symptoms,
   ) {
     final symptomsEvent =
         events.firstWhereOrNull((e) => e.type == CycleEventType.symptoms);
 
     if (symptomsEvent == null) return _buildNoSymptomsPlaceholder(context);
 
-    final symptoms = symptomsEvent.additionalData!
+    // Filter symptoms list to only include valid symptoms from the symptoms parameter
+    final validSymptoms = symptomsEvent.additionalData!
         .split(Strings.symptomSeparator)
         .map((e) => e.toTitleCase())
+        .where((symptom) => symptoms.contains(symptom))
         .toList();
 
-    return _buildChips(context, symptoms);
+    return _buildChips(context, validSymptoms);
   }
 
   Widget _buildChips(BuildContext context, List<String> labels) {
