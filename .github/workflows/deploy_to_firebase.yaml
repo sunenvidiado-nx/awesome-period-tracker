@@ -29,6 +29,7 @@ jobs:
       - name: Configure firebase
         run: |
           curl -sL https://firebase.tools | bash
+          firebase experiments:enable webframeworks
           dart pub global activate flutterfire_cli
           flutterfire configure \
             --project=awesome-period-tracker \
