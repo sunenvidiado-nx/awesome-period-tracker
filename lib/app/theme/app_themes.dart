@@ -80,30 +80,54 @@ TextTheme _textTheme(ColorScheme colorScheme) =>
 
 TextTheme _primaryTextTheme(TextTheme baseTextTheme) =>
     GoogleFonts.dmSansTextTheme().copyWith(
-      displayLarge:
-          baseTextTheme.displayLarge!.copyWith(fontWeight: FontWeight.bold),
-      displayMedium:
-          baseTextTheme.displayMedium!.copyWith(fontWeight: FontWeight.bold),
-      displaySmall:
-          baseTextTheme.displaySmall!.copyWith(fontWeight: FontWeight.bold),
-      headlineLarge:
-          baseTextTheme.headlineLarge!.copyWith(fontWeight: FontWeight.bold),
-      headlineMedium:
-          baseTextTheme.headlineMedium!.copyWith(fontWeight: FontWeight.bold),
-      headlineSmall:
-          baseTextTheme.headlineSmall!.copyWith(fontWeight: FontWeight.bold),
-      titleLarge:
-          baseTextTheme.titleLarge!.copyWith(fontWeight: FontWeight.bold),
-      titleMedium:
-          baseTextTheme.titleMedium!.copyWith(fontWeight: FontWeight.bold),
-      titleSmall:
-          baseTextTheme.titleSmall!.copyWith(fontWeight: FontWeight.bold),
-      labelLarge:
-          baseTextTheme.labelLarge!.copyWith(fontWeight: FontWeight.bold),
-      labelMedium:
-          baseTextTheme.labelMedium!.copyWith(fontWeight: FontWeight.bold),
-      labelSmall:
-          baseTextTheme.labelSmall!.copyWith(fontWeight: FontWeight.bold),
+      displayLarge: baseTextTheme.displayLarge!.copyWith(
+        fontWeight: FontWeight.bold,
+        letterSpacing: 0,
+      ),
+      displayMedium: baseTextTheme.displayMedium!.copyWith(
+        fontWeight: FontWeight.bold,
+        letterSpacing: 0,
+      ),
+      displaySmall: baseTextTheme.displaySmall!.copyWith(
+        fontWeight: FontWeight.bold,
+        letterSpacing: 0,
+      ),
+      headlineLarge: baseTextTheme.headlineLarge!.copyWith(
+        fontWeight: FontWeight.bold,
+        letterSpacing: 0,
+      ),
+      headlineMedium: baseTextTheme.headlineMedium!.copyWith(
+        fontWeight: FontWeight.bold,
+        letterSpacing: 0,
+      ),
+      headlineSmall: baseTextTheme.headlineSmall!.copyWith(
+        fontWeight: FontWeight.bold,
+        letterSpacing: 0,
+      ),
+      titleLarge: baseTextTheme.titleLarge!.copyWith(
+        fontWeight: FontWeight.bold,
+        letterSpacing: 0,
+      ),
+      titleMedium: baseTextTheme.titleMedium!.copyWith(
+        fontWeight: FontWeight.bold,
+        letterSpacing: 0,
+      ),
+      titleSmall: baseTextTheme.titleSmall!.copyWith(
+        fontWeight: FontWeight.bold,
+        letterSpacing: 0,
+      ),
+      labelLarge: baseTextTheme.labelLarge!.copyWith(
+        fontWeight: FontWeight.bold,
+        letterSpacing: 0,
+      ),
+      labelMedium: baseTextTheme.labelMedium!.copyWith(
+        fontWeight: FontWeight.bold,
+        letterSpacing: 0,
+      ),
+      labelSmall: baseTextTheme.labelSmall!.copyWith(
+        fontWeight: FontWeight.bold,
+        letterSpacing: 0,
+      ),
     );
 
 AppBarTheme _appBarTheme(ColorScheme colorScheme, TextTheme primaryTextTheme) =>
