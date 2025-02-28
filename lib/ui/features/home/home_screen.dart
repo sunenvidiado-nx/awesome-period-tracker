@@ -9,6 +9,7 @@ import 'package:awesome_period_tracker/ui/features/home/widgets/info_cards.dart'
 import 'package:awesome_period_tracker/ui/features/home/widgets/symptoms_section.dart';
 import 'package:awesome_period_tracker/utils/extensions/build_context_extensions.dart';
 import 'package:awesome_period_tracker/utils/extensions/date_time_extensions.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -40,18 +41,15 @@ class _HomeScreenState extends State<HomeScreen> {
         onRefresh: _cubit.initialize,
         child: CustomScrollView(
           slivers: [
-            if (context.isDesktop)
-              const SliverToBoxAdapter(child: SizedBox(height: 10)),
+            if (kIsWeb) const SliverToBoxAdapter(child: SizedBox(height: 10)),
             _buildAppBar(),
             _buildCalendarSection(),
             _buildCardsSection(),
             _buildSymptoms(),
             _buildCycleInsightsSection(),
-            SliverToBoxAdapter(
+            const SliverToBoxAdapter(
               child: SafeArea(
-                child: context.isDesktop
-                    ? const SizedBox(height: 20)
-                    : const SizedBox.shrink(),
+                child: kIsWeb ? SizedBox(height: 20) : SizedBox.shrink(),
               ),
             ),
           ],
