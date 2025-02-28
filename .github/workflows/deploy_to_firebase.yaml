@@ -7,8 +7,8 @@ on:
       - "*"
 
 jobs:
-  build:
-    name: Build Web
+  deploy:
+    name: Build and Deploy to Firebase
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -47,23 +47,6 @@ jobs:
 
       - name: Build Web
         run: flutter build web --release --wasm
-
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: web-build
-          path: build/web
-
-  deploy:
-    name: Deploy to Firebase
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: web-build
-          path: build/web
 
       - name: Deploy to Firebase Hosting
         uses: FirebaseExtended/action-hosting-deploy@v0
