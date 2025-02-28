@@ -53,13 +53,7 @@ class ForecastService {
 
     final isCurrentlyInPeriod = mergedEvents
         .where((e) => e.type == CycleEventType.period && !e.isPrediction)
-        .any(
-          (e) =>
-              e.date.isSameDay(selectedDate) ||
-              e.date.isBefore(selectedDate) &&
-                  selectedDate.difference(e.date).inDays <
-                      apiPrediction.averagePeriodLength,
-        );
+        .any((e) => e.date.isSameDay(selectedDate));
 
     final daysUntilNextPeriod = _calculateDaysUntilNextPeriod(
       isCurrentlyInPeriod,
@@ -70,18 +64,12 @@ class ForecastService {
     final eventToday =
         mergedEvents.firstWhereOrNull((e) => e.date.isSameDay(selectedDate));
 
-    final hasPeriodBeenLoggedRecently = _hasPeriodBeenLoggedRecently(
-      events,
-      selectedDate,
-      apiPrediction.averagePeriodLength,
-    );
-
     final dayOfCycle = _getDayOfCurrentCycle(mergedEvents, selectedDate);
 
     final phase = _determineMenstruationPhase(
       dayOfCycle,
       daysUntilNextPeriod,
-      hasPeriodBeenLoggedRecently,
+      isCurrentlyInPeriod,
       eventToday?.type == CycleEventType.fertile,
     );
 
@@ -108,18 +96,6 @@ class ForecastService {
     return isCurrentlyInPeriod
         ? 0
         : (nextPeriod != null ? nextPeriod.date.difference(date).inDays : -1);
-  }
-
-  bool _hasPeriodBeenLoggedRecently(
-    List<CycleEvent> events,
-    DateTime date,
-    int averagePeriodLength,
-  ) {
-    return events
-        .where((e) => e.type == CycleEventType.period && !e.isPrediction)
-        .any(
-          (e) => e.date.difference(date).inDays.abs() <= averagePeriodLength,
-        );
   }
 
   int _getDayOfCurrentCycle(List<CycleEvent> events, DateTime selectedDate) {
@@ -378,11 +354,11 @@ class ForecastService {
   MenstruationPhase _determineMenstruationPhase(
     int dayOfCycle,
     int daysUntilNextPeriod,
-    bool hasPeriodBeenLoggedRecently,
+    bool isCurrentlyInPeriod,
     bool isFertile,
   ) {
+    if (isCurrentlyInPeriod) return MenstruationPhase.menstruation;
     if (isFertile) return MenstruationPhase.ovulation;
-    if (hasPeriodBeenLoggedRecently) return MenstruationPhase.menstruation;
 
     if (daysUntilNextPeriod >= 0 && daysUntilNextPeriod <= 2) {
       return MenstruationPhase.luteal;
