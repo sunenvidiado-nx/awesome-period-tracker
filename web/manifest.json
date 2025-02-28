@@ -1,11 +1,11 @@
 {
-  "name": "awesome_period_tracker",
-  "short_name": "awesome_period_tracker",
+  "name": "Awesome Period Tracker",
+  "short_name": "Period Tracker",
   "start_url": ".",
   "display": "standalone",
   "background_color": "#FFF0F5",
   "theme_color": "#FFF0F5",
-  "description": "A new Flutter project.",
+  "description": "An awesome period tracker app, because your cycle deserves a standing ovulation",
   "orientation": "portrait-primary",
   "prefer_related_applications": false,
   "icons": [
@@ -24,12 +24,14 @@
     {
       "src": "icons/favicon-96x96.png",
       "sizes": "96x96",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
       "src": "icons/apple-touch-icon.png",
       "sizes": "180x180",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     }
   ]
 }
