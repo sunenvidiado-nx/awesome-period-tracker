@@ -14,5 +14,6 @@ extension BuildContextExtension on BuildContext {
   /// Useful for popping Flutter dialogs.
   void popNavigator([Object? result]) => Navigator.of(this).pop(result);
 
-  bool get isDesktop => MediaQuery.of(this).size.width > UiConstants.mobileWidth;
+  bool get isDesktop =>
+      MediaQuery.of(this).size.width > UiConstants.mobileWidth;
 }
