@@ -1,5 +1,6 @@
 import 'package:awesome_period_tracker/app/theme/app_assets.dart';
 import 'package:awesome_period_tracker/app/theme/theme_mode_manager.dart';
+import 'package:awesome_period_tracker/config/constants/ui_constants.dart';
 import 'package:awesome_period_tracker/ui/common_widgets/cards/app_card.dart';
 import 'package:awesome_period_tracker/ui/features/home/home_cubit.dart';
 import 'package:awesome_period_tracker/ui/features/home/widgets/calendar.dart';
@@ -39,12 +40,20 @@ class _HomeScreenState extends State<HomeScreen> {
         onRefresh: _cubit.initialize,
         child: CustomScrollView(
           slivers: [
+            if (context.isDesktop)
+              const SliverToBoxAdapter(child: SizedBox(height: 10)),
             _buildAppBar(),
             _buildCalendarSection(),
             _buildCardsSection(),
             _buildSymptoms(),
             _buildCycleInsightsSection(),
-            const SliverToBoxAdapter(child: SafeArea(child: SizedBox.shrink())),
+            SliverToBoxAdapter(
+              child: SafeArea(
+                child: context.isDesktop
+                    ? const SizedBox(height: 20)
+                    : const SizedBox.shrink(),
+              ),
+            ),
           ],
         ),
       ),
@@ -56,14 +65,22 @@ class _HomeScreenState extends State<HomeScreen> {
       pinned: false,
       toolbarHeight: 40,
       automaticallyImplyLeading: false,
-      actions: _showThemeSwitcher ? [_buildThemeModeSwitcher()] : null,
-      leading: _buildBackToTodayButton(),
-      leadingWidth: 70,
-      title: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 450),
-        child: Padding(
-          padding: const EdgeInsets.only(top: 8),
-          child: SvgPicture.asset(AppAssets.mainIconLong, height: 28),
+      flexibleSpace: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 800),
+          child: AppBar(
+            automaticallyImplyLeading: false,
+            actions: _showThemeSwitcher ? [_buildThemeModeSwitcher()] : null,
+            leading: _buildBackToTodayButton(),
+            leadingWidth: 70,
+            title: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 450),
+              child: Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: SvgPicture.asset(AppAssets.mainIconLong, height: 28),
+              ),
+            ),
+          ),
         ),
       ),
     );
@@ -113,14 +130,19 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildCalendarSection() {
     return SliverToBoxAdapter(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(8, 12, 8, 0),
-        child: AppCard(
-          child: BlocBuilder<HomeCubit, HomeState>(
-            builder: (context, state) => Calendar(
-              onDaySelected: (date, _) => _cubit.initialize(date: date),
-              selectedDate: state.selectedDate,
-              cycleEvents: state.forecast?.events ?? [],
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: UiConstants.mobileWidth),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(8, 12, 8, 0),
+            child: AppCard(
+              child: BlocBuilder<HomeCubit, HomeState>(
+                builder: (context, state) => Calendar(
+                  onDaySelected: (date, _) => _cubit.initialize(date: date),
+                  selectedDate: state.selectedDate,
+                  cycleEvents: state.forecast?.events ?? [],
+                ),
+              ),
             ),
           ),
         ),
@@ -129,28 +151,43 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildCardsSection() {
-    return const SliverToBoxAdapter(
-      child: Padding(
-        padding: EdgeInsets.fromLTRB(8, 16, 8, 0),
-        child: InfoCards(),
+    return SliverToBoxAdapter(
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: UiConstants.mobileWidth),
+          child: const Padding(
+            padding: EdgeInsets.fromLTRB(8, 16, 8, 0),
+            child: InfoCards(),
+          ),
+        ),
       ),
     );
   }
 
   Widget _buildSymptoms() {
-    return const SliverToBoxAdapter(
-      child: Padding(
-        padding: EdgeInsets.fromLTRB(8, 14, 8, 0),
-        child: SymptomsSection(),
+    return SliverToBoxAdapter(
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: UiConstants.mobileWidth),
+          child: const Padding(
+            padding: EdgeInsets.fromLTRB(8, 14, 8, 0),
+            child: SymptomsSection(),
+          ),
+        ),
       ),
     );
   }
 
   Widget _buildCycleInsightsSection() {
-    return const SliverToBoxAdapter(
-      child: Padding(
-        padding: EdgeInsets.fromLTRB(8, 18, 8, 0),
-        child: CycleInsights(),
+    return SliverToBoxAdapter(
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: UiConstants.mobileWidth),
+          child: const Padding(
+            padding: EdgeInsets.fromLTRB(8, 18, 8, 0),
+            child: CycleInsights(),
+          ),
+        ),
       ),
     );
   }

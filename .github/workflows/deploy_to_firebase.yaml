@@ -1,0 +1,73 @@
+name: Deploy to Firebase
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "*"
+
+jobs:
+  build:
+    name: Build Web
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+      actions: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.29.0 # Must be the same with the one in pubspec.yaml
+
+      - name: Configure environment
+        run: |
+          echo "${{ secrets.ENVIRONMENT }}" | base64 --decode > .env
+          echo "${{ secrets.FIREBASE_JSON }}" | base64 --decode > firebase.json
+
+      - name: Configure firebase
+        run: |
+          curl -sL https://firebase.tools | bash
+          dart pub global activate flutterfire_cli
+          flutterfire configure \
+            --project=awesome-period-tracker \
+            --platforms=web \
+            --token=${{ secrets.FIREBASE_CI_TOKEN }} \
+            --out=lib/config/environment/firebase_options.dart \
+            --yes
+
+      - name: Download dependencies
+        run: flutter pub get
+
+      - name: Run build runner and generate localization files
+        run: |
+          flutter pub run build_runner build --delete-conflicting-outputs
+          flutter gen-l10n
+
+      - name: Build Web
+        run: flutter build web --release --wasm
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-build
+          path: build/web
+
+  deploy:
+    name: Deploy to Firebase
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: web-build
+          path: build/web
+
+      - name: Deploy to Firebase Hosting
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}"
+          projectId: awesome-period-tracker
+          channelId: live

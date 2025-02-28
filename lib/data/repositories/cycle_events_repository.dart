@@ -90,7 +90,7 @@ class CycleEventsRepository {
     }
 
     final docRef = _collection.doc(cycleEvent.id);
-    
+
     // Check if document exists before deletion
     final doc = await docRef.get();
     if (!doc.exists) {

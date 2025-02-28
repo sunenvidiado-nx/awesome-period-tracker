@@ -1,5 +1,6 @@
 import 'package:awesome_period_tracker/app/routing/routes.dart';
 import 'package:awesome_period_tracker/app/theme/app_assets.dart';
+import 'package:awesome_period_tracker/config/constants/ui_constants.dart';
 import 'package:awesome_period_tracker/data/repositories/auth_repository.dart';
 import 'package:awesome_period_tracker/ui/common_widgets/app_loader/app_loader_dialog.dart';
 import 'package:awesome_period_tracker/ui/features/pin_login/widgets/pin_input_field.dart';
@@ -32,40 +33,42 @@ class _PinLoginScreenState extends State<PinLoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Form(
-        key: _formKey,
-        child: Center(
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                SvgPicture.asset(
-                  AppAssets.mainIcon,
-                  height: 60,
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: UiConstants.mobileWidth),
+          child: Form(
+            key: _formKey,
+            child: Center(
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    SvgPicture.asset(AppAssets.mainIcon, height: 60),
+                    const SizedBox(height: 18),
+                    Text(
+                      context.l10n.pinVerification,
+                      style: context.primaryTextTheme.titleLarge,
+                    ),
+                    const SizedBox(height: 12),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 18),
+                      child: Text(
+                        context.l10n.toGetStartedEnterTheDesignatedPin,
+                        style: context.textTheme.bodyLarge,
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    SizedBox(
+                      width: double.infinity,
+                      child: PinInputField(
+                        controller: _pinController,
+                        validator: _validator,
+                        onCompleted: _onCompleted,
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 18),
-                Text(
-                  context.l10n.pinVerification,
-                  style: context.primaryTextTheme.titleLarge,
-                ),
-                const SizedBox(height: 12),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 18),
-                  child: Text(
-                    context.l10n.toGetStartedEnterTheDesignatedPin,
-                    style: context.textTheme.bodyLarge,
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-                const SizedBox(height: 24),
-                SizedBox(
-                  width: double.infinity,
-                  child: PinInputField(
-                    controller: _pinController,
-                    validator: _validator,
-                    onCompleted: _onCompleted,
-                  ),
-                ),
-              ],
+              ),
             ),
           ),
         ),
