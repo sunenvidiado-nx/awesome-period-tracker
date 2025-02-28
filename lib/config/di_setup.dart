@@ -3,9 +3,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
 import 'package:injectable/injectable.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'di_setup.config.dart';
 
@@ -15,9 +15,7 @@ Future<void> configureDependencies() async => GetIt.I.init();
 @module
 abstract class ExternalServicesModule {
   @singleton
-  FlutterSecureStorage get secureStorage => const FlutterSecureStorage(
-        aOptions: AndroidOptions(encryptedSharedPreferences: true),
-      );
+  SharedPreferencesAsync get sharedPrefs => SharedPreferencesAsync();
 
   @singleton
   FirebaseAuth get firebaseAuth => FirebaseAuth.instance;

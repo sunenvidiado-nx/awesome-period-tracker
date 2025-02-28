@@ -7,17 +7,17 @@ import 'package:awesome_period_tracker/domain/models/cycle_event_type.dart';
 import 'package:awesome_period_tracker/domain/models/process_cycle_data_request.dart';
 import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:injectable/injectable.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 @injectable
 class CycleDataRepository {
   const CycleDataRepository(
-    this._secureStorage,
+    this._localStorage,
     @Named(DiKeys.cycleApiClientKey) this._cycleApiClient,
   );
 
-  final FlutterSecureStorage _secureStorage;
+  final SharedPreferencesAsync _localStorage;
   final Dio _cycleApiClient;
 
   // Cache keys generated here: http://bit.ly/random-strings-generator
@@ -140,18 +140,15 @@ class CycleDataRepository {
     final eventsJson = jsonEncode(events.map((e) => e.toJson()).toList());
 
     await Future.wait([
-      _secureStorage.write(key: _eventsStorageKey, value: eventsJson),
-      _secureStorage.write(
-        key: _apiPredictionStorageKey,
-        value: apiPrediction.toJson(),
-      ),
+      _localStorage.setString(_eventsStorageKey, eventsJson),
+      _localStorage.setString(_apiPredictionStorageKey, apiPrediction.toJson()),
     ]);
   }
 
   Future<ApiPrediction?> _getFromCache(List<CycleEvent> currentEvents) async {
-    final cachedEventsJson = await _secureStorage.read(key: _eventsStorageKey);
+    final cachedEventsJson = await _localStorage.getString(_eventsStorageKey);
     final cachedApiResponseJson =
-        await _secureStorage.read(key: _apiPredictionStorageKey);
+        await _localStorage.getString(_apiPredictionStorageKey);
 
     if (cachedEventsJson == null || cachedApiResponseJson == null) return null;
 

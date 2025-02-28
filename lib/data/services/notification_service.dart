@@ -1,25 +1,26 @@
 import 'package:awesome_period_tracker/domain/models/cycle_event.dart';
 import 'package:awesome_period_tracker/utils/extensions/app_localizations.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:injectable/injectable.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/timezone.dart';
 
 @injectable
 class NotificationService {
   const NotificationService(
     this._notifications,
-    this._storage,
+    this._localStorage,
   );
 
   static const String _notificationScheduledKey = 'G10P5XamUn32';
 
   final FlutterLocalNotificationsPlugin _notifications;
-  final FlutterSecureStorage _storage;
+  final SharedPreferencesAsync _localStorage;
 
   Future<void> scheduleNextPeriodNotification(DateTime nextPeriodDate) async {
-    final isScheduled = await _storage.read(key: _notificationScheduledKey);
-    if (isScheduled == 'true') return;
+    final isScheduled =
+        await _localStorage.getBool(_notificationScheduledKey) ?? false;
+    if (isScheduled) return;
 
     final appL10n = l10n;
     final notificationDate = nextPeriodDate.subtract(const Duration(days: 7));
@@ -47,11 +48,11 @@ class NotificationService {
           UILocalNotificationDateInterpretation.absoluteTime,
     );
 
-    await _storage.write(key: _notificationScheduledKey, value: 'true');
+    await _localStorage.setBool(_notificationScheduledKey, true);
   }
 
   Future<void> resetNotificationStatus() async {
-    await _storage.delete(key: _notificationScheduledKey);
+    await _localStorage.remove(_notificationScheduledKey);
   }
 
   TZDateTime _convertToTZDateTime(DateTime dateTime) {

@@ -8,9 +8,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/data/latest.dart' as tz;
 
 void main() {
@@ -65,13 +65,13 @@ void _configureCrashlytics() {
 Future<void> _configureLocalStorage() async {
   // Generate cache key here: http://bit.ly/random-strings-generator
   const key = 'tnULfB0HpgDR';
-  final secureStorage = GetIt.I<FlutterSecureStorage>();
+  final localStorage = GetIt.I<SharedPreferencesAsync>();
   final pInfo = await PackageInfo.fromPlatform();
 
   /// Clear local storage if the app version has changed
-  if (pInfo.version != await secureStorage.read(key: key)) {
-    await secureStorage.deleteAll();
-    await secureStorage.write(key: key, value: pInfo.version);
+  if (pInfo.version != await localStorage.getString(key)) {
+    await localStorage.clear();
+    await localStorage.setString(key, pInfo.version);
   }
 }
 
