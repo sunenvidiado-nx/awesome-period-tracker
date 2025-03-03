@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.10.1] - 2025-03-03
+
+### Changed
+
+- Adjust bottom spacing when app is running in web.
+- Removed mouse hover effects for cards.
+
 ## [1.10.0] - 2025-02-28
 
 ### Added
