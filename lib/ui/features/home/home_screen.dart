@@ -49,7 +49,7 @@ class _HomeScreenState extends State<HomeScreen> {
             _buildCycleInsightsSection(),
             const SliverToBoxAdapter(
               child: SafeArea(
-                child: kIsWeb ? SizedBox(height: 20) : SizedBox.shrink(),
+                child: kIsWeb ? SizedBox(height: 32) : SizedBox.shrink(),
               ),
             ),
           ],
