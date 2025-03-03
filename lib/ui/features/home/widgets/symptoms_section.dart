@@ -23,6 +23,8 @@ class SymptomsSection extends StatelessWidget {
         return AppCard(
           isAnimated: true,
           child: InkWell(
+            hoverColor: Colors.transparent,
+            highlightColor: Colors.transparent,
             onTap: () async {
               final shouldRefreshHome = await LogCycleEventBottomSheet
                   .showCycleEventTypeBottomSheet<bool?>(

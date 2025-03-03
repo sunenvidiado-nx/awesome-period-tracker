@@ -206,6 +206,8 @@ class InfoCards extends StatelessWidget {
   }) {
     return Flexible(
       child: InkWell(
+        hoverColor: Colors.transparent,
+        highlightColor: Colors.transparent,
         onTap: onTap,
         child: Ink(
           width: double.infinity,
