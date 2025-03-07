@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.10.2] - 2025-03-07
+
+### Changed
+
+- Removed some unused plugins.
+
 ## [1.10.1] - 2025-03-03
 
 ### Changed
