@@ -2,7 +2,6 @@ import 'package:awesome_period_tracker/config/environment/firebase_options.dart'
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get_it/get_it.dart';
 import 'package:injectable/injectable.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -22,10 +21,6 @@ abstract class ExternalServicesModule {
 
   @singleton
   FirebaseFirestore get firebaseFirestore => FirebaseFirestore.instance;
-
-  @singleton
-  FlutterLocalNotificationsPlugin get localNotificationsPlugin =>
-      FlutterLocalNotificationsPlugin();
 
   @preResolve
   Future<FirebaseApp> get firebaseApp async =>

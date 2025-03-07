@@ -1,6 +1,5 @@
 import 'package:awesome_period_tracker/config/environment/env.dart';
 import 'package:awesome_period_tracker/data/repositories/cycle_data_repository.dart';
-import 'package:awesome_period_tracker/data/services/notification_service.dart';
 import 'package:awesome_period_tracker/domain/models/cycle_event.dart';
 import 'package:awesome_period_tracker/domain/models/cycle_event_type.dart';
 import 'package:awesome_period_tracker/domain/models/forecast.dart';
@@ -11,15 +10,10 @@ import 'package:injectable/injectable.dart';
 
 @injectable
 class ForecastService {
-  const ForecastService(
-    this._env,
-    this._cycleDataRepository,
-    this._notificationService,
-  );
+  const ForecastService(this._env, this._cycleDataRepository);
 
   final Env _env;
   final CycleDataRepository _cycleDataRepository;
-  final NotificationService _notificationService;
 
   static const _defaultPeriodDaysLength = 5;
   static const _defaultCycleDaysLength = 28;
@@ -41,9 +35,6 @@ class ForecastService {
       apiPrediction.averageCycleLength,
       apiPrediction.averagePeriodLength,
     );
-
-    // Schedule notifications for upcoming periods
-    await _notificationService.scheduleNotificationsFromEvents(events);
 
     final mergedEvents = _mergePredictionsWithActualEvents(events, predictions);
 

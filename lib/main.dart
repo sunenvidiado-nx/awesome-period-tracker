@@ -7,11 +7,9 @@ import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get_it/get_it.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:timezone/data/latest.dart' as tz;
 
 void main() {
   runZoned(() async {
@@ -21,12 +19,10 @@ void main() {
 
     _configureCrashlytics();
     _configureLicenses();
-    _configureTimezonePlugin();
 
     await Future.wait([
       _configureNavigationAndStatusBarColors(),
       _configureLocalStorage(),
-      _configureLocalNotifications(),
     ]);
 
     runApp(const App());
@@ -75,15 +71,3 @@ Future<void> _configureLocalStorage() async {
   }
 }
 
-Future<void> _configureLocalNotifications() async {
-  await GetIt.I<FlutterLocalNotificationsPlugin>().initialize(
-    const InitializationSettings(
-      android: AndroidInitializationSettings('@mipmap/ic_launcher'),
-      iOS: DarwinInitializationSettings(),
-    ),
-  );
-}
-
-void _configureTimezonePlugin() {
-  tz.initializeTimeZones();
-}
