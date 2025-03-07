@@ -70,4 +70,3 @@ Future<void> _configureLocalStorage() async {
     await localStorage.setString(key, pInfo.version);
   }
 }
-
