@@ -107,10 +107,13 @@ class LogCycleEventCubit extends Cubit<LogCycleEventState> {
     final currentDate = state.date;
     final fiveDaysBefore = currentDate.subtract(const Duration(days: 5));
 
-    final existingPeriodEvents = await _cycleEventsRepository.getByDateRange(
+    final existingEvents = await _cycleEventsRepository.getByDateRange(
       fiveDaysBefore,
       currentDate,
     );
+
+    final existingPeriodEvents =
+        existingEvents.where((e) => e.type == CycleEventType.period);
 
     if (existingPeriodEvents.isNotEmpty) {
       return _createOrUpdateEventByType(CycleEventType.period, flow.name);
