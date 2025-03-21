@@ -1,6 +1,17 @@
 name: Create release
 on:
   workflow_dispatch:
+    inputs:
+      build_android:
+        description: "Build Android APK"
+        required: true
+        default: true
+        type: boolean
+      build_ios:
+        description: "Build iOS IPA"
+        required: true
+        default: true
+        type: boolean
   push:
     tags:
       - "*"
@@ -9,6 +20,7 @@ jobs:
   build-android:
     name: Build APK
     runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.build_android == 'true' }}
     permissions:
       contents: write
       packages: write
@@ -23,7 +35,7 @@ jobs:
 
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: 3.29.0 # Must be the same with the one in pubspec.yaml
+          flutter-version: 3.29.2 # Must be the same with the one in pubspec.yaml
 
       - name: Configure environment
         run: echo "${{ secrets.ENVIRONMENT }}" | base64 --decode > .env
@@ -66,6 +78,7 @@ jobs:
   build-ios:
     name: Build IPA
     runs-on: macos-latest
+    if: ${{ github.event.inputs.build_ios == 'true' }}
     permissions:
       contents: write
       packages: write
@@ -75,7 +88,7 @@ jobs:
 
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: 3.29.0 # Must be the same with the one in pubspec.yaml
+          flutter-version: 3.29.2 # Must be the same with the one in pubspec.yaml
 
       - name: Configure environment
         run: echo "${{ secrets.ENVIRONMENT }}" | base64 --decode > .env
@@ -117,8 +130,12 @@ jobs:
 
   create-release:
     name: Create Release
-    needs: [build-android, build-ios]
     runs-on: ubuntu-latest
+    needs: [build-android, build-ios]
+    if: |
+      always() &&
+      (needs.build-android.result == 'success' || needs.build-android.result == 'skipped') &&
+      (needs.build-ios.result == 'success' || needs.build-ios.result == 'skipped')
     permissions:
       contents: write
       packages: write
@@ -130,6 +147,7 @@ jobs:
 
       - name: Download all workflow run artifacts
         uses: actions/download-artifact@v4
+        continue-on-error: true
 
       - name: Read latest version from CHANGELOG
         id: changelog
@@ -161,7 +179,15 @@ jobs:
           tag: ${{ github.ref_name }}
           name: ${{ github.ref_name }}
           token: ${{ secrets.GITHUB_TOKEN }}
-          artifacts: "android-artifacts/*.apk,ios-artifacts/app.ipa"
+          artifacts: ${{ 
+            (github.event.inputs.build_android == 'true' || github.event_name != 'workflow_dispatch') && 
+            (github.event.inputs.build_ios == 'true' || github.event_name != 'workflow_dispatch') && 
+            'android-artifacts/*.apk,ios-artifacts/app.ipa' || 
+            (github.event.inputs.build_android == 'true' || github.event_name != 'workflow_dispatch') && 
+            'android-artifacts/*.apk' || 
+            (github.event.inputs.build_ios == 'true' || github.event_name != 'workflow_dispatch') && 
+            'ios-artifacts/app.ipa' || '' 
+          }}
           body: |
             ### Live URL: https://period-tracker.sun-envidiado.com
 

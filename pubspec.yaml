@@ -5,7 +5,7 @@ version: 1.10.2
 
 environment:
   sdk: ">=3.6.1 <4.0.0"
-  flutter: "3.29.0"
+  flutter: "3.29.2"
 
 dependencies:
   animations: ^2.0.11
