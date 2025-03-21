@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.10.3] - 2025-03-10
+
+### Changed
+
+- Upgraded to Flutter 3.29.2! 🎉
+
+### Fixed
+
+- Fixed small issue with logging a period event.
+
 ## [1.10.2] - 2025-03-07
 
 ### Changed
