@@ -181,12 +181,9 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           artifacts: ${{ 
             (github.event.inputs.build_android == 'true' || github.event_name != 'workflow_dispatch') && 
-            (github.event.inputs.build_ios == 'true' || github.event_name != 'workflow_dispatch') && 
-            'android-artifacts/*.apk,ios-artifacts/app.ipa' || 
-            (github.event.inputs.build_android == 'true' || github.event_name != 'workflow_dispatch') && 
-            'android-artifacts/*.apk' || 
-            (github.event.inputs.build_ios == 'true' || github.event_name != 'workflow_dispatch') && 
-            'ios-artifacts/app.ipa' || '' 
+            (github.event.inputs.build_ios == 'true' || github.event_name != 'workflow_dispatch') ? 'android-artifacts/*.apk,ios-artifacts/app.ipa' : 
+            (github.event.inputs.build_android == 'true' || github.event_name != 'workflow_dispatch') ? 'android-artifacts/*.apk' : 
+            (github.event.inputs.build_ios == 'true' || github.event_name != 'workflow_dispatch') ? 'ios-artifacts/app.ipa' : '' 
           }}
           body: |
             ### Live URL: https://period-tracker.sun-envidiado.com
